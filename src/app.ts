@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import path from "path";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";

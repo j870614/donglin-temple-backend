@@ -8,8 +8,7 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:node/recommended",
-    "prettier",
-    "plugin:prettier/recommended"
+    "prettier"
   ],
   "env": {
     "browser": true,
