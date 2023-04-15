@@ -1,4 +1,3 @@
-/* eslint-disable no-process-exit */
 /**
  * Module dependencies.
  */
@@ -45,7 +44,7 @@ function onError(error: HttpErrorException) {
 
   const bind = `Pipe ${port}`;
 
-  // handle specific listen errors with friendly messages
+  // Handle specific listen errors with friendly messages
   switch (error.code) {
     case "EACCES":
       console.error(`${bind} requires elevated privileges`);

@@ -28,6 +28,7 @@
     ],
     "node/no-missing-import": 0,
     "node/no-unpublished-import": 0,
+    "no-process-exit": "off",
     "no-console": "off"
   }
 }
