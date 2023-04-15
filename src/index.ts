@@ -7,6 +7,7 @@ import debug from "debug";
 import http from "http";
 import path from "path";
 import "dotenv/config";
+
 import { app } from "./app.js";
 
 /**

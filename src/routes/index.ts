@@ -4,7 +4,7 @@ const indexRouter = Router();
 const test = "test message";
 
 /* GET home page. */
-indexRouter.get("/", (_req: Request, res: Response, next: NextFunction) => {
+indexRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
   res.send(test);
 });
 
