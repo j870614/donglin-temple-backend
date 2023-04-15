@@ -18,7 +18,7 @@ import { handleNotFoundError } from "./utils/handleNotFoundError";
  * API_USERS_ENDPOINT = /api/users
  */
 const API_BASEURL = String(process.env.API_BASEURL);
-const API_USERS_ENDPOINT = API_BASEURL + String(process.env.API_USER_ENDPOINT);
+const API_USERS_ENDPOINT = API_BASEURL + String(process.env.API_USERS_ENDPOINT);
 
 const app = express();
 
