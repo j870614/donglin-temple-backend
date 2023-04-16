@@ -6,16 +6,16 @@ npm i
 ```  
 ### 程式碼編輯完成後輸入指令  
 ```js
-npm start
+npm run start
 ```  
 會自動執行 ```tsc -w -p tsconfig.json``` 與 ```nodemon dist/src/index.js```
 
 以下兩個指令則會執行並加入環境變數 ```NODE_ENV=dev``` 與 ```NODE_ENV=prod```
 ```js
-npm start:dev
+npm run start:dev
 ```  
 ```js
-npm start:prod
+npm run start:prod
 ```  
 
 ## 資料夾說明
