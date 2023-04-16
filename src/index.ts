@@ -25,6 +25,7 @@ export interface HttpErrorException extends Error {
  */
 
 const port = path.normalize(String(process.env.API_PORT) || "3000");
+const env = String(process.env.NODE_ENV);
 app.set("port", port);
 
 /**
@@ -77,7 +78,7 @@ function onListening() {
  */
 
 server.listen(port, () => {
-  console.log(`Server started on port: ${port}`);
+  console.log(`Server started on port: ${port}, env: ${env}`);
 });
 server.on("error", onError);
 server.on("listening", onListening);

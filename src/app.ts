@@ -26,7 +26,7 @@ const app = express();
 
 // Record error and stop this process while the service is done.
 process.on("uncaughtException", (err) => {
-  console.error("Uncaughted Exception!");
+  console.error("Uncaught Exception!");
   console.error(err);
   process.exit(1);
 });

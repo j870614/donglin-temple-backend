@@ -5,8 +5,8 @@
   "scripts": {
     "start": "concurrently \"tsc -w -p tsconfig.json\" \"nodemon dist/src/index.js\"",
     "start:build": "tsc -w -p tsconfig.json",
-    "start:dev": "concurrently \"tsc -w -p tsconfig.json\" \"NODE_ENV=dev\" \" nodemon dist/src/index.js\"",
-    "start:prod": "concurrently \"tsc -w -p tsconfig.json\" \"NODE_ENV=prod\" \" nodemon dist/src/index.js\"",
+    "start:dev": "concurrently \"tsc -w -p tsconfig.json\" \"cross-env NODE_ENV=dev nodemon dist/src/index.js\"",
+    "start:prod": "concurrently \"tsc -w -p tsconfig.json\" \"cross-env NODE_ENV=prod nodemon dist/src/index.js\"",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore"
   },
@@ -30,6 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.58.0",
     "@typescript-eslint/parser": "^5.58.0",
     "concurrently": "^8.0.1",
+    "cross-env": "^7.0.3",
     "eslint": "^8.38.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^17.0.0",
