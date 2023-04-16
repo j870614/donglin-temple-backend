@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "tsc -w -p tsconfig.json & nodemon dist/src/index.js",
+    "start": "concurrently \"tsc -w -p tsconfig.json\" \"nodemon dist/src/index.js\"",
     "start:build": "tsc -w -p tsconfig.json",
-    "start:dev": "tsc -w -p tsconfig.json & NODE_ENV=dev nodemon dist/src/index.js",
-    "start:prod": "tsc -w -p tsconfig.json & NODE_ENV=prod nodemon dist/src/index.js",
+    "start:dev": "concurrently \"tsc -w -p tsconfig.json\" \"NODE_ENV=dev\" \" nodemon dist/src/index.js\"",
+    "start:prod": "concurrently \"tsc -w -p tsconfig.json\" \"NODE_ENV=prod\" \" nodemon dist/src/index.js\"",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore"
   },
