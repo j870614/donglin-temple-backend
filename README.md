@@ -17,6 +17,10 @@ npm run start:dev
 ```js
 npm run start:prod
 ```  
+以下指令會進行測試並顯示覆蓋率
+```js
+npm run test
+```  
 
 ## 資料夾說明
 * src - TypeScript 程式碼放置處
