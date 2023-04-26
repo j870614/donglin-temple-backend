@@ -2,14 +2,18 @@ import { NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export class AppError extends Error {
-  statusCode: number;
+  public statusCode: number;
 
-  isOperational: boolean;
+  public isOperational: boolean;
 
-  constructor(errMessage: string) {
+  constructor(
+    errMessage: string,
+    statusCode: number = StatusCodes.BAD_REQUEST,
+    isOperational = true
+  ) {
     super(errMessage);
-    this.statusCode = StatusCodes.BAD_REQUEST;
-    this.isOperational = true;
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
   }
 }
 
@@ -19,8 +23,6 @@ export const appError = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next?: NextFunction
 ) => {
-  const error = new AppError(errMessage);
-  error.statusCode = httpStatus;
-  error.isOperational = true;
-  return error;
+  const currentError = new AppError(errMessage, httpStatus, true);
+  return currentError;
 };
