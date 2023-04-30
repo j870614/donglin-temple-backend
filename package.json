@@ -27,6 +27,7 @@
     "swagger-autogen": "^2.23.1",
     "swagger-ui-express": "^4.6.2",
     "rxjs": "^7.8.1",
+    "passport-line-auth": "^0.2.9",
     "validator": "^13.9.0"
   },
   "devDependencies": {
