@@ -5,7 +5,9 @@ import { AppError } from "./appError.js";
 export const responseErrorDev = (err: AppError, res: Response) => {
   res.status(err.statusCode).send({
     status: false,
-    err
+    message: err.message,
+    err,
+    stack: err.stack
   });
   res.end();
 };
