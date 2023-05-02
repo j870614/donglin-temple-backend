@@ -2,7 +2,10 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
+import swaggerUi from "swagger-ui-express";
 import path from "path";
+
+import swaggerFile from "../swagger-output.json";
 
 import { indexRouter } from "./routes/index";
 import { usersRouter } from "./routes/users";
@@ -31,6 +34,10 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
+// Uncaught catch
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection: ", promise, "reason: ", reason);
+});
 
 // **** Setup **** //
 
@@ -46,6 +53,7 @@ if (process.env.NODE_ENV === "dev") {
 }
 
 // Add APIs, must be after middleware
+app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(API_BASEURL, indexRouter);
 app.use(API_USERS_ENDPOINT, usersRouter);
 
@@ -60,11 +68,5 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Set views directory (html)
 app.set("views", path.join(__dirname, "views"));
-
-// Uncaught catch
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled rejection: ", promise, "reason: ", reason);
-});
-
 
 export { app };
