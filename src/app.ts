@@ -31,10 +31,6 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
-// Uncaught catch
-process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled rejection: ", promise, "reason: ", reason);
-});
 
 // **** Setup **** //
 
@@ -64,5 +60,11 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Set views directory (html)
 app.set("views", path.join(__dirname, "views"));
+
+// Uncaught catch
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection: ", promise, "reason: ", reason);
+});
+
 
 export { app };
