@@ -1,5 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { appError } from "../utils/appError";
+import * as axios from 'axios';
+import * as querystring  from "querystring";
 
 const usersRouter = Router();
 
@@ -20,17 +22,35 @@ usersRouter.get('/line', (req: Request, res: Response) => {
   res.redirect(lineLoginURL);
 });
 
-usersRouter.get('/line/callback',(req: Request, res: Response, next: NextFunction) => {
-    const { code, state} = req.query;
-    const lineState = String(process.env.LINE_STATE);
-    if(state === lineState) {
-      // console.log('code:', code);
-      res.send({
-        state: true,
-      })
-    } else {
-      return next(appError(400,'Line login error'));
-    }
+usersRouter.get('/line/callback', async (req: Request, res: Response, next: NextFunction) => {
+  const {code, state} = req.query;
+  const lineState = String(process.env.LINE_STATE);
+  if(state === lineState) {
+    const headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    const data = {
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: 'http://localhost:3000/api/users/line/callback',
+      client_id: String(process.env.LINE_CHANNEL_ID),
+      client_secret: String(process.env.LINE_CHANNEL_SECRET),
+    };
+
+    const response = await axios.post('https://api.line.me/oauth2/v2.1/token', querystring.stringify(data), { headers });
+
+    const { access_token, id_token } = response.data;
+    console.log('id_token:', id_token);
+  // // 向 Line 驗證 ID 令牌，以獲取用戶信息
+  // const userInfoResponse = await axios.get('https://api.line.me/oauth2/v2.1/verify', {
+  //     params: {
+  //       id_token,
+  //       client_id: LINE_LOGIN_CHANNEL_ID,
+  //     },
+  //   });
+  } else {
+    return next(appError(400,'Line login error'));
+  }
   
 })
 // http://localhost:3000/api/users/line/callback
