@@ -18,7 +18,7 @@ usersRouter.get('/line', (req: Request, res: Response) => {
   const lineState = String(process.env.LINE_STATE);
   const lineNonce = String(process.env.LINE_NONCE);
   const lineLoginURL = `https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id=${lineChannelID}&redirect_uri=${callbackURL}&state=${lineState}&scope=profile%20openid&nonce=${lineNonce}&ui_locales=ch-TW&initial_amr_display=lineqr
-  `
+  &disable_auto_login=true`
   res.redirect(lineLoginURL);
 });
 
@@ -29,6 +29,7 @@ usersRouter.get('/line/callback', async (req: Request, res: Response, next: Next
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
+
     const data = {
       grant_type: 'authorization_code',
       code,
@@ -40,14 +41,17 @@ usersRouter.get('/line/callback', async (req: Request, res: Response, next: Next
     const response = await axios.post('https://api.line.me/oauth2/v2.1/token', querystring.stringify(data), { headers });
 
     const { access_token, id_token } = response.data;
-    console.log('id_token:', id_token);
-  // // 向 Line 驗證 ID 令牌，以獲取用戶信息
-  // const userInfoResponse = await axios.get('https://api.line.me/oauth2/v2.1/verify', {
-  //     params: {
-  //       id_token,
-  //       client_id: LINE_LOGIN_CHANNEL_ID,
-  //     },
-  //   });
+
+    const params = {
+      id_token,
+      client_id: String(process.env.LINE_CHANNEL_ID),
+    };
+    // 向 Line 驗證 ID 令牌，以獲取用戶信息
+    const userInfoResponse = await axios.post('https://api.line.me/oauth2/v2.1/verify', querystring.stringify(params), { headers });
+
+    const { name } = userInfoResponse.data;
+    console.log('name:', name);
+
   } else {
     return next(appError(400,'Line login error'));
   }
