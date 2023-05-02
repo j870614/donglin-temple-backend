@@ -4,6 +4,7 @@ const usersRouter = Router();
 
 /* GET users listing. */
 usersRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
+  // #swagger.tags = ['User']
   res.send("respond with a resource");
 });
 

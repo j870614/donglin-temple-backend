@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/node-lts",
   // "include": ["src/**/*.ts", "spec/**/*.ts", "build.ts"],
-  "include": ["src", "test"],
+  "include": ["src", "test", "swagger.js"],
   "files": ["test/test.d.ts"],
   "exclude": ["src/public/"],
   "compilerOptions": {
@@ -16,6 +16,8 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "useUnknownInCatchVariables": false
+    "useUnknownInCatchVariables": false,
+    "allowJs": true,
+    "resolveJsonModule": true
   }
 }
