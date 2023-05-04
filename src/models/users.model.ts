@@ -5,10 +5,11 @@ export interface UserParams extends ParamsDictionary {
   test: string;
 }
 
-export interface UserDocument extends Document {
+export interface UserDocument {
   id?: string;
   number?: number[];
   name?: string;
+  email?: string;
   password?: string;
 }
 
