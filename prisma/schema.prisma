@@ -7,51 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                    Int       @id @default(autoincrement())
-  mobileCountryCode     String?
-  mobile                String?
-  name                  String    @db.VarChar(255)
-  dharmaName            String?
-  password              String?
-  line                  String?
-  email                 String?   @unique
-  identity              String    @db.VarChar(255) //法師、居士(在家居士)、蓮友、法眷、淨人
-  residentType          String    @db.VarChar(255) //常住、外單(常住法師、常住淨人、外單法師、常住法眷)
-  gender                String?
-  birthday              DateTime?
-  idNumber              String?
-  passport              String?
-  birthPlace            String?
-  telephone             String?
-  preceptType           String?
-  preceptTemple         String?
-  preceptDate           DateTime?
-  altarType             String?
-  ordinationMaster      String?
-  ordinationDate        DateTime?
-  templeName            String?
-  refugeMaster          String?
-  refugeDate            DateTime?
-  introducer            String?
-  dress                 String    @db.VarChar(255) //專念、海清
-  dressSize             String    @db.VarChar(255) //xs~xl
-  attendantHall         String?
-  attendantType         String?
-  department            String?
-  region                String?
-  address               String?
-  emergencyContactName  String?
-  emergencyContactPhone String?
-  relationship          String?
-  expertise             String?
-  education             String?
-  cause                 String?
-  skills                String    @db.VarChar(255) //香積、園藝...
-  health                Json?
-  isEatingEarlyMorning  Boolean?
-  isEatingNoon          Boolean?
-  isEatingEvening       Boolean?
-  isResident            Boolean?
-  remark                String?
+model Managers {
+  Id       Int      @id @default(autoincrement())
+  UserId   Int
+  Email    String?  @unique @db.VarChar(255)
+  Line     String?  @unique @db.VarChar(255)
+  Google   String?  @unique @db.VarChar(255)
+  Password String   @db.VarChar(255)
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
 }

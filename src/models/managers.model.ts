@@ -16,3 +16,9 @@ export interface UserDocument {
 export interface UserRequest extends Request<UserParams, object, UserDocument> {
   name?: string;
 }
+
+export interface UserInfo {
+  uid?: string;
+  email: string;
+  password: string;
+}
