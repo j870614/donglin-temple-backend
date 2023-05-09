@@ -1,30 +1,16 @@
-import { Router, Request, Response, NextFunction } from "express";
-import { prisma } from "../configs/prismaClient";
+import { Router } from "express";
+import { ManagersController } from "../controllers/managers.controller";
 
 const managersRouter = Router();
+const managersController = new ManagersController();
 
 /* GET managers listing. */
-managersRouter.get("/", (req: Request, res: Response, next: NextFunction) => {
-  // #swagger.tags = ['User']
-  res.send("respond with a resource");
-});
+managersRouter.get("/", managersController.getAll);
 
-managersRouter.get(
-  "/test",
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const manager = await prisma.managers.create({
-        data: {
-          UserId: 103,
-          Email: "a123458@gmail.com",
-          Password: "a123458"
-        }
-      });
-      res.send(manager);
-    } catch (error) {
-      throw new Error("create Error");
-    }
-  }
-);
+managersRouter.post("/generate", managersController.generate);
+
+managersRouter.post("/signup", managersController.signUp);
+
+managersRouter.post("/signin", managersController.signIn);
 
 export { managersRouter };

@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE `Managers` (
+    `Id` INTEGER NOT NULL AUTO_INCREMENT,
+    `UserId` INTEGER NOT NULL,
+    `Email` VARCHAR(255) NULL,
+    `Line` VARCHAR(255) NULL,
+    `Google` VARCHAR(255) NULL,
+    `Password` VARCHAR(255) NOT NULL,
+    `CreatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `UpdatedAt` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`Id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

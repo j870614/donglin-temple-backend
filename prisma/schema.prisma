@@ -7,13 +7,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Managers {
-  Id       Int      @id @default(autoincrement())
-  UserId   Int
-  Email    String?  @unique @db.VarChar(255)
-  Line     String?  @unique @db.VarChar(255)
-  Google   String?  @unique @db.VarChar(255)
-  Password String   @db.VarChar(255)
-  createAt DateTime @default(now())
-  updateAt DateTime @updatedAt
+model managers {
+  Id        Int      @id @default(autoincrement())
+  UserId    Int?     @unique(map: "Managers_UserId_key") @db.SmallInt
+  Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
+  Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
+  Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
+  Password  String?  @db.VarChar(255)
+  CreatedAt DateTime @default(now())
+  UpdateAt  DateTime @updatedAt
+}
+
+model optionnamemapping {
+  Id         Int    @id @default(autoincrement())
+  Group      String @db.VarChar(45)
+  OptionId   Int    @db.SmallInt
+  OptionName String @db.VarChar(45)
+}
+
+model users {
+  Id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  MobilePrefix      String?   @db.VarChar(5)
+  Mobile            String?   @db.VarChar(20)
+  Name              String?   @db.VarChar(50)
+  DharmaName        String?   @db.VarChar(50)
+  MageNickname      String?   @db.VarChar(50)
+  LineId            String?   @db.VarChar(255)
+  Email             String?   @db.VarChar(255)
+  IsMonk            Boolean   @default(false)
+  StayIdentity      Int?      @db.TinyInt
+  Gender            Boolean   @default(false)
+  BirthDate         DateTime? @db.Date
+  IdNumber          String?   @db.VarChar(10)
+  PassportNumber    String?   @db.VarChar(20)
+  BirthPlace        String?   @db.VarChar(10)
+  Phone             String?   @db.VarChar(20)
+  Ordination        String?   @db.VarChar(20)
+  Altar             String?   @db.VarChar(20)
+  ShavedMaster      String?   @db.VarChar(50)
+  ShavedDate        DateTime? @db.Date
+  OrdinationTemple  String?   @db.VarChar(50)
+  OrdinationDate    DateTime? @db.Date
+  ResidentialTemple String?   @db.VarChar(50)
+  RefugueMaster     String?   @db.VarChar(50)
+  RefugueDate       DateTime? @db.Date
+  Referrer          String?   @db.VarChar(50)
+  ClothType         Int?      @db.TinyInt
+  ClothSize         String?   @db.VarChar(4)
+  DeaconChurchId    Int?
+  EmergencyName     String?   @db.VarChar(50)
+  EmergencyPhone    String?   @db.VarChar(20)
+  Relationship      String?   @db.VarChar(20)
+  Expertise         Json?
+  Education         String?   @db.VarChar(500)
+  ComeTempleReason  String?   @db.VarChar(500)
+  HealthStatus      Json?
+  Eat_Breakfast     Boolean   @default(false)
+  Eat_Lunch         Boolean   @default(false)
+  Eat_Dinner        Boolean   @default(false)
+  Address           Json?
+  Remarks           String?   @db.VarChar(255)
+  UpdateAt          DateTime  @default(now()) @db.DateTime(0)
 }

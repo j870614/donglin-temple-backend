@@ -1,24 +1,21 @@
 import { Request } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
+import { managers } from "@prisma/client";
 
-export interface UserParams extends ParamsDictionary {
-  test: string;
+export type ManagerParams = ParamsDictionary;
+
+export interface ManagerRequestBody extends managers {
+  ConfirmPassword?: string;
+  times?: number;
 }
 
-export interface UserDocument {
-  id?: string;
-  number?: number[];
-  name?: string;
-  email?: string;
-  password?: string;
+export interface ManagerRequest
+  extends Request<ParamsDictionary, object, ManagerRequestBody> {
+  ConfirmPassword?: string;
 }
 
-export interface UserRequest extends Request<UserParams, object, UserDocument> {
-  name?: string;
-}
-
-export interface UserInfo {
-  uid?: string;
-  email: string;
-  password: string;
+export interface ManagerInfo {
+  Id?: number;
+  Email: string;
+  Password: string;
 }

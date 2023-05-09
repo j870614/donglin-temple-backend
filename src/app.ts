@@ -10,12 +10,14 @@ import swaggerFile from "../swagger-output.json";
 
 import { indexRouter } from "./routes/index.route";
 import { managersRouter } from "./routes/managers.route";
+import { usersRouter } from "./routes/users.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 
 // **** Variables **** //
 const API_BASEURL = "/api";
 const API_MANAGERS_ENDPOINT = `${API_BASEURL}/managers`;
+const API_USERS_ENDPOINT = `${API_BASEURL}/users`;
 
 const app = express();
 
@@ -52,6 +54,7 @@ if (process.env.NODE_ENV === "dev") {
 app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(API_BASEURL, indexRouter);
 app.use(API_MANAGERS_ENDPOINT, managersRouter);
+app.use(API_USERS_ENDPOINT, usersRouter);
 
 // Add error handlers
 app.use(handleNotFoundError);
