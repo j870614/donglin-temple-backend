@@ -4,24 +4,20 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
+import passport from "passport";
 
 import swaggerFile from "../swagger-output.json";
 
-import { indexRouter } from "./routes/index";
-import { usersRouter } from "./routes/users";
+import { indexRouter } from "./routes/index.route";
+import { managersRouter } from "./routes/managers.route";
+import { usersRouter } from "./routes/users.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 
 // **** Variables **** //
-
-/**
- * API setting example
- * process.env.API_BASEURL = "/api"
- * process.env.API_USER_ENDPOINT = "/users"
- * API_USERS_ENDPOINT = /api/users
- */
-const API_BASEURL = String(process.env.API_BASEURL);
-const API_USERS_ENDPOINT = API_BASEURL + String(process.env.API_USERS_ENDPOINT);
+const API_BASEURL = "/api";
+const API_MANAGERS_ENDPOINT = `${API_BASEURL}/managers`;
+const API_USERS_ENDPOINT = `${API_BASEURL}/users`;
 
 const app = express();
 
@@ -46,6 +42,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // Show routes called in console during development
 if (process.env.NODE_ENV === "dev") {
@@ -55,6 +53,7 @@ if (process.env.NODE_ENV === "dev") {
 // Add APIs, must be after middleware
 app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(API_BASEURL, indexRouter);
+app.use(API_MANAGERS_ENDPOINT, managersRouter);
 app.use(API_USERS_ENDPOINT, usersRouter);
 
 // Add error handlers

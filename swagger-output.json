@@ -13,6 +13,10 @@
       "description": "index router"
     },
     {
+      "name": "Manager",
+      "description": "manager router"
+    },
+    {
       "name": "User",
       "description": "user router"
     }
@@ -73,18 +77,32 @@
         }
       }
     },
-    "API_USERS_ENDPOINT/": {
+    "API_MANAGERS_ENDPOINT/": {
       "get": {
-        "tags": [
-          "User"
-        ],
         "description": "",
         "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+        "responses": {}
+      }
+    },
+    "API_MANAGERS_ENDPOINT/generate": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "API_MANAGERS_ENDPOINT/signup": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
+      }
+    },
+    "API_MANAGERS_ENDPOINT/signin": {
+      "post": {
+        "description": "",
+        "parameters": [],
+        "responses": {}
       }
     }
   }

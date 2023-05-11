@@ -7,51 +7,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                    Int       @id @default(autoincrement())
-  mobileCountryCode     String?
-  mobile                String?
-  name                  String    @db.VarChar(255)
-  dharmaName            String?
-  password              String?
-  line                  String?
-  email                 String?   @unique
-  identity              String    @db.VarChar(255) //法師、居士(在家居士)、蓮友、法眷、淨人
-  residentType          String    @db.VarChar(255) //常住、外單(常住法師、常住淨人、外單法師、常住法眷)
-  gender                String?
-  birthday              DateTime?
-  idNumber              String?
-  passport              String?
-  birthPlace            String?
-  telephone             String?
-  preceptType           String?
-  preceptTemple         String?
-  preceptDate           DateTime?
-  altarType             String?
-  ordinationMaster      String?
-  ordinationDate        DateTime?
-  templeName            String?
-  refugeMaster          String?
-  refugeDate            DateTime?
-  introducer            String?
-  dress                 String    @db.VarChar(255) //專念、海清
-  dressSize             String    @db.VarChar(255) //xs~xl
-  attendantHall         String?
-  attendantType         String?
-  department            String?
-  region                String?
-  address               String?
-  emergencyContactName  String?
-  emergencyContactPhone String?
-  relationship          String?
-  expertise             String?
-  education             String?
-  cause                 String?
-  skills                String    @db.VarChar(255) //香積、園藝...
-  health                Json?
-  isEatingEarlyMorning  Boolean?
-  isEatingNoon          Boolean?
-  isEatingEvening       Boolean?
-  isResident            Boolean?
-  remark                String?
+model managers {
+  Id        Int      @id @default(autoincrement())
+  UserId    Int?     @unique(map: "Managers_UserId_key") @db.SmallInt
+  Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
+  Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
+  Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
+  Password  String?  @db.VarChar(255)
+  CreatedAt DateTime @default(now())
+  UpdateAt  DateTime @updatedAt
+}
+
+model optionnamemapping {
+  Id         Int    @id @default(autoincrement())
+  Group      String @db.VarChar(45)
+  OptionId   Int    @db.SmallInt
+  OptionName String @db.VarChar(45)
+}
+
+model users {
+  Id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  MobilePrefix      String?   @db.VarChar(5)
+  Mobile            String?   @db.VarChar(20)
+  Name              String?   @db.VarChar(50)
+  DharmaName        String?   @db.VarChar(50)
+  MageNickname      String?   @db.VarChar(50)
+  LineId            String?   @db.VarChar(255)
+  Email             String?   @db.VarChar(255)
+  IsMonk            Boolean   @default(false)
+  StayIdentity      Int?      @db.TinyInt
+  Gender            Boolean   @default(false)
+  BirthDate         DateTime? @db.Date
+  IdNumber          String?   @db.VarChar(10)
+  PassportNumber    String?   @db.VarChar(20)
+  BirthPlace        String?   @db.VarChar(10)
+  Phone             String?   @db.VarChar(20)
+  Ordination        String?   @db.VarChar(20)
+  Altar             String?   @db.VarChar(20)
+  ShavedMaster      String?   @db.VarChar(50)
+  ShavedDate        DateTime? @db.Date
+  OrdinationTemple  String?   @db.VarChar(50)
+  OrdinationDate    DateTime? @db.Date
+  ResidentialTemple String?   @db.VarChar(50)
+  RefugueMaster     String?   @db.VarChar(50)
+  RefugueDate       DateTime? @db.Date
+  Referrer          String?   @db.VarChar(50)
+  ClothType         Int?      @db.TinyInt
+  ClothSize         String?   @db.VarChar(4)
+  DeaconChurchId    Int?
+  EmergencyName     String?   @db.VarChar(50)
+  EmergencyPhone    String?   @db.VarChar(20)
+  Relationship      String?   @db.VarChar(20)
+  Expertise         Json?
+  Education         String?   @db.VarChar(500)
+  ComeTempleReason  String?   @db.VarChar(500)
+  HealthStatus      Json?
+  Eat_Breakfast     Boolean   @default(false)
+  Eat_Lunch         Boolean   @default(false)
+  Eat_Dinner        Boolean   @default(false)
+  Address           Json?
+  Remarks           String?   @db.VarChar(255)
+  UpdateAt          DateTime  @default(now()) @db.DateTime(0)
 }

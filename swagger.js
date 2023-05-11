@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const swaggerAutogen = require("swagger-autogen");
 
 swaggerAutogen();
@@ -17,6 +18,10 @@ const doc = {
     {
       name: "Index", // Tag name
       description: "index router" // Tag description
+    },
+    {
+      name: "Manager",
+      description: "manager router"
     },
     {
       name: "User",
