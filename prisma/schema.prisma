@@ -9,20 +9,13 @@ datasource db {
 
 model managers {
   Id        Int      @id @default(autoincrement())
-  UserId    Int?     @unique(map: "Managers_UserId_key") @db.SmallInt
+  UserId    Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
+  CreatedAt DateTime @default(now())
   Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
   Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
   Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
   Password  String?  @db.VarChar(255)
-  CreatedAt DateTime @default(now())
   UpdateAt  DateTime @updatedAt
-}
-
-model optionnamemapping {
-  Id         Int    @id @default(autoincrement())
-  Group      String @db.VarChar(45)
-  OptionId   Int    @db.SmallInt
-  OptionName String @db.VarChar(45)
 }
 
 model users {
@@ -54,7 +47,6 @@ model users {
   Referrer          String?   @db.VarChar(50)
   ClothType         Int?      @db.TinyInt
   ClothSize         String?   @db.VarChar(4)
-  DeaconChurchId    Int?
   EmergencyName     String?   @db.VarChar(50)
   EmergencyPhone    String?   @db.VarChar(20)
   Relationship      String?   @db.VarChar(20)
@@ -62,10 +54,111 @@ model users {
   Education         String?   @db.VarChar(500)
   ComeTempleReason  String?   @db.VarChar(500)
   HealthStatus      Json?
-  Eat_Breakfast     Boolean   @default(false)
-  Eat_Lunch         Boolean   @default(false)
-  Eat_Dinner        Boolean   @default(false)
+  EatBreakfast      Boolean   @default(false)
+  EatLunch          Boolean   @default(false)
+  EatDinner         Boolean   @default(false)
   Address           Json?
   Remarks           String?   @db.VarChar(255)
   UpdateAt          DateTime  @default(now()) @db.DateTime(0)
+}
+
+model buddha_seven_periods {
+  Id            Int      @id @default(autoincrement()) @db.UnsignedSmallInt
+  StarSevenDate DateTime @db.Date
+  CompleteDate  DateTime @db.Date
+  Remarks       String?  @db.VarChar(32)
+}
+
+model item_name_mapping {
+  Id        Int     @id @default(autoincrement())
+  GroupName String? @db.VarChar(20)
+  ItemId    Int?    @db.SmallInt
+  ItemValue String? @db.VarChar(20)
+
+  @@index([GroupName], map: "idx_item_name_mapping_GroupName")
+}
+
+model room_permanent_items {
+  Id         Int      @id @default(autoincrement())
+  RoomId     Int?     @db.SmallInt
+  CategoryId Int?     @db.SmallInt
+  ItemsName  String?  @db.VarChar(50)
+  Quantity   Int?     @db.SmallInt
+  IsActive   Boolean?
+  Remarks    String?  @db.VarChar(255)
+}
+
+model rooms {
+  Id              Int      @id @db.SmallInt
+  DormitoryAreaId Int      @db.TinyInt
+  BuildingId      Int      @db.TinyInt
+  RoomId          Int      @db.TinyInt
+  RoomType        Int      @db.TinyInt
+  Gender          Boolean  @default(false)
+  TotalBeds       Int      @db.TinyInt
+  ReservedBeds    Int      @default(0) @db.TinyInt
+  IsActive        Boolean  @default(true)
+  UpdateAt        DateTime @default(now()) @db.DateTime(0)
+}
+
+model user_auth_qr_codes {
+  UserAuthorizeId Int       @id
+  QRCode          String?   @db.VarChar(64)
+  EndTime         DateTime? @db.DateTime(0)
+  HasUsed         Boolean?
+}
+
+model user_authorizes {
+  Id              Int       @id @default(autoincrement()) @db.UnsignedInt
+  UserId          Int?      @db.UnsignedInt
+  DeaconType      Int?      @db.TinyInt
+  AuthorizeUserId Int?
+  AuthorizeDate   DateTime? @db.Date
+}
+
+model user_benefits {
+  Id           Int      @id @default(autoincrement())
+  UserId       Int      @db.UnsignedInt
+  BenefitType  Int      @db.SmallInt
+  OfferingDate DateTime @db.Date
+  TabletType   Int?     @db.SmallInt
+  TabletName   String?  @db.VarChar(50)
+
+  @@index([UserId], map: "idx_user_benefit_UserId")
+}
+
+model user_blacklist {
+  UserId Int @id @db.UnsignedInt
+}
+
+model user_buddha_seven_records {
+  Id                  Int @id @default(autoincrement())
+  UserId              Int @db.UnsignedInt
+  BuddhaSevenPeriodId Int @db.SmallInt
+
+  @@index([UserId], map: "idx_user_buddha_seven_records_UserId")
+}
+
+model user_deacon_churchs {
+  Id         Int       @id @default(autoincrement())
+  UserId     Int       @db.UnsignedInt
+  ChurchId   Int?      @db.SmallInt
+  DeaconType Int?      @db.TinyInt
+  DeaconArea Int?      @db.SmallInt
+  ChurchUnit Int?      @db.SmallInt
+  ChurchDept Int?      @db.SmallInt
+  StartDate  DateTime? @db.Date
+  EndDate    DateTime? @db.Date
+}
+
+model user_family_relationships {
+  Id              Int     @id @default(autoincrement())
+  MasterUserId    Int     @unique(map: "MasterUserId_UNIQUE") @db.UnsignedInt
+  SlaveUserId     Int     @unique(map: "SlaveUserId_UNIQUE") @db.UnsignedInt
+  Relationship    String  @db.VarChar(20)
+  IsLiving        Boolean @default(true)
+  DonglinIdentity Int     @db.TinyInt
+  Remarks         String? @db.VarChar(255)
+
+  @@index([MasterUserId], map: "idx_user_family_relationships_MasterUserId")
 }

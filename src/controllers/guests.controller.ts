@@ -3,13 +3,13 @@ import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
 import { responseSuccess } from "../utils/responseSuccess";
-import { UserRequest } from "../models/users.model";
+import { GuestRequest } from "../models/guests.model";
 import { prisma } from "../configs/prismaClient";
 
-export class UsersController {
+export class GuestsController {
   // constructor(private readonly _manager: ManagerDocument) {}
 
-  public getAll = async (req: UserRequest, res: Response) => {
+  public getAll = async (req: GuestRequest, res: Response) => {
     // @swagger.tags = ['User']
     const { order, take, skip } = req.query;
     const orderOption = order === "asc" ? "asc" : "desc";
@@ -22,30 +22,24 @@ export class UsersController {
         take: takeOption,
         skip: skipOption
       });
+
       responseSuccess(res, StatusCodes.OK, allUsers);
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
     }
   };
 
-  public generate = async (req: UserRequest, res: Response) => {
-    // @swagger.tags = ['User']
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { Name, IsMonk, Gender, EatBreakfast, EatDinner, EatLunch } =
-      req.body;
-    try {
-      const user = await prisma.users.create({
-        data: {
-          Name,
-          IsMonk,
-          Gender,
-          EatBreakfast,
-          EatLunch,
-          EatDinner
-        }
-      });
 
-      responseSuccess(res, StatusCodes.OK, user);
+  public getGuest = async (req: GuestRequest, res: Response) => {
+    // @swagger.tags = ['User']
+    try {
+      const guestId=Number(req.params.id)
+      const guest = await prisma.users.findUnique({
+        where: {
+          Id:guestId
+        },
+      });
+      responseSuccess(res, StatusCodes.OK, guest);
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
     }
