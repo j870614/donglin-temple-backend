@@ -9,5 +9,7 @@ guestsRouter.get("/", guestsController.getAll);
 
 guestsRouter.get("/:id", guestsController.getGuest);
 
+guestsRouter.post("/", guestsController.createUser);
+
 
 export { guestsRouter };
