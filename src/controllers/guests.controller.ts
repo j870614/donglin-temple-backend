@@ -6,6 +6,7 @@ import { responseSuccess } from "../utils/responseSuccess";
 import { GuestRequest } from "../models/guests.model";
 import { prisma } from "../configs/prismaClient";
 import { appError } from "../utils/appError";
+import { config } from "dotenv";
 
 export class GuestsController {
   // constructor(private readonly _manager: ManagerDocument) {}
@@ -105,7 +106,7 @@ export class GuestsController {
         Address,
         Remarks,
       } = req.body;
-
+      console.log(typeof IsMonk);
       const user = await prisma.users.create({
         data: {
           MobilePrefix,
@@ -115,7 +116,9 @@ export class GuestsController {
           MageNickname,
           LineId,
           Email,
+          IsMonk,
           StayIdentity,
+          Gender,
           BirthDate,
           IdNumber,
           PassportNumber,
@@ -149,7 +152,7 @@ export class GuestsController {
       });
 
       responseSuccess(res, StatusCodes.OK, user);
-      
+
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
       throw new Error("Unexpected error in guests createUser");
