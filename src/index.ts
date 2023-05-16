@@ -24,9 +24,10 @@ export interface HttpErrorException extends Error {
  * Get port from environment and store in Express.
  */
 
-const port = path.normalize(String(process.env.API_PORT) || "3000");
+const port = String(process.env.API_PORT) || "3000";
 const env = String(process.env.NODE_ENV);
 app.set("port", port);
+
 
 /**
  * Create HTTP server.
