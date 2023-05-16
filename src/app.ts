@@ -6,7 +6,7 @@ import swaggerUi from "swagger-ui-express";
 import path from "path";
 // import passport from "passport";
 
-import swaggerFile from "../swagger-output.json";
+import swaggerDocument from "../swagger.json";
 
 import { indexRouter } from "./routes/index.route";
 import { managersRouter } from "./routes/managers.route";
@@ -15,6 +15,7 @@ import { guestsRouter } from "./routes/guests.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 import "./controllers/managers.controller";
+import { RegisterRoutes } from "./routes";
 // import { RegisterRoutes } from "./routes";
 
 // **** Variables **** //
@@ -53,19 +54,19 @@ if (process.env.NODE_ENV === "dev") {
   app.use(morgan("dev"));
 }
 /* eslint-disable */
-// app.use((req: any, res: any, next: any) => {
-//   req.stringValue = "fancyStringForContext";
-//   next();
-// });
+app.use((req: any, res: any, next: any) => {
+  req.stringValue = "fancyStringForContext";
+  next();
+});
 
-// RegisterRoutes(app);
+RegisterRoutes(app);
 
 // Add APIs, must be after middleware
-app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
-app.use(API_BASEURL, indexRouter);
+app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+// app.use(API_BASEURL, indexRouter);
 app.use(API_MANAGERS_ENDPOINT, managersRouter);
-app.use(API_USERS_ENDPOINT, usersRouter);
-app.use(API_GUESTS_ENDPOINT, guestsRouter);
+// app.use(API_USERS_ENDPOINT, usersRouter);
+// app.use(API_GUESTS_ENDPOINT, guestsRouter);
 
 // Add error handlers
 app.use(handleNotFoundError);

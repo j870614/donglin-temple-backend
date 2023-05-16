@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { StatusCodes } from "http-status-codes";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 import { ManagerRequestBody } from "@/models/managers.model";
 import { responseSuccess } from "../../utils/responseSuccess";
@@ -26,7 +26,9 @@ export const generateAndSendJWT = (
     expiresIn: JWT_EXPIRATION
   });
 
-  responseSuccess(res, statusCode, { user: { token, Email } });
+  const { exp } = jwt.decode(token) as JwtPayload;
+
+  responseSuccess(res, statusCode, { token, Email, expired: exp });
 };
 
 export const isAuth = async (

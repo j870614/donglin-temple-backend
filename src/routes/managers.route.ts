@@ -5,11 +5,11 @@ const managersRouter = Router();
 const managersController = new ManagersController();
 
 /* GET managers listing. */
-managersRouter.get("/", managersController.getAll);
+// managersRouter.get("/", managersController.getAll);
 
-managersRouter.post("/generate", managersController.generate);
+// managersRouter.post("/generate", managersController.generate);
 
-managersRouter.post("/signup", managersController.signUp);
+// managersRouter.post("/signup", managersController.signUp);
 
 managersRouter.post("/signin", managersController.signIn);
 

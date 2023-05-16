@@ -1,0 +1,186 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"managers": {
+				"properties": {
+					"UpdateAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"Password": {
+						"type": "string",
+						"nullable": true
+					},
+					"Line": {
+						"type": "string",
+						"nullable": true
+					},
+					"Google": {
+						"type": "string",
+						"nullable": true
+					},
+					"Email": {
+						"type": "string",
+						"nullable": true
+					},
+					"CreatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"UserId": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"Id": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"UpdateAt",
+					"Password",
+					"Line",
+					"Google",
+					"Email",
+					"CreatedAt",
+					"UserId",
+					"Id"
+				],
+				"type": "object",
+				"description": "Model managers"
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "donglin-temple-backend",
+		"version": "0.0.0",
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/api/managers": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"allManagers": {
+											"items": {
+												"$ref": "#/components/schemas/managers"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"allManagers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "order",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/managers/generate": {
+			"post": {
+				"operationId": "Generate",
+				"responses": {
+					"201": {
+						"description": "CREATED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"generatedManagers": {
+											"items": {
+												"$ref": "#/components/schemas/managers"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"generatedManagers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": false,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "number",
+								"format": "double"
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

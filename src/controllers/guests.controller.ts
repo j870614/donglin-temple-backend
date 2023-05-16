@@ -3,11 +3,13 @@
 import { Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
+import { Route } from "tsoa";
 import { responseSuccess } from "../utils/responseSuccess";
 import { GuestRequest } from "../models/guests.model";
 import { prisma } from "../configs/prismaClient";
 import { appError } from "../utils/appError";
 
+@Route("")
 export class GuestsController {
   public getAll = async (req: GuestRequest, res: Response) => {
     // @swagger.tags = ['User']
