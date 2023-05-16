@@ -4,12 +4,18 @@ import { buddha_seven_periods } from "@prisma/client";
 
 export type BuddhaSevenParams = ParamsDictionary;
 
-export interface BuddhaSevenRequestBody extends buddha_seven_periods{
-  Remark: string,
-}
+export type BuddhaSevenRequest = Request<
+  ParamsDictionary,
+  object,
+  buddha_seven_periods
+>;
 
-export interface BuddhaSevenRequest
-  extends Request<ParamsDictionary, object, buddha_seven_periods> {
-  Remark: string,
-}
+// export interface BuddhaSevenRequestBody extends buddha_seven_periods{
+//   Remark: string,
+// }
+
+// export interface BuddhaSevenRequest
+//   extends Request<ParamsDictionary, object, buddha_seven_periods> {
+//   Remark: string,
+// }
 
