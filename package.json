@@ -6,7 +6,7 @@
     "start": "concurrently \"tsc -w -p tsconfig.json\" \"nodemon dist/src/index.js\"",
     "start:build": "tsc -w -p tsconfig.json",
     "start:dev": "concurrently \"tsc -w -p tsconfig.json\" \"cross-env NODE_ENV=dev nodemon dist/src/index.js\"",
-    "start:prod": "tsc -p tsconfig.json && cross-env NODE_ENV=prod node dist/src/index.js",
+    "start:prod": "tsc -p tsconfig.json && node dist/src/index.js",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore",
     "gendoc": "node ./swagger.js",
