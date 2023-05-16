@@ -13,7 +13,6 @@ export class BuddhaSevenController {
   // constructor(private readonly _manager: ManagerDocument) {}
 
   public getAllBuddhaSeven = async (req: BuddhaSevenRequest, res: Response, next: NextFunction) => {
-    // @swagger.tags = ['User']
     /**
      * order 參數表示排列方式，預設是按照 id 由小到大排列
      * take 參數表示顯示資料數量，佛七預設顯示一年度 36 期的佛七
@@ -43,23 +42,23 @@ export class BuddhaSevenController {
       responseSuccess(res, StatusCodes.OK, buddhaSevenYearly);
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
+      throw new Error("Unexpected error in BuddhaSevenController getAllBuddhaSeven");
     }
   };
 
 
-  public getGuest = async (req: BuddhaSevenRequest, res: Response) => {
-    // @swagger.tags = ['User']
+  public getBuddhaSeven = async (req: BuddhaSevenRequest, res: Response) => {
     try {
-      const guestId = Number(req.params.id)
-      const guest = await prisma.users.findUnique({
+      const buddhaSevenId = Number(req.params.id)
+      const buddhaSeven = await prisma.buddha_seven_periods.findUnique({
         where: {
-          Id:guestId
+          Id:buddhaSevenId
         },
       });
-      responseSuccess(res, StatusCodes.OK, guest);
+      responseSuccess(res, StatusCodes.OK, buddhaSeven);
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
-      throw new Error("Unexpected error in BuddhaSevenController getAllBuddhaSeven");
+      throw new Error("Unexpected error in BuddhaSevenController getBuddhaSeven");
     }
   };
 

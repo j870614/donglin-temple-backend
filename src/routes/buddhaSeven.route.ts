@@ -7,7 +7,7 @@ const buddhaSevenController = new BuddhaSevenController();
 /* GET managers listing. */
 buddhaSevenRouter.get("/", buddhaSevenController.getAllBuddhaSeven);
 
-// buddhaSevenRouter.get("/:id", buddhaSevenController.getGuest);
+buddhaSevenRouter.get("/:id", buddhaSevenController.getBuddhaSeven);
 
 // buddhaSevenRouter.post("/", buddhaSevenController.createUser);
 
