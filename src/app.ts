@@ -4,7 +4,7 @@ import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
 import path from "path";
-import passport from "passport";
+// import passport from "passport";
 
 import swaggerFile from "../swagger-output.json";
 
@@ -14,6 +14,8 @@ import { usersRouter } from "./routes/users.route";
 import { guestsRouter } from "./routes/guests.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
+import "./controllers/managers.controller";
+// import { RegisterRoutes } from "./routes";
 
 // **** Variables **** //
 const API_BASEURL = "/api";
@@ -50,6 +52,13 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === "dev") {
   app.use(morgan("dev"));
 }
+/* eslint-disable */
+// app.use((req: any, res: any, next: any) => {
+//   req.stringValue = "fancyStringForContext";
+//   next();
+// });
+
+// RegisterRoutes(app);
 
 // Add APIs, must be after middleware
 app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
@@ -57,6 +66,7 @@ app.use(API_BASEURL, indexRouter);
 app.use(API_MANAGERS_ENDPOINT, managersRouter);
 app.use(API_USERS_ENDPOINT, usersRouter);
 app.use(API_GUESTS_ENDPOINT, guestsRouter);
+
 // Add error handlers
 app.use(handleNotFoundError);
 app.use(handleError);

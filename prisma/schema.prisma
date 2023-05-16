@@ -80,7 +80,7 @@ model item_name_mapping {
 
 model room_permanent_items {
   Id         Int      @id @default(autoincrement())
-  RoomId     Int?     @db.SmallInt
+  RoomId     Int
   CategoryId Int?     @db.SmallInt
   ItemsName  String?  @db.VarChar(50)
   Quantity   Int?     @db.SmallInt
@@ -89,23 +89,25 @@ model room_permanent_items {
 }
 
 model rooms {
-  Id              Int      @id @db.SmallInt
+  Id              Int      @id @unique(map: "Id_UNIQUE")
   DormitoryAreaId Int      @db.TinyInt
   BuildingId      Int      @db.TinyInt
-  RoomId          Int      @db.TinyInt
+  ShareId         Int      @db.TinyInt
   RoomType        Int      @db.TinyInt
-  Gender          Boolean  @default(false)
-  TotalBeds       Int      @db.TinyInt
+  Gender          Boolean  @default(true)
+  TotalBeds       Int      @default(2) @db.TinyInt
   ReservedBeds    Int      @default(0) @db.TinyInt
   IsActive        Boolean  @default(true)
   UpdateAt        DateTime @default(now()) @db.DateTime(0)
 }
 
 model user_auth_qr_codes {
-  UserAuthorizeId Int       @id
-  QRCode          String?   @db.VarChar(64)
-  EndTime         DateTime? @db.DateTime(0)
-  HasUsed         Boolean?
+  Id       Int       @id @default(autoincrement())
+  AuthType Int?      @default(0) @db.TinyInt
+  QRCode   String?   @db.VarChar(64)
+  UserId   Int       @db.UnsignedInt
+  EndTime  DateTime? @db.DateTime(0)
+  HasUsed  Boolean?  @default(false)
 }
 
 model user_authorizes {

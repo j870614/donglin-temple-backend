@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import { Controller, Get, Post, Route, SuccessResponse, Tags } from "tsoa";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 
@@ -10,9 +11,12 @@ import { ManagerRequest } from "../models/managers.model";
 import { prisma } from "../configs/prismaClient";
 import { generateAndSendJWT } from "../services/auth/auth.service";
 
-export class ManagersController {
+@Route("api/managers")
+@Tags("Manager")
+export class ManagersController extends Controller {
   // constructor(private readonly _manager: ManagerDocument) {}
-
+  @Get("")
+  @SuccessResponse(200, "OK")
   public getAll = async (req: ManagerRequest, res: Response) => {
     // @swagger.tags = ['Manager']
     const { order, take, skip } = req.query;
@@ -32,6 +36,7 @@ export class ManagersController {
     }
   };
 
+  @Post("generate")
   public generate = async (req: ManagerRequest, res: Response) => {
     // @swagger.tags = ['Manager']
     const { times } = req.body;
