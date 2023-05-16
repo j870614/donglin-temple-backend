@@ -6,6 +6,265 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
+			"JsonObject": {
+				"properties": {},
+				"type": "object",
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches a JSON object.\nThis type can be useful to enforce some input to be JSON-compatible or as a super-type to be extended from."
+			},
+			"JsonArray": {
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches a JSON array.",
+				"properties": {},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Prisma.JsonValue": {
+				"anyOf": [
+					{
+						"type": "string"
+					},
+					{
+						"type": "number",
+						"format": "double"
+					},
+					{
+						"type": "boolean"
+					},
+					{
+						"$ref": "#/components/schemas/JsonObject"
+					},
+					{
+						"$ref": "#/components/schemas/JsonArray"
+					}
+				],
+				"nullable": true,
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches any valid JSON value."
+			},
+			"users": {
+				"properties": {
+					"UpdateAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"Remarks": {
+						"type": "string",
+						"nullable": true
+					},
+					"Address": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"EatDinner": {
+						"type": "boolean"
+					},
+					"EatLunch": {
+						"type": "boolean"
+					},
+					"EatBreakfast": {
+						"type": "boolean"
+					},
+					"HealthStatus": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"ComeTempleReason": {
+						"type": "string",
+						"nullable": true
+					},
+					"Education": {
+						"type": "string",
+						"nullable": true
+					},
+					"Expertise": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"Relationship": {
+						"type": "string",
+						"nullable": true
+					},
+					"EmergencyPhone": {
+						"type": "string",
+						"nullable": true
+					},
+					"EmergencyName": {
+						"type": "string",
+						"nullable": true
+					},
+					"ClothSize": {
+						"type": "string",
+						"nullable": true
+					},
+					"ClothType": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"Referrer": {
+						"type": "string",
+						"nullable": true
+					},
+					"RefugueDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"RefugueMaster": {
+						"type": "string",
+						"nullable": true
+					},
+					"ResidentialTemple": {
+						"type": "string",
+						"nullable": true
+					},
+					"OrdinationDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"OrdinationTemple": {
+						"type": "string",
+						"nullable": true
+					},
+					"ShavedDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"ShavedMaster": {
+						"type": "string",
+						"nullable": true
+					},
+					"Altar": {
+						"type": "string",
+						"nullable": true
+					},
+					"Ordination": {
+						"type": "string",
+						"nullable": true
+					},
+					"Phone": {
+						"type": "string",
+						"nullable": true
+					},
+					"BirthPlace": {
+						"type": "string",
+						"nullable": true
+					},
+					"PassportNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"IdNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"BirthDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"Gender": {
+						"type": "boolean"
+					},
+					"StayIdentity": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"IsMonk": {
+						"type": "boolean"
+					},
+					"Email": {
+						"type": "string",
+						"nullable": true
+					},
+					"LineId": {
+						"type": "string",
+						"nullable": true
+					},
+					"MageNickname": {
+						"type": "string",
+						"nullable": true
+					},
+					"DharmaName": {
+						"type": "string",
+						"nullable": true
+					},
+					"Name": {
+						"type": "string",
+						"nullable": true
+					},
+					"Mobile": {
+						"type": "string",
+						"nullable": true
+					},
+					"MobilePrefix": {
+						"type": "string",
+						"nullable": true
+					},
+					"Id": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"UpdateAt",
+					"Remarks",
+					"Address",
+					"EatDinner",
+					"EatLunch",
+					"EatBreakfast",
+					"HealthStatus",
+					"ComeTempleReason",
+					"Education",
+					"Expertise",
+					"Relationship",
+					"EmergencyPhone",
+					"EmergencyName",
+					"ClothSize",
+					"ClothType",
+					"Referrer",
+					"RefugueDate",
+					"RefugueMaster",
+					"ResidentialTemple",
+					"OrdinationDate",
+					"OrdinationTemple",
+					"ShavedDate",
+					"ShavedMaster",
+					"Altar",
+					"Ordination",
+					"Phone",
+					"BirthPlace",
+					"PassportNumber",
+					"IdNumber",
+					"BirthDate",
+					"Gender",
+					"StayIdentity",
+					"IsMonk",
+					"Email",
+					"LineId",
+					"MageNickname",
+					"DharmaName",
+					"Name",
+					"Mobile",
+					"MobilePrefix",
+					"Id"
+				],
+				"type": "object",
+				"description": "Model users"
+			},
 			"managers": {
 				"properties": {
 					"UpdateAt": {
@@ -65,6 +324,70 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
+		"/guests": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"allUsers": {
+											"items": {
+												"$ref": "#/components/schemas/users"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"allUsers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Guest"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "skip",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "take",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "order",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
 		"/api/managers": {
 			"get": {
 				"operationId": "GetAll",

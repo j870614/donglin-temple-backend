@@ -3,17 +3,21 @@
 import { Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { Route } from "tsoa";
-import { responseSuccess } from "../utils/responseSuccess";
+import { Get, Queries, Route, SuccessResponse, Tags } from "tsoa";
+import { responseSuccess, responseSuccessData } from "../utils/responseSuccess";
 import { GuestRequest } from "../models/guests.model";
 import { prisma } from "../configs/prismaClient";
 import { appError } from "../utils/appError";
 
-@Route("")
+@Tags("Guest")
+@Route("/guests")
 export class GuestsController {
-  public getAll = async (req: GuestRequest, res: Response) => {
-    // @swagger.tags = ['User']
-    const { order, take, skip } = req.query;
+  @Get()
+  @SuccessResponse(StatusCodes.OK, "OK")
+  public async getAll(
+    @Queries() requestQuery: { order: string; take: number; skip: number }
+  ) {
+    const { order, take, skip } = requestQuery;
     const orderOption = order === "asc" ? "asc" : "desc";
     const takeOption = Number(take || 100);
     const skipOption = Number(skip || 0);
@@ -25,11 +29,12 @@ export class GuestsController {
         skip: skipOption
       });
 
-      responseSuccess(res, StatusCodes.OK, allUsers);
+      return { status: true, allUsers };
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
+      throw new Error("");
     }
-  };
+  }
 
   public getGuest = async (req: GuestRequest, res: Response) => {
     // @swagger.tags = ['User']
