@@ -12,8 +12,9 @@ export const handleError = (
   next?: NextFunction
 ) => {
   const currentErr = err;
-
-  currentErr.statusCode ||= StatusCodes.INTERNAL_SERVER_ERROR;
+  if (!currentErr.statusCode) {
+    currentErr.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+  }
 
   if (process.env.NODE_ENV === "dev") {
     return responseErrorDev(currentErr, res);

@@ -1,167 +1,239 @@
 /* eslint-disable class-methods-use-this */
-import { Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
+import {
+  BodyProp,
+  Controller,
+  Example,
+  Get,
+  Post,
+  Query,
+  Res,
+  Response,
+  Route,
+  Security,
+  SuccessResponse,
+  Tags
+} from "tsoa";
 import bcrypt from "bcryptjs";
 import validator from "validator";
+import { managers } from "@prisma/client";
+import { TsoaResponse } from "src/utils/ErrorResponse";
 
-import { appError } from "../utils/appError";
-import { responseSuccess } from "../utils/responseSuccess";
-import { ManagerRequest } from "../models/managers.model";
 import { prisma } from "../configs/prismaClient";
-import { generateAndSendJWT } from "../services/auth/auth.service";
+import { generateAndSendJWT } from "../services/auth/jwtToken.service";
 
-export class ManagersController {
-  // constructor(private readonly _manager: ManagerDocument) {}
+@Tags("Manager")
+@Route("/api/managers")
+export class ManagersController extends Controller {
+  /**
+   * 查詢管理員
+   * @param order 正序("asc") / 倒序("desc")
+   * @param take 顯示數量
+   * @param skip 略過數量
+   */
+  @Get()
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  public async getAll(
+    @Query() order: "asc" | "desc" = "desc",
+    @Query() take = 100,
+    @Query() skip = 0
+  ) {
+    const allManagers = await prisma.managers.findMany({
+      orderBy: { Id: order },
+      take,
+      skip
+    });
 
-  public getAll = async (req: ManagerRequest, res: Response) => {
-    // @swagger.tags = ['Manager']
-    const { order, take, skip } = req.query;
-    const orderOption = order === "asc" ? "asc" : "desc";
-    const takeOption = Number(take || 100);
-    const skipOption = Number(skip || 0);
+    return { status: true, managers: allManagers };
+  }
 
-    try {
-      const allManagers = await prisma.managers.findMany({
-        orderBy: { Id: orderOption },
-        take: takeOption,
-        skip: skipOption
+  /**
+   * 產生空白管理員
+   * @param counts 產生個數
+   */
+  @Post("generate")
+  @SuccessResponse(StatusCodes.CREATED, "產生成功")
+  public async generate(@BodyProp() counts = 1) {
+    const generatedManagers: managers[] = [];
+    for (let i = 0; i < counts; i += 1) {
+      const manager = await prisma.managers.create({
+        data: {}
       });
-      responseSuccess(res, StatusCodes.OK, allManagers);
-    } catch (error: unknown) {
-      if (error instanceof Error) throw error;
+      generatedManagers.push(manager);
     }
-  };
 
-  public generate = async (req: ManagerRequest, res: Response) => {
-    // @swagger.tags = ['Manager']
-    const { times } = req.body;
+    return { status: true, managers: generatedManagers };
+  }
 
-    try {
-      const managers = [];
-      for (let i = 0; i < Number(times); i += 1) {
-        const manager = await prisma.managers.create({
-          data: {}
-        });
-        managers.push(manager);
-      }
-
-      responseSuccess(res, StatusCodes.OK, managers);
-    } catch (error: unknown) {
-      if (error instanceof Error) throw error;
-    }
-  };
-
-  public signUp = async (
-    req: ManagerRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    // @swagger.tags = ['Manager']
-    const { Email, Password, ConfirmPassword, UserId } = req.body;
-
+  /**
+   * 使用四眾使用者 ID 來註冊管理員身分
+   * @param Email 信箱
+   * @param Password 密碼
+   * @param ConfirmPassword 再次確認密碼
+   * @param UserId 使用者 ID
+   */
+  @Post("signup")
+  @SuccessResponse(StatusCodes.CREATED, "註冊成功")
+  @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
+  @Example<managers>({
+    Id: 1,
+    UserId: 1,
+    CreatedAt: new Date(),
+    Email: "a12345679@oao.com",
+    Google: "a123454543",
+    Line: "a12321321321",
+    Password: "password123",
+    UpdateAt: new Date()
+  })
+  public async signUp(
+    @BodyProp() Email: string,
+    @BodyProp() Password: string,
+    @BodyProp() ConfirmPassword: string,
+    @BodyProp() UserId: number,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
     if (!Email || !Password || !ConfirmPassword || !UserId) {
-      next(appError(StatusCodes.BAD_REQUEST, "All fields are required", next));
-      return;
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "所有欄位都必須填寫"
+      });
     }
 
     if (Password !== ConfirmPassword) {
-      next(appError(StatusCodes.BAD_REQUEST, "Passwords do not match", next));
-      return;
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "密碼和再次確認密碼不相同"
+      });
     }
 
     if (!validator.isLength(Password, { min: 8 })) {
-      next(
-        appError(
-          StatusCodes.BAD_REQUEST,
-          "Password must be at least 8 characters long",
-          next
-        )
-      );
-      return;
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "密碼需要至少 8 個字元長度"
+      });
     }
 
     if (!validator.isEmail(Email)) {
-      next(appError(StatusCodes.BAD_REQUEST, "Invalid email format", next));
-      return;
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "信箱格式錯誤"
+      });
     }
 
-    try {
-      const existingManager = await prisma.managers.findFirst({
-        where: { Email, UserId }
+    const existingManagerByEmail = await prisma.managers.findFirst({
+      where: { Email }
+    });
+
+    const existingManagerByUserId = await prisma.managers.findFirst({
+      where: { UserId }
+    });
+
+    if (existingManagerByEmail || existingManagerByUserId) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "您的信箱或是個人資料已經建立過管理員帳號"
       });
-
-      if (existingManager) {
-        next(appError(StatusCodes.BAD_REQUEST, "Email already exists", next));
-        return;
-      }
-
-      const UnsignedManager = await prisma.managers.findFirst({
-        where: {
-          Email: null,
-          UserId: null
-        }
-      });
-
-      if (!UnsignedManager) {
-        next(
-          appError(StatusCodes.BAD_REQUEST, "No enough Unsigned Manager", next)
-        );
-        return;
-      }
-
-      const hashedPassword = await bcrypt.hash(Password, 12);
-      const signedManager = await prisma.managers.update({
-        where: { Id: UnsignedManager.Id },
-        data: {
-          Email,
-          UserId,
-          Password: hashedPassword
-        }
-      });
-
-      responseSuccess(res, StatusCodes.CREATED, signedManager);
-    } catch (error: unknown) {
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected error in managers signUp");
     }
-  };
 
-  public signIn = async (
-    req: ManagerRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
-    // @swagger.tags = ['Manager']
-    const { Email, Password } = req.body;
+    const UnsignedManager = await prisma.managers.findFirst({
+      where: {
+        Email: null,
+        UserId: null
+      }
+    });
 
+    if (!UnsignedManager) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "沒有足夠的管理員空位"
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(Password, 12);
+    const signedManager = await prisma.managers.update({
+      where: { Id: UnsignedManager.Id },
+      data: {
+        Email,
+        UserId,
+        Password: hashedPassword
+      }
+    });
+
+    return { status: true, managers: signedManager };
+  }
+
+  /**
+   * 使用信箱、密碼登入管理員帳號，成功會返回 JWT token
+   * @param Email 信箱
+   * @param Password 密碼
+   */
+  @Post("signin")
+  @SuccessResponse(StatusCodes.OK, "登入成功")
+  @Response(StatusCodes.BAD_REQUEST, "登入失敗")
+  @Example({
+    status: true,
+    message: "登入成功",
+    Email: "a12345679@oao.com",
+    token: "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
+    expired: 1684908011
+  })
+  public async signIn(
+    @BodyProp() Email: string,
+    @BodyProp() Password: string,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
     if (!Email || !Password) {
-      next(appError(StatusCodes.BAD_REQUEST, "All fields are required", next));
-      return;
-    }
-
-    try {
-      const manager = await prisma.managers.findUnique({
-        where: { Email }
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "所有欄位都必須填寫"
       });
-      if (!manager || !manager.Password) {
-        next(
-          appError(StatusCodes.BAD_REQUEST, "Email or password is not correct")
-        );
-        return;
-      }
-
-      const auth = await bcrypt.compare(Password, manager.Password);
-      if (!auth) {
-        next(
-          appError(StatusCodes.BAD_REQUEST, "Email or password is incorrect")
-        );
-        return;
-      }
-
-      generateAndSendJWT(res, StatusCodes.OK, manager);
-    } catch (error: unknown) {
-      if (error instanceof Error) throw error;
-      throw new Error("Unexpected error in managers signIn");
     }
-  };
+
+    const manager = await prisma.managers.findUnique({
+      where: { Email }
+    });
+    if (!manager || !manager.Password) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "信箱或是密碼錯誤"
+      });
+    }
+
+    const auth = await bcrypt.compare(Password, manager.Password);
+    if (!auth) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "信箱或是密碼錯誤"
+      });
+    }
+
+    return {
+      status: true,
+      message: "登入成功",
+      ...generateAndSendJWT(manager)
+    };
+  }
+
+  /**
+   * 查詢當前 JWT token 是否為登入狀態。
+   */
+  @Security("jwt", ["manager"])
+  @Post("check")
+  @SuccessResponse(StatusCodes.OK, "管理員已登入")
+  @Response(StatusCodes.BAD_REQUEST, "請重新登入")
+  @Example({
+    status: true,
+    message: "管理員已登入"
+  })
+  public checkAuthorization() {
+    return { status: true, message: "管理員已登入" };
+  }
 }

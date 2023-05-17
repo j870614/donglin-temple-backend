@@ -1,19 +1,23 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable class-methods-use-this */
 import { Response, NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
-import { responseSuccess } from "../utils/responseSuccess";
+import { Get, Queries, Route, SuccessResponse, Tags } from "tsoa";
+import { responseSuccess, responseSuccessData } from "../utils/responseSuccess";
 import { GuestRequest } from "../models/guests.model";
 import { prisma } from "../configs/prismaClient";
 import { appError } from "../utils/appError";
-import { config } from "dotenv";
 
+@Tags("Guest")
+@Route("/guests")
 export class GuestsController {
-  // constructor(private readonly _manager: ManagerDocument) {}
-
-  public getAll = async (req: GuestRequest, res: Response) => {
-    // @swagger.tags = ['User']
-    const { order, take, skip } = req.query;
+  @Get()
+  @SuccessResponse(StatusCodes.OK, "OK")
+  public async getAll(
+    @Queries() requestQuery: { order: string; take: number; skip: number }
+  ) {
+    const { order, take, skip } = requestQuery;
     const orderOption = order === "asc" ? "asc" : "desc";
     const takeOption = Number(take || 100);
     const skipOption = Number(skip || 0);
@@ -25,21 +29,21 @@ export class GuestsController {
         skip: skipOption
       });
 
-      responseSuccess(res, StatusCodes.OK, allUsers);
+      return { status: true, allUsers };
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
+      throw new Error("");
     }
-  };
-
+  }
 
   public getGuest = async (req: GuestRequest, res: Response) => {
     // @swagger.tags = ['User']
     try {
-      const guestId=Number(req.params.id)
+      const guestId = Number(req.params.id);
       const guest = await prisma.users.findUnique({
         where: {
-          Id:guestId
-        },
+          Id: guestId
+        }
       });
       responseSuccess(res, StatusCodes.OK, guest);
     } catch (error: unknown) {
@@ -47,20 +51,24 @@ export class GuestsController {
     }
   };
 
-  public createUser = async (req: GuestRequest, res: Response, next: NextFunction ) => {
+  public createUser = async (
+    req: GuestRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const {IsMonk, Gender} = req.body;
+      const { IsMonk, Gender } = req.body;
 
       if (Gender === undefined) {
-        next(appError(StatusCodes.BAD_REQUEST,'性別未填寫', next));
+        next(appError(StatusCodes.BAD_REQUEST, "性別未填寫", next));
         return;
       }
 
       if (IsMonk === undefined) {
-        next(appError(StatusCodes.BAD_REQUEST,'身分別未填寫', next));
+        next(appError(StatusCodes.BAD_REQUEST, "身分別未填寫", next));
         return;
-      } 
-      
+      }
+
       if (IsMonk) {
         this.checkMonkFields(req, res, next);
       } else {
@@ -104,7 +112,7 @@ export class GuestsController {
         EatLunch,
         EatDinner,
         Address,
-        Remarks,
+        Remarks
       } = req.body;
       console.log(typeof IsMonk);
       const user = await prisma.users.create({
@@ -139,45 +147,52 @@ export class GuestsController {
           EmergencyName,
           EmergencyPhone,
           Relationship,
-          Expertise,
+          Expertise: undefined,
           Education,
           ComeTempleReason,
-          HealthStatus,
+          HealthStatus: undefined,
           EatBreakfast,
           EatLunch,
           EatDinner,
-          Address,
-          Remarks,
+          Address: undefined,
+          Remarks
         }
       });
 
       responseSuccess(res, StatusCodes.OK, user);
-
     } catch (error: unknown) {
       if (error instanceof Error) throw error;
       throw new Error("Unexpected error in guests createUser");
     }
-  }
+  };
 
-  private checkMonkFields = (req: GuestRequest, res: Response, next: NextFunction ) => {
-    const {DharmaName, ShavedMaster} = req.body;
+  private checkMonkFields = (
+    req: GuestRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { DharmaName, ShavedMaster } = req.body;
     const errMsgArr: string[] = [];
 
-    if(!DharmaName) errMsgArr.push('法名');
+    if (!DharmaName) errMsgArr.push("法名");
 
-    if(!ShavedMaster) errMsgArr.push('剃度師長德號');
+    if (!ShavedMaster) errMsgArr.push("剃度師長德號");
 
     if (errMsgArr.length !== 0) {
-      const errMsg = errMsgArr.join('、');
+      const errMsg = errMsgArr.join("、");
       next(appError(StatusCodes.BAD_REQUEST, `${errMsg} 未填寫`, next));
-    } 
-  }
+    }
+  };
 
-  private checkBuddhistFields = (req: GuestRequest, res: Response, next: NextFunction ) => {
+  private checkBuddhistFields = (
+    req: GuestRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     const { Name } = req.body;
 
     if (!Name) {
       next(appError(StatusCodes.BAD_REQUEST, `俗名未填寫`, next));
-    } 
-  }
+    }
+  };
 }

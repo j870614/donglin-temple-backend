@@ -2,10 +2,12 @@
 import { Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
+import { Route } from "tsoa";
 import { responseSuccess } from "../utils/responseSuccess";
 import { UserRequest } from "../models/users.model";
 import { prisma } from "../configs/prismaClient";
 
+@Route("user")
 export class UsersController {
   // constructor(private readonly _manager: ManagerDocument) {}
 

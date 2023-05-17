@@ -12,3 +12,8 @@ export const responseSuccess = (
   });
   res.end();
 };
+
+export const responseSuccessData = (data?: unknown) => ({
+  status: true,
+  data
+});
