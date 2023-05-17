@@ -1,33 +1,26 @@
 /* eslint-disable class-methods-use-this */
 import { StatusCodes } from "http-status-codes";
 import {
-  Body,
   BodyProp,
   Controller,
   Example,
   Get,
-  HttpStatusCodeLiteral,
   Post,
-  Queries,
   Query,
   Res,
   Response,
   Route,
+  Security,
   SuccessResponse,
   Tags
 } from "tsoa";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import { managers } from "@prisma/client";
-
 import { TsoaResponse } from "src/utils/ErrorResponse";
-import { prisma } from "../configs/prismaClient";
-import { generateAndSendJWT } from "../services/auth/authTsoa.service";
 
-export interface IRecordOfAny {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-}
+import { prisma } from "../configs/prismaClient";
+import { generateAndSendJWT } from "../services/auth/jwtToken.service";
 
 @Tags("Manager")
 @Route("/api/managers")
@@ -227,5 +220,20 @@ export class ManagersController extends Controller {
       message: "登入成功",
       ...generateAndSendJWT(manager)
     };
+  }
+
+  /**
+   * 查詢當前 JWT token 是否為登入狀態。
+   */
+  @Security("jwt", ["manager"])
+  @Post("check")
+  @SuccessResponse(StatusCodes.OK, "管理員已登入")
+  @Response(StatusCodes.BAD_REQUEST, "請重新登入")
+  @Example({
+    status: true,
+    message: "管理員已登入"
+  })
+  public checkAuthorization() {
+    return { status: true, message: "管理員已登入" };
   }
 }

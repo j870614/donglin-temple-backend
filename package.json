@@ -12,7 +12,6 @@
     "start:prod": "tsc -p tsconfig.json && node dist/src/index.js",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore",
-    "gendoc": "node ./swagger.js",
     "tsoa:gen": "tsoa spec-and-routes && tsc",
     "test": "jest --coverage"
   },

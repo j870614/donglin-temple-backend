@@ -1,77 +1,39 @@
-import { NextFunction, Request, Response } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { StatusCodes } from "http-status-codes";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
-import { ManagerRequestBody } from "../../models/managers.model";
-import { responseSuccess } from "../../utils/responseSuccess";
-import { appError } from "../../utils/appError";
-import { prisma } from "../../configs/prismaClient";
+/* eslint-disable  */
+import { Request } from "express";
+import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default-secret";
-const JWT_EXPIRATION = "7d";
 
-interface AuthRequest
-  extends Request<ParamsDictionary, object, ManagerRequestBody> {
-  manager?: ManagerRequestBody;
-}
-
-export const generateAndSendJWT = (manager: ManagerRequestBody) => {
-  const { Id, Email } = manager;
-  const token = jwt.sign({ Id }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRATION
-  });
-  const { exp } = jwt.decode(token) as JwtPayload;
-
-  return { Email, token, expired: exp };
-};
-
-export const isAuth = async (
-  req: AuthRequest,
-  res: Response,
-  next: NextFunction
-) => {
+export function expressAuthentication(
+  req: Request,
+  securityName: string,
+  scopes?: string[]
+) {
   const { authorization } = req.headers;
-
   if (!authorization || !authorization.startsWith("Bearer")) {
-    next(
-      appError(
-        StatusCodes.UNAUTHORIZED,
-        "Authorization header is missing",
-        next
-      )
-    );
-    return;
+    throw new Error("Authorization header 丟失");
   }
 
   const [, token] = authorization.split(" ");
-
   if (!token) {
-    next(appError(StatusCodes.UNAUTHORIZED, "Token is missing", next));
-    return;
+    throw new Error("Token 丟失");
   }
 
-  const decoded = jwt.verify(token, JWT_SECRET);
-  if (typeof decoded === "string") {
-    next(appError(StatusCodes.UNAUTHORIZED, "Token verify failed", next));
-    return;
-  }
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_SECRET, function (err: any, decoded: any) {
+      if (err) {
+        reject(err);
+      }
 
-  try {
-    const currentManager = await prisma.managers.findUnique({
-      where: { Id: Number(decoded.Id) }
+      if (scopes) {
+        for (let scope of scopes) {
+          if (!decoded.aud.includes(scope)) {
+            reject(new Error("JWT token 沒有包含必須的 scope"));
+          }
+        }
+      }
+
+      resolve(decoded);
     });
-
-    if (!currentManager) {
-      next(appError(StatusCodes.UNAUTHORIZED, "Invalid token", next));
-      return;
-    }
-
-    req.user = currentManager;
-
-    next();
-  } catch (error: unknown) {
-    if (error instanceof Error) throw error;
-    throw new Error("Unexpected error in managers signIn");
-  }
-};
+  });
+}

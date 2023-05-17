@@ -58,9 +58,12 @@ app.use(parseTsoaRequest);
 RegisterRoutes(app);
 
 // Add APIs, must be after middleware
-app.use("/api-doc", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use(
+  ["/api-doc", "/doc", "/swagger"],
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerDocument)
+);
 app.use(API_BASEURL, indexRouter);
-// app.use(API_MANAGERS_ENDPOINT, managersRouter);
 app.use(API_USERS_ENDPOINT, usersRouter);
 app.use(API_GUESTS_ENDPOINT, guestsRouter);
 

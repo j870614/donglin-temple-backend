@@ -533,12 +533,12 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
-											"CreatedAt": "2023-05-17T06:10:02.616Z",
+											"CreatedAt": "2023-05-17T07:47:18.702Z",
 											"Email": "a12345679@oao.com",
 											"Google": "a123454543",
 											"Line": "a12321321321",
 											"Password": "password123",
-											"UpdateAt": "2023-05-17T06:10:02.616Z"
+											"UpdateAt": "2023-05-17T07:47:18.702Z"
 										}
 									}
 								}
@@ -693,6 +693,58 @@
 						}
 					}
 				}
+			}
+		},
+		"/api/managers/check": {
+			"post": {
+				"operationId": "CheckAuthorization",
+				"responses": {
+					"200": {
+						"description": "管理員已登入",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"status"
+									],
+									"type": "object"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "管理員已登入"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "請重新登入"
+					}
+				},
+				"description": "查詢當前 JWT token 是否為登入狀態。",
+				"tags": [
+					"Manager"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager"
+						]
+					}
+				],
+				"parameters": []
 			}
 		}
 	},
