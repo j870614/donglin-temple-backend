@@ -62,116 +62,30 @@ export class BuddhaSevenController {
     }
   };
 
-  // public createUser = async (req: BuddhaSevenRequest, res: Response, next: NextFunction ) => {
-  //   try {
-  //     const {IsMonk, Gender} = req.body;
-
-  //     if (Gender === undefined) {
-  //       next(appError(StatusCodes.BAD_REQUEST,'性別未填寫', next));
-  //       return;
-  //     }
-
-  //     if (IsMonk === undefined) {
-  //       next(appError(StatusCodes.BAD_REQUEST,'身分別未填寫', next));
-  //       return;
-  //     } 
+  public createBuddhaSeven = async (req: BuddhaSevenRequest, res: Response, next: NextFunction ) => {
+    try {
       
-  //     if (IsMonk) {
-  //       this.checkMonkFields(req, res, next);
-  //     } else {
-  //       this.checkBuddhistFields(req, res, next);
-  //     }
+      const { StarSevenDate, CompleteDate, Remarks } = req.body;
 
-  //     const {
-  //       MobilePrefix,
-  //       Mobile,
-  //       Name,
-  //       DharmaName,
-  //       MageNickname,
-  //       LineId,
-  //       Email,
-  //       StayIdentity,
-  //       BirthDate,
-  //       IdNumber,
-  //       PassportNumber,
-  //       BirthPlace,
-  //       Phone,
-  //       Ordination,
-  //       Altar,
-  //       ShavedMaster,
-  //       ShavedDate,
-  //       OrdinationTemple,
-  //       OrdinationDate,
-  //       ResidentialTemple,
-  //       RefugueMaster,
-  //       RefugueDate,
-  //       Referrer,
-  //       ClothType,
-  //       ClothSize,
-  //       EmergencyName,
-  //       EmergencyPhone,
-  //       Relationship,
-  //       Expertise,
-  //       Education,
-  //       ComeTempleReason,
-  //       HealthStatus,
-  //       EatBreakfast,
-  //       EatLunch,
-  //       EatDinner,
-  //       Address,
-  //       Remarks,
-  //     } = req.body;
-  //     console.log(typeof IsMonk);
-  //     const user = await prisma.users.create({
-  //       data: {
-  //         MobilePrefix,
-  //         Mobile,
-  //         Name,
-  //         DharmaName,
-  //         MageNickname,
-  //         LineId,
-  //         Email,
-  //         IsMonk,
-  //         StayIdentity,
-  //         Gender,
-  //         BirthDate,
-  //         IdNumber,
-  //         PassportNumber,
-  //         BirthPlace,
-  //         Phone,
-  //         Ordination,
-  //         Altar,
-  //         ShavedMaster,
-  //         ShavedDate,
-  //         OrdinationTemple,
-  //         OrdinationDate,
-  //         ResidentialTemple,
-  //         RefugueMaster,
-  //         RefugueDate,
-  //         Referrer,
-  //         ClothType,
-  //         ClothSize,
-  //         EmergencyName,
-  //         EmergencyPhone,
-  //         Relationship,
-  //         Expertise,
-  //         Education,
-  //         ComeTempleReason,
-  //         HealthStatus,
-  //         EatBreakfast,
-  //         EatLunch,
-  //         EatDinner,
-  //         Address,
-  //         Remarks,
-  //       }
-  //     });
+      if (!StarSevenDate || !CompleteDate ) {
+        next(appError(StatusCodes.BAD_REQUEST, '起七日、圓滿日 未填寫', next));
+        return;
+      }
 
-  //     responseSuccess(res, StatusCodes.OK, user);
+      const buddhaSeven = await prisma.buddha_seven_periods.create({
+        data: {
+          StarSevenDate: new Date(StarSevenDate),
+          CompleteDate: new Date(CompleteDate),
+          Remarks,
+        },
+      })
 
-  //   } catch (error: unknown) {
-  //     if (error instanceof Error) throw error;
-  //     throw new Error("Unexpected error in guests createUser");
-  //   }
-  // }
+      responseSuccess(res, StatusCodes.OK, buddhaSeven);
+
+    } catch (error: unknown) {
+      if (error instanceof Error) throw error;
+      throw new Error("Unexpected error in guests createBuddhaSeven");
+    }
+  }
 
 }

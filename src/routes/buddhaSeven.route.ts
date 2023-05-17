@@ -9,7 +9,7 @@ buddhaSevenRouter.get("/", buddhaSevenController.getAllBuddhaSeven);
 
 buddhaSevenRouter.get("/:id", buddhaSevenController.getBuddhaSeven);
 
-// buddhaSevenRouter.post("/", buddhaSevenController.createUser);
+buddhaSevenRouter.post("/", buddhaSevenController.createBuddhaSeven);
 
 
 export { buddhaSevenRouter };
