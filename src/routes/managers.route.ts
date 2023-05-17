@@ -11,6 +11,6 @@ const managersController = new ManagersController();
 
 // managersRouter.post("/signup", managersController.signUp);
 
-managersRouter.post("/signin", managersController.signIn);
+// managersRouter.post("/signin", managersController.signIn);
 
 export { managersRouter };

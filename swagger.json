@@ -393,12 +393,12 @@
 				"operationId": "GetAll",
 				"responses": {
 					"200": {
-						"description": "OK",
+						"description": "查詢成功",
 						"content": {
 							"application/json": {
 								"schema": {
 									"properties": {
-										"allManagers": {
+										"managers": {
 											"items": {
 												"$ref": "#/components/schemas/managers"
 											},
@@ -409,7 +409,7 @@
 										}
 									},
 									"required": [
-										"allManagers",
+										"managers",
 										"status"
 									],
 									"type": "object"
@@ -418,35 +418,46 @@
 						}
 					}
 				},
+				"description": "查詢管理員",
 				"tags": [
 					"Manager"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "query",
-						"name": "skip",
-						"required": false,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					},
-					{
-						"in": "query",
-						"name": "take",
-						"required": false,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					},
-					{
+						"description": "正序(\"asc\") / 倒序(\"desc\")",
 						"in": "query",
 						"name": "order",
 						"required": false,
 						"schema": {
-							"type": "string"
+							"default": "desc",
+							"type": "string",
+							"enum": [
+								"asc",
+								"desc"
+							]
+						}
+					},
+					{
+						"description": "顯示數量",
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"default": 100,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "略過數量",
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]
@@ -457,12 +468,12 @@
 				"operationId": "Generate",
 				"responses": {
 					"201": {
-						"description": "CREATED",
+						"description": "產生成功",
 						"content": {
 							"application/json": {
 								"schema": {
 									"properties": {
-										"generatedManagers": {
+										"managers": {
 											"items": {
 												"$ref": "#/components/schemas/managers"
 											},
@@ -473,7 +484,7 @@
 										}
 									},
 									"required": [
-										"generatedManagers",
+										"managers",
 										"status"
 									],
 									"type": "object"
@@ -482,18 +493,202 @@
 						}
 					}
 				},
+				"description": "產生空白管理員",
 				"tags": [
 					"Manager"
 				],
 				"security": [],
 				"parameters": [],
 				"requestBody": {
-					"required": false,
+					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"type": "number",
-								"format": "double"
+								"properties": {
+									"counts": {
+										"type": "number",
+										"format": "double",
+										"description": "產生個數",
+										"default": 1
+									}
+								},
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/managers/signup": {
+			"post": {
+				"operationId": "SignUp",
+				"responses": {
+					"201": {
+						"description": "註冊成功",
+						"content": {
+							"application/json": {
+								"schema": {},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"Id": 1,
+											"UserId": 1,
+											"CreatedAt": "2023-05-17T06:10:02.616Z",
+											"Email": "a12345679@oao.com",
+											"Google": "a123454543",
+											"Line": "a12321321321",
+											"Password": "password123",
+											"UpdateAt": "2023-05-17T06:10:02.616Z"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "使用四眾使用者 ID 來註冊管理員身分",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Email": {
+										"type": "string",
+										"description": "信箱"
+									},
+									"Password": {
+										"type": "string",
+										"description": "密碼"
+									},
+									"ConfirmPassword": {
+										"type": "string",
+										"description": "再次確認密碼"
+									},
+									"UserId": {
+										"type": "number",
+										"format": "double",
+										"description": "使用者 ID"
+									}
+								},
+								"required": [
+									"Email",
+									"Password",
+									"ConfirmPassword",
+									"UserId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/managers/signin": {
+			"post": {
+				"operationId": "SignIn",
+				"responses": {
+					"200": {
+						"description": "登入成功",
+						"content": {
+							"application/json": {
+								"schema": {},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "登入成功",
+											"Email": "a12345679@oao.com",
+											"token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
+											"expired": 1684908011
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "使用信箱、密碼登入管理員帳號，成功會返回 JWT token",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Email": {
+										"type": "string",
+										"description": "信箱"
+									},
+									"Password": {
+										"type": "string",
+										"description": "密碼"
+									}
+								},
+								"required": [
+									"Email",
+									"Password"
+								],
+								"type": "object"
 							}
 						}
 					}

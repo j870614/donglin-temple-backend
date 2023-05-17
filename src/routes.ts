@@ -81,7 +81,9 @@ export function RegisterRoutes(app: Router) {
 
             function ManagersController_getAll(request: any, response: any, next: any) {
             const args = {
-                    reqQuery: {"in":"queries","name":"reqQuery","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"skip":{"dataType":"double"},"take":{"dataType":"double"},"order":{"dataType":"string"}}},
+                    order: {"default":"desc","in":"query","name":"order","dataType":"union","subSchemas":[{"dataType":"enum","enums":["asc"]},{"dataType":"enum","enums":["desc"]}]},
+                    take: {"default":100,"in":"query","name":"take","dataType":"double"},
+                    skip: {"default":0,"in":"query","name":"skip","dataType":"double"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -106,7 +108,7 @@ export function RegisterRoutes(app: Router) {
 
             function ManagersController_generate(request: any, response: any, next: any) {
             const args = {
-                    times: {"in":"body","name":"times","dataType":"double"},
+                    counts: {"default":1,"in":"body-prop","name":"counts","dataType":"double"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -120,6 +122,62 @@ export function RegisterRoutes(app: Router) {
 
               const promise = controller.generate.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/managers/signup',
+            ...(fetchMiddlewares<RequestHandler>(ManagersController)),
+            ...(fetchMiddlewares<RequestHandler>(ManagersController.prototype.signUp)),
+
+            function ManagersController_signUp(request: any, response: any, next: any) {
+            const args = {
+                    Email: {"in":"body-prop","name":"Email","required":true,"dataType":"string"},
+                    Password: {"in":"body-prop","name":"Password","required":true,"dataType":"string"},
+                    ConfirmPassword: {"in":"body-prop","name":"ConfirmPassword","required":true,"dataType":"string"},
+                    UserId: {"in":"body-prop","name":"UserId","required":true,"dataType":"double"},
+                    errorResponse: {"in":"res","name":"400","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"message":{"dataType":"string"},"status":{"dataType":"enum","enums":[false],"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new ManagersController();
+
+
+              const promise = controller.signUp.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/managers/signin',
+            ...(fetchMiddlewares<RequestHandler>(ManagersController)),
+            ...(fetchMiddlewares<RequestHandler>(ManagersController.prototype.signIn)),
+
+            function ManagersController_signIn(request: any, response: any, next: any) {
+            const args = {
+                    Email: {"in":"body-prop","name":"Email","required":true,"dataType":"string"},
+                    Password: {"in":"body-prop","name":"Password","required":true,"dataType":"string"},
+                    errorResponse: {"in":"res","name":"400","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"message":{"dataType":"string"},"status":{"dataType":"enum","enums":[false],"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new ManagersController();
+
+
+              const promise = controller.signIn.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 200, next);
             } catch (err) {
                 return next(err);
             }

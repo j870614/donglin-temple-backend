@@ -16,19 +16,14 @@ interface AuthRequest
   manager?: ManagerRequestBody;
 }
 
-export const generateAndSendJWT = (
-  res: Response,
-  statusCode: number,
-  manager: ManagerRequestBody
-) => {
+export const generateAndSendJWT = (manager: ManagerRequestBody) => {
   const { Id, Email } = manager;
   const token = jwt.sign({ Id }, JWT_SECRET, {
     expiresIn: JWT_EXPIRATION
   });
-
   const { exp } = jwt.decode(token) as JwtPayload;
 
-  responseSuccess(res, statusCode, { token, Email, expired: exp });
+  return { Email, token, expired: exp };
 };
 
 export const isAuth = async (

@@ -2,6 +2,9 @@
   "name": "donglin-temple-backend",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "concurrently \"tsc -w -p tsconfig.json\" \"nodemon dist/src/index.js\"",
     "start:build": "tsc -w -p tsconfig.json",
@@ -10,6 +13,7 @@
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore",
     "gendoc": "node ./swagger.js",
+    "tsoa:gen": "tsoa spec-and-routes && tsc",
     "test": "jest --coverage"
   },
   "dependencies": {
