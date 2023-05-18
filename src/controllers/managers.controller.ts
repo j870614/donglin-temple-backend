@@ -44,7 +44,7 @@ export class ManagersController extends Controller {
       skip
     });
 
-    return { status: true, managers: allManagers };
+    return { status: true, data: { managers: allManagers } };
   }
 
   /**
@@ -62,7 +62,7 @@ export class ManagersController extends Controller {
       generatedManagers.push(manager);
     }
 
-    return { status: true, managers: generatedManagers };
+    return { status: true, data: { managers: generatedManagers } };
   }
 
   /**
@@ -163,7 +163,7 @@ export class ManagersController extends Controller {
       }
     });
 
-    return { status: true, managers: signedManager };
+    return { status: true, data: { managers: signedManager } };
   }
 
   /**
@@ -218,7 +218,7 @@ export class ManagersController extends Controller {
     return {
       status: true,
       message: "登入成功",
-      ...generateAndSendJWT(manager)
+      data: { ...generateAndSendJWT(manager) }
     };
   }
 
