@@ -6,9 +6,22 @@ npm i
 ```  
 ### 程式碼編輯完成後輸入指令  
 ```js
-npm start
+npm run start
 ```  
-會自動執行 ```tsc --watch``` 與 ```nodemon ./bin/www```
+會自動執行 ```tsc -w -p tsconfig.json``` 與 ```nodemon dist/src/index.js```
+
+以下兩個指令則會執行並加入環境變數 ```NODE_ENV=dev``` 與 ```NODE_ENV=prod```
+```js
+npm run start:dev
+```  
+```js
+npm run start:prod
+```  
+以下指令會進行測試並顯示覆蓋率
+```js
+npm run test
+```  
+
 ## 資料夾說明
 * src - TypeScript 程式碼放置處
 * dist - 編譯過後的 JavaScript 程式碼

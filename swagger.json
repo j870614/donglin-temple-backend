@@ -1,0 +1,823 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"JsonObject": {
+				"properties": {},
+				"type": "object",
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches a JSON object.\nThis type can be useful to enforce some input to be JSON-compatible or as a super-type to be extended from."
+			},
+			"JsonArray": {
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches a JSON array.",
+				"properties": {},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Prisma.JsonValue": {
+				"anyOf": [
+					{
+						"type": "string"
+					},
+					{
+						"type": "number",
+						"format": "double"
+					},
+					{
+						"type": "boolean"
+					},
+					{
+						"$ref": "#/components/schemas/JsonObject"
+					},
+					{
+						"$ref": "#/components/schemas/JsonArray"
+					}
+				],
+				"nullable": true,
+				"description": "From https://github.com/sindresorhus/type-fest/\nMatches any valid JSON value."
+			},
+			"users": {
+				"properties": {
+					"UpdateAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"Remarks": {
+						"type": "string",
+						"nullable": true
+					},
+					"Address": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"EatDinner": {
+						"type": "boolean"
+					},
+					"EatLunch": {
+						"type": "boolean"
+					},
+					"EatBreakfast": {
+						"type": "boolean"
+					},
+					"HealthStatus": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"ComeTempleReason": {
+						"type": "string",
+						"nullable": true
+					},
+					"Education": {
+						"type": "string",
+						"nullable": true
+					},
+					"Expertise": {
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/Prisma.JsonValue"
+							}
+						],
+						"nullable": true
+					},
+					"Relationship": {
+						"type": "string",
+						"nullable": true
+					},
+					"EmergencyPhone": {
+						"type": "string",
+						"nullable": true
+					},
+					"EmergencyName": {
+						"type": "string",
+						"nullable": true
+					},
+					"ClothSize": {
+						"type": "string",
+						"nullable": true
+					},
+					"ClothType": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"Referrer": {
+						"type": "string",
+						"nullable": true
+					},
+					"RefugueDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"RefugueMaster": {
+						"type": "string",
+						"nullable": true
+					},
+					"ResidentialTemple": {
+						"type": "string",
+						"nullable": true
+					},
+					"OrdinationDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"OrdinationTemple": {
+						"type": "string",
+						"nullable": true
+					},
+					"ShavedDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"ShavedMaster": {
+						"type": "string",
+						"nullable": true
+					},
+					"Altar": {
+						"type": "string",
+						"nullable": true
+					},
+					"Ordination": {
+						"type": "string",
+						"nullable": true
+					},
+					"Phone": {
+						"type": "string",
+						"nullable": true
+					},
+					"BirthPlace": {
+						"type": "string",
+						"nullable": true
+					},
+					"PassportNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"IdNumber": {
+						"type": "string",
+						"nullable": true
+					},
+					"BirthDate": {
+						"type": "string",
+						"format": "date-time",
+						"nullable": true
+					},
+					"IsMale": {
+						"type": "boolean"
+					},
+					"StayIdentity": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"IsMonk": {
+						"type": "boolean"
+					},
+					"Email": {
+						"type": "string",
+						"nullable": true
+					},
+					"LineId": {
+						"type": "string",
+						"nullable": true
+					},
+					"MageNickname": {
+						"type": "string",
+						"nullable": true
+					},
+					"DharmaName": {
+						"type": "string",
+						"nullable": true
+					},
+					"Name": {
+						"type": "string",
+						"nullable": true
+					},
+					"Mobile": {
+						"type": "string",
+						"nullable": true
+					},
+					"MobilePrefix": {
+						"type": "string",
+						"nullable": true
+					},
+					"Id": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"UpdateAt",
+					"Remarks",
+					"Address",
+					"EatDinner",
+					"EatLunch",
+					"EatBreakfast",
+					"HealthStatus",
+					"ComeTempleReason",
+					"Education",
+					"Expertise",
+					"Relationship",
+					"EmergencyPhone",
+					"EmergencyName",
+					"ClothSize",
+					"ClothType",
+					"Referrer",
+					"RefugueDate",
+					"RefugueMaster",
+					"ResidentialTemple",
+					"OrdinationDate",
+					"OrdinationTemple",
+					"ShavedDate",
+					"ShavedMaster",
+					"Altar",
+					"Ordination",
+					"Phone",
+					"BirthPlace",
+					"PassportNumber",
+					"IdNumber",
+					"BirthDate",
+					"IsMale",
+					"StayIdentity",
+					"IsMonk",
+					"Email",
+					"LineId",
+					"MageNickname",
+					"DharmaName",
+					"Name",
+					"Mobile",
+					"MobilePrefix",
+					"Id"
+				],
+				"type": "object",
+				"description": "Model users"
+			},
+			"managers": {
+				"properties": {
+					"UpdateAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"Password": {
+						"type": "string",
+						"nullable": true
+					},
+					"Line": {
+						"type": "string",
+						"nullable": true
+					},
+					"Google": {
+						"type": "string",
+						"nullable": true
+					},
+					"Email": {
+						"type": "string",
+						"nullable": true
+					},
+					"CreatedAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"UserId": {
+						"type": "number",
+						"format": "double",
+						"nullable": true
+					},
+					"Id": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"UpdateAt",
+					"Password",
+					"Line",
+					"Google",
+					"Email",
+					"CreatedAt",
+					"UserId",
+					"Id"
+				],
+				"type": "object",
+				"description": "Model managers"
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "donglin-temple-backend",
+		"version": "0.0.0",
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/api/guests": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"allUsers": {
+											"items": {
+												"$ref": "#/components/schemas/users"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"allUsers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "取得所有四眾個資",
+				"tags": [
+					"Guest - 四眾個資"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "正序(\"asc\") / 倒序(\"desc\")",
+						"in": "query",
+						"name": "order",
+						"required": false,
+						"schema": {
+							"default": "desc",
+							"type": "string",
+							"enum": [
+								"asc",
+								"desc"
+							]
+						}
+					},
+					{
+						"description": "顯示數量",
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"default": 100,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "略過數量",
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/guests/{id}": {
+			"get": {
+				"operationId": "GetGuest",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "\n取得單一四眾個資",
+				"tags": [
+					"Guest - 四眾個資"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/managers": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"managers": {
+											"items": {
+												"$ref": "#/components/schemas/managers"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"managers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "查詢管理員",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "正序(\"asc\") / 倒序(\"desc\")",
+						"in": "query",
+						"name": "order",
+						"required": false,
+						"schema": {
+							"default": "desc",
+							"type": "string",
+							"enum": [
+								"asc",
+								"desc"
+							]
+						}
+					},
+					{
+						"description": "顯示數量",
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"default": 100,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "略過數量",
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/managers/generate": {
+			"post": {
+				"operationId": "Generate",
+				"responses": {
+					"201": {
+						"description": "產生成功",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"managers": {
+											"items": {
+												"$ref": "#/components/schemas/managers"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"managers",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "產生空白管理員",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"counts": {
+										"type": "number",
+										"format": "double",
+										"description": "產生個數",
+										"default": 1
+									}
+								},
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/managers/signup": {
+			"post": {
+				"operationId": "SignUp",
+				"responses": {
+					"201": {
+						"description": "註冊成功",
+						"content": {
+							"application/json": {
+								"schema": {},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"Id": 1,
+											"UserId": 1,
+											"CreatedAt": "2023-05-18T06:21:02.836Z",
+											"Email": "a12345679@oao.com",
+											"Google": "a123454543",
+											"Line": "a12321321321",
+											"Password": "password123",
+											"UpdateAt": "2023-05-18T06:21:02.836Z"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "使用四眾使用者 ID 來註冊管理員身分",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Email": {
+										"type": "string",
+										"description": "信箱"
+									},
+									"Password": {
+										"type": "string",
+										"description": "密碼"
+									},
+									"ConfirmPassword": {
+										"type": "string",
+										"description": "再次確認密碼"
+									},
+									"UserId": {
+										"type": "number",
+										"format": "double",
+										"description": "使用者 ID"
+									}
+								},
+								"required": [
+									"Email",
+									"Password",
+									"ConfirmPassword",
+									"UserId"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/managers/signin": {
+			"post": {
+				"operationId": "SignIn",
+				"responses": {
+					"200": {
+						"description": "登入成功",
+						"content": {
+							"application/json": {
+								"schema": {},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "登入成功",
+											"Email": "a12345679@oao.com",
+											"token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
+											"expired": 1684908011
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "使用信箱、密碼登入管理員帳號，成功會返回 JWT token",
+				"tags": [
+					"Manager"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"properties": {
+									"Email": {
+										"type": "string",
+										"description": "信箱"
+									},
+									"Password": {
+										"type": "string",
+										"description": "密碼"
+									}
+								},
+								"required": [
+									"Email",
+									"Password"
+								],
+								"type": "object"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/managers/check": {
+			"post": {
+				"operationId": "CheckAuthorization",
+				"responses": {
+					"200": {
+						"description": "管理員已登入",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"status"
+									],
+									"type": "object"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "管理員已登入"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "請重新登入"
+					}
+				},
+				"description": "查詢當前 JWT token 是否為登入狀態。",
+				"tags": [
+					"Manager"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager"
+						]
+					}
+				],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
