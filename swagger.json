@@ -175,7 +175,7 @@
 						"format": "date-time",
 						"nullable": true
 					},
-					"Gender": {
+					"IsMale": {
 						"type": "boolean"
 					},
 					"StayIdentity": {
@@ -250,7 +250,7 @@
 					"PassportNumber",
 					"IdNumber",
 					"BirthDate",
-					"Gender",
+					"IsMale",
 					"StayIdentity",
 					"IsMonk",
 					"Email",
@@ -324,12 +324,12 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
-		"/guests": {
+		"/api/guests": {
 			"get": {
 				"operationId": "GetAll",
 				"responses": {
 					"200": {
-						"description": "OK",
+						"description": "查詢成功",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -354,35 +354,46 @@
 						}
 					}
 				},
+				"description": "取得所有四眾個資",
 				"tags": [
 					"Guest"
 				],
 				"security": [],
 				"parameters": [
 					{
-						"in": "query",
-						"name": "skip",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					},
-					{
-						"in": "query",
-						"name": "take",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					},
-					{
+						"description": "正序(\"asc\") / 倒序(\"desc\")",
 						"in": "query",
 						"name": "order",
-						"required": true,
+						"required": false,
 						"schema": {
-							"type": "string"
+							"default": "desc",
+							"type": "string",
+							"enum": [
+								"asc",
+								"desc"
+							]
+						}
+					},
+					{
+						"description": "顯示數量",
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"default": 100,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "略過數量",
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"format": "double",
+							"type": "number"
 						}
 					}
 				]
@@ -533,12 +544,12 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
-											"CreatedAt": "2023-05-17T07:47:18.702Z",
+											"CreatedAt": "2023-05-18T06:01:03.132Z",
 											"Email": "a12345679@oao.com",
 											"Google": "a123454543",
 											"Line": "a12321321321",
 											"Password": "password123",
-											"UpdateAt": "2023-05-17T07:47:18.702Z"
+											"UpdateAt": "2023-05-18T06:01:03.132Z"
 										}
 									}
 								}
