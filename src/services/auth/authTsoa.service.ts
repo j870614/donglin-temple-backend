@@ -1,5 +1,6 @@
 /* eslint-disable  */
 import { Request } from "express";
+import { IncomingHttpHeaders } from "http";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default-secret";
@@ -9,17 +10,20 @@ export function expressAuthentication(
   securityName: string,
   scopes?: string[]
 ) {
-  const { authorization } = req.headers;
-  if (!authorization || !authorization.startsWith("Bearer")) {
-    throw new Error("Authorization header 丟失");
-  }
-
-  const [, token] = authorization.split(" ");
-  if (!token) {
-    throw new Error("Token 丟失");
-  }
-
   return new Promise((resolve, reject) => {
+    const { authorization } = req.headers;
+    if (!authorization || !authorization.startsWith("Bearer")) {
+      reject(new Error("Authorization header 丟失"));
+      return;
+    }
+
+    authorization;
+
+    const [, token] = authorization.split(" ");
+    if (!token) {
+      reject(new Error("Token 丟失"));
+    }
+
     jwt.verify(token, JWT_SECRET, function (err: any, decoded: any) {
       if (err) {
         reject(err);

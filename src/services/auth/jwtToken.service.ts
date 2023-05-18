@@ -13,5 +13,5 @@ export const generateAndSendJWT = (manager: ManagerRequestBody) => {
   });
   const { exp } = jwt.decode(token) as JwtPayload;
 
-  return { managerId: Id, userId: UserId, token, expired: exp };
+  return { userId: UserId, token, expired: exp };
 };

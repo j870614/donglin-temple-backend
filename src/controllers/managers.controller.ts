@@ -79,9 +79,9 @@ export class ManagersController extends Controller {
     Id: 1,
     UserId: 1,
     CreatedAt: new Date(),
-    Email: "a12345679@oao.com",
-    Google: "a123454543",
-    Line: "a12321321321",
+    Email: "a123456789@abc.com",
+    Google: "GoogleAccount",
+    Line: "LineId",
     Password: "password123",
     UpdateAt: new Date()
   })
@@ -163,7 +163,7 @@ export class ManagersController extends Controller {
       }
     });
 
-    return { status: true, data: { managers: signedManager } };
+    return { status: true, data: { manager: signedManager } };
   }
 
   /**
