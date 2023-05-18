@@ -195,3 +195,10 @@ model buddha_seven_apply {
   @@index([CheckInDate, CheckOutDate, RoomId], map: "idx_buddha_seven_apply_CheckInDate_CheckOutDate_RoomId")
   @@index([UserId], map: "idx_buddha_seven_apply_UserId")
 }
+
+
+model View {
+  id Int @id
+  name String
+
+}
