@@ -33,14 +33,14 @@ export class UsersController {
   public generate = async (req: UserRequest, res: Response) => {
     // @swagger.tags = ['User']
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    const { Name, IsMonk, Gender, EatBreakfast, EatDinner, EatLunch } =
+    const { Name, IsMonk, EatBreakfast, EatDinner, EatLunch } =
       req.body;
     try {
       const user = await prisma.users.create({
         data: {
           Name,
           IsMonk,
-          Gender,
+          // IsMele,
           EatBreakfast,
           EatLunch,
           EatDinner

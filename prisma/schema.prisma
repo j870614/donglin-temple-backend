@@ -29,7 +29,7 @@ model users {
   Email             String?   @db.VarChar(255)
   IsMonk            Boolean   @default(false)
   StayIdentity      Int?      @db.TinyInt
-  Gender            Boolean   @default(false)
+  IsMale            Boolean   @default(true)
   BirthDate         DateTime? @db.Date
   IdNumber          String?   @db.VarChar(10)
   PassportNumber    String?   @db.VarChar(20)
@@ -60,6 +60,11 @@ model users {
   Address           Json?
   Remarks           String?   @db.VarChar(255)
   UpdateAt          DateTime  @default(now()) @db.DateTime(0)
+
+  @@index([DharmaName], map: "idx_users_DharmaName")
+  @@index([MageNickname], map: "idx_users_MageNickname")
+  @@index([Mobile], map: "idx_users_Mobile")
+  @@index([Name], map: "idx_users_Name")
 }
 
 model buddha_seven_periods {
@@ -94,11 +99,13 @@ model rooms {
   BuildingId      Int      @db.TinyInt
   ShareId         Int      @db.TinyInt
   RoomType        Int      @db.TinyInt
-  Gender          Boolean  @default(true)
+  IsMale          Boolean  @default(true)
   TotalBeds       Int      @default(2) @db.TinyInt
   ReservedBeds    Int      @default(0) @db.TinyInt
   IsActive        Boolean  @default(true)
   UpdateAt        DateTime @default(now()) @db.DateTime(0)
+
+  @@index([DormitoryAreaId, BuildingId, IsActive], map: "idx_rooms_DormitoryAreaId_BuildingId_IsActive")
 }
 
 model user_auth_qr_codes {
@@ -145,12 +152,15 @@ model user_deacon_churchs {
   Id         Int       @id @default(autoincrement())
   UserId     Int       @db.UnsignedInt
   ChurchId   Int?      @db.SmallInt
-  DeaconType Int?      @db.TinyInt
+  DeaconId   Int?      @db.SmallInt
   DeaconArea Int?      @db.SmallInt
   ChurchUnit Int?      @db.SmallInt
   ChurchDept Int?      @db.SmallInt
   StartDate  DateTime? @db.Date
   EndDate    DateTime? @db.Date
+
+  @@index([UserId], map: "idx_user_deacon_churchs_UserId")
+  @@index([UserId, StartDate, EndDate], map: "idx_user_deacon_churchs_UserId_StartDate_EndDate")
 }
 
 model user_family_relationships {
@@ -181,4 +191,7 @@ model buddha_seven_apply {
   Remarks              String?   @db.VarChar(255)
   UpdateUserId         Int       @db.UnsignedInt
   UpdateAt             DateTime? @default(now()) @db.DateTime(0)
+
+  @@index([CheckInDate, CheckOutDate, RoomId], map: "idx_buddha_seven_apply_CheckInDate_CheckOutDate_RoomId")
+  @@index([UserId], map: "idx_buddha_seven_apply_UserId")
 }
