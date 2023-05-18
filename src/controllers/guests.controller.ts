@@ -8,6 +8,7 @@ import {
   Get,
   Post,
   Query,
+  Path,
   Res,
   Response,
   Route,
@@ -19,7 +20,7 @@ import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/ErrorResponse";
 import { prisma } from "../configs/prismaClient";
 
-@Tags("Guest")
+@Tags("Guest - 四眾個資")
 @Route("/api/guests")
 export class GuestsController extends Controller {
   /**
@@ -42,23 +43,39 @@ export class GuestsController extends Controller {
       skip
     });
 
-      return { status: true, allUsers };
+    return { status: true, allUsers };
   }
 
-//   public getGuest = async (req: GuestRequest, res: Response) => {
-//     // @swagger.tags = ['User']
-//     try {
-//       const guestId = Number(req.params.id);
-//       const guest = await prisma.users.findUnique({
-//         where: {
-//           Id: guestId
-//         }
-//       });
-//       responseSuccess(res, StatusCodes.OK, guest);
-//     } catch (error: unknown) {
-//       if (error instanceof Error) throw error;
-//     }
-//   };
+  /**
+   * 
+   * 取得單一四眾個資
+   */
+  @Get('{id}')
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  public async getGuest (
+    @Path() id: number,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const guest = await prisma.users.findUnique({
+      where: {
+        Id: id
+      }
+    });
+
+    if (!guest) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: '查無此 User Id'
+      })
+    }
+
+    return { status: true, guest };
+  };
 
 //   public createUser = async (
 //     req: GuestRequest,

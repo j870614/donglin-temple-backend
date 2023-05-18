@@ -356,7 +356,7 @@
 				},
 				"description": "取得所有四眾個資",
 				"tags": [
-					"Guest"
+					"Guest - 四眾個資"
 				],
 				"security": [],
 				"parameters": [
@@ -392,6 +392,62 @@
 						"required": false,
 						"schema": {
 							"default": 0,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/guests/{id}": {
+			"get": {
+				"operationId": "GetGuest",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "\n取得單一四眾個資",
+				"tags": [
+					"Guest - 四眾個資"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
 							"format": "double",
 							"type": "number"
 						}
@@ -544,12 +600,12 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
-											"CreatedAt": "2023-05-18T06:01:03.132Z",
+											"CreatedAt": "2023-05-18T06:21:02.836Z",
 											"Email": "a12345679@oao.com",
 											"Google": "a123454543",
 											"Line": "a12321321321",
 											"Password": "password123",
-											"UpdateAt": "2023-05-18T06:01:03.132Z"
+											"UpdateAt": "2023-05-18T06:21:02.836Z"
 										}
 									}
 								}

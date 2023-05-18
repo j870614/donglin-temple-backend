@@ -80,6 +80,32 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/guests/:id',
+            ...(fetchMiddlewares<RequestHandler>(GuestsController)),
+            ...(fetchMiddlewares<RequestHandler>(GuestsController.prototype.getGuest)),
+
+            function GuestsController_getGuest(request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+                    errorResponse: {"in":"res","name":"400","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"message":{"dataType":"string"},"status":{"dataType":"enum","enums":[false],"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new GuestsController();
+
+
+              const promise = controller.getGuest.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 200, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         app.get('/api/managers',
             ...(fetchMiddlewares<RequestHandler>(ManagersController)),
             ...(fetchMiddlewares<RequestHandler>(ManagersController.prototype.getAll)),
