@@ -7,6 +7,8 @@ import { GuestsController } from './controllers/guests.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { ManagersController } from './controllers/managers.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { RoomsController } from './controllers/rooms.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UsersController } from './controllers/users.controller';
 import { expressAuthentication } from './services/auth/authTsoa.service';
 // @ts-ignore - no great way to install types from subpackage
@@ -41,6 +43,11 @@ const models: TsoaRoute.Models = {
     "managers": {
         "dataType": "refAlias",
         "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"UpdateAt":{"dataType":"datetime","required":true},"Password":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"Line":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"Google":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"Email":{"dataType":"union","subSchemas":[{"dataType":"string"},{"dataType":"enum","enums":[null]}],"required":true},"CreatedAt":{"dataType":"datetime","required":true},"UserId":{"dataType":"union","subSchemas":[{"dataType":"double"},{"dataType":"enum","enums":[null]}],"required":true},"Id":{"dataType":"double","required":true}},"validators":{}},
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "rooms": {
+        "dataType": "refAlias",
+        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"UpdateAt":{"dataType":"datetime","required":true},"IsActive":{"dataType":"boolean","required":true},"ReservedBeds":{"dataType":"double","required":true},"TotalBeds":{"dataType":"double","required":true},"IsMale":{"dataType":"boolean","required":true},"RoomType":{"dataType":"double","required":true},"ShareId":{"dataType":"double","required":true},"BuildingId":{"dataType":"double","required":true},"DormitoryAreaId":{"dataType":"double","required":true},"Id":{"dataType":"double","required":true}},"validators":{}},
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -239,6 +246,7 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+<<<<<<< HEAD
         app.post('/api/managers/profile',
             authenticateMiddleware([{"jwt":["manager"]}]),
             ...(fetchMiddlewares<RequestHandler>(ManagersController)),
@@ -246,6 +254,17 @@ export function RegisterRoutes(app: Router) {
 
             function ManagersController_getProfile(request: any, response: any, next: any) {
             const args = {
+=======
+        app.get('/api/rooms',
+            ...(fetchMiddlewares<RequestHandler>(RoomsController)),
+            ...(fetchMiddlewares<RequestHandler>(RoomsController.prototype.getAll)),
+
+            function RoomsController_getAll(request: any, response: any, next: any) {
+            const args = {
+                    order: {"default":"desc","in":"query","name":"order","dataType":"union","subSchemas":[{"dataType":"enum","enums":["asc"]},{"dataType":"enum","enums":["desc"]}]},
+                    take: {"default":100,"in":"query","name":"take","dataType":"double"},
+                    skip: {"default":0,"in":"query","name":"skip","dataType":"double"},
+>>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -254,10 +273,43 @@ export function RegisterRoutes(app: Router) {
             try {
                 validatedArgs = getValidatedArgs(args, request, response);
 
+<<<<<<< HEAD
                 const controller = new ManagersController();
 
 
               const promise = controller.getProfile.apply(controller, validatedArgs as any);
+=======
+                const controller = new RoomsController();
+
+
+              const promise = controller.getAll.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 200, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.get('/api/rooms/:id',
+            ...(fetchMiddlewares<RequestHandler>(RoomsController)),
+            ...(fetchMiddlewares<RequestHandler>(RoomsController.prototype.getRoom)),
+
+            function RoomsController_getRoom(request: any, response: any, next: any) {
+            const args = {
+                    id: {"in":"path","name":"id","required":true,"dataType":"double"},
+                    errorResponse: {"in":"res","name":"400","required":true,"dataType":"nestedObjectLiteral","nestedProperties":{"message":{"dataType":"string"},"status":{"dataType":"enum","enums":[false],"required":true}}},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new RoomsController();
+
+
+              const promise = controller.getRoom.apply(controller, validatedArgs as any);
+>>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
               promiseHandler(controller, promise, response, 200, next);
             } catch (err) {
                 return next(err);

@@ -313,6 +313,62 @@
 				],
 				"type": "object",
 				"description": "Model managers"
+			},
+			"rooms": {
+				"properties": {
+					"UpdateAt": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"IsActive": {
+						"type": "boolean"
+					},
+					"ReservedBeds": {
+						"type": "number",
+						"format": "double"
+					},
+					"TotalBeds": {
+						"type": "number",
+						"format": "double"
+					},
+					"IsMale": {
+						"type": "boolean"
+					},
+					"RoomType": {
+						"type": "number",
+						"format": "double"
+					},
+					"ShareId": {
+						"type": "number",
+						"format": "double"
+					},
+					"BuildingId": {
+						"type": "number",
+						"format": "double"
+					},
+					"DormitoryAreaId": {
+						"type": "number",
+						"format": "double"
+					},
+					"Id": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"UpdateAt",
+					"IsActive",
+					"ReservedBeds",
+					"TotalBeds",
+					"IsMale",
+					"RoomType",
+					"ShareId",
+					"BuildingId",
+					"DormitoryAreaId",
+					"Id"
+				],
+				"type": "object",
+				"description": "Model rooms"
 			}
 		},
 		"securitySchemes": {}
@@ -627,10 +683,19 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
+<<<<<<< HEAD
 											"Email": "a123456789@abc.com",
 											"Google": "GoogleAccount",
 											"Line": "LineId",
 											"Password": "password123"
+=======
+											"CreatedAt": "2023-05-18T18:04:02.872Z",
+											"Email": "a12345679@oao.com",
+											"Google": "a123454543",
+											"Line": "a12321321321",
+											"Password": "password123",
+											"UpdateAt": "2023-05-18T18:04:02.872Z"
+>>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 										}
 									}
 								}
@@ -838,12 +903,104 @@
 				"parameters": []
 			}
 		},
+<<<<<<< HEAD
 		"/api/managers/profile": {
 			"post": {
 				"operationId": "GetProfile",
 				"responses": {
 					"200": {
 						"description": "已獲得管理員個資",
+=======
+		"/api/rooms": {
+			"get": {
+				"operationId": "GetAll",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"allRooms": {
+											"items": {
+												"$ref": "#/components/schemas/rooms"
+											},
+											"type": "array"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"allRooms",
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "取得所有寮房狀態",
+				"tags": [
+					"Room - 寮房狀態"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "正序(\"asc\") / 倒序(\"desc\")",
+						"in": "query",
+						"name": "order",
+						"required": false,
+						"schema": {
+							"default": "desc",
+							"type": "string",
+							"enum": [
+								"asc",
+								"desc"
+							]
+						}
+					},
+					{
+						"description": "顯示數量",
+						"in": "query",
+						"name": "take",
+						"required": false,
+						"schema": {
+							"default": 100,
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"description": "略過數量",
+						"in": "query",
+						"name": "skip",
+						"required": false,
+						"schema": {
+							"default": 0,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/rooms/{id}": {
+			"get": {
+				"operationId": "GetRoom",
+				"responses": {
+					"200": {
+						"description": "查詢成功",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+>>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 						"content": {
 							"application/json": {
 								"schema": {
@@ -852,6 +1009,7 @@
 											"type": "string"
 										},
 										"status": {
+<<<<<<< HEAD
 											"type": "boolean"
 										}
 									},
@@ -888,6 +1046,40 @@
 					}
 				],
 				"parameters": []
+=======
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "\n取得單一四眾個資",
+				"tags": [
+					"Room - 寮房狀態"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+>>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 			}
 		}
 	},
