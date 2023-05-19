@@ -265,55 +265,6 @@
 				"type": "object",
 				"description": "Model users"
 			},
-			"managers": {
-				"properties": {
-					"UpdateAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"Password": {
-						"type": "string",
-						"nullable": true
-					},
-					"Line": {
-						"type": "string",
-						"nullable": true
-					},
-					"Google": {
-						"type": "string",
-						"nullable": true
-					},
-					"Email": {
-						"type": "string",
-						"nullable": true
-					},
-					"CreatedAt": {
-						"type": "string",
-						"format": "date-time"
-					},
-					"UserId": {
-						"type": "number",
-						"format": "double",
-						"nullable": true
-					},
-					"Id": {
-						"type": "number",
-						"format": "double"
-					}
-				},
-				"required": [
-					"UpdateAt",
-					"Password",
-					"Line",
-					"Google",
-					"Email",
-					"CreatedAt",
-					"UserId",
-					"Id"
-				],
-				"type": "object",
-				"description": "Model managers"
-			},
 			"rooms": {
 				"properties": {
 					"UpdateAt": {
@@ -521,20 +472,7 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"data": {
-											"properties": {
-												"managers": {
-													"items": {
-														"$ref": "#/components/schemas/managers"
-													},
-													"type": "array"
-												}
-											},
-											"required": [
-												"managers"
-											],
-											"type": "object"
-										},
+										"data": {},
 										"message": {
 											"type": "string"
 										},
@@ -611,20 +549,7 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"data": {
-											"properties": {
-												"managers": {
-													"items": {
-														"$ref": "#/components/schemas/managers"
-													},
-													"type": "array"
-												}
-											},
-											"required": [
-												"managers"
-											],
-											"type": "object"
-										},
+										"data": {},
 										"message": {
 											"type": "string"
 										},
@@ -685,6 +610,7 @@
 											"UserId": 1,
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 											"Email": "a123456789@abc.com",
 											"Google": "GoogleAccount",
 											"Line": "LineId",
@@ -702,12 +628,17 @@
 >>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 =======
 =======
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 											"Email": "a123456789@abc.com",
 											"Google": "GoogleAccount",
 											"Line": "LineId",
 											"Password": "password123"
+<<<<<<< HEAD
 >>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
 >>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 										}
 									}
 								}
@@ -873,6 +804,7 @@
 							"application/json": {
 								"schema": {
 									"properties": {
+										"data": {},
 										"message": {
 											"type": "string"
 										},
@@ -881,6 +813,7 @@
 										}
 									},
 									"required": [
+										"data",
 										"message",
 										"status"
 									],
@@ -917,15 +850,85 @@
 		},
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 		"/api/managers/profile": {
 			"post": {
 				"operationId": "GetProfile",
 				"responses": {
 					"200": {
+<<<<<<< HEAD
 						"description": "已獲得管理員個資",
 =======
 =======
 >>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
+=======
+						"description": "已獲得管理員個人檔案",
+						"content": {
+							"application/json": {
+								"schema": {},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "管理員已登入"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean",
+											"enum": [
+												false
+											],
+											"nullable": false
+										}
+									},
+									"required": [
+										"status"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"description": "使用 Jwt token 獲得當前管理員個人檔案",
+				"tags": [
+					"Manager"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager"
+						]
+					}
+				],
+				"parameters": [
+					{
+						"in": "header",
+						"name": "Authorization",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 		"/api/rooms": {
 			"get": {
 				"operationId": "GetAll",
@@ -1016,6 +1019,7 @@
 					"400": {
 						"description": "",
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 =======
 =======
@@ -1027,6 +1031,8 @@
 						"description": "已獲得管理員個資",
 >>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
 >>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 						"content": {
 							"application/json": {
 								"schema": {
@@ -1035,6 +1041,7 @@
 											"type": "string"
 										},
 										"status": {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 											"type": "boolean"
@@ -1076,6 +1083,8 @@
 =======
 =======
 >>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 											"type": "boolean",
 											"enum": [
 												false
@@ -1092,7 +1101,7 @@
 						}
 					}
 				},
-				"description": "\n取得單一四眾個資",
+				"description": "\n取得單一寮房狀態",
 				"tags": [
 					"Room - 寮房狀態"
 				],
@@ -1108,6 +1117,7 @@
 						}
 					}
 				]
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
 =======
@@ -1150,6 +1160,8 @@
 				"parameters": []
 >>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
 >>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
+=======
+>>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 			}
 		}
 	},

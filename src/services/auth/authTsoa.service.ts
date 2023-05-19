@@ -30,7 +30,7 @@ export function expressAuthentication(
 
       if (scopes) {
         for (let scope of scopes) {
-          if (!decoded.aud.includes(scope)) {
+          if (!decoded.scopes.includes(scope)) {
             reject(new Error("JWT token 沒有包含必須的 scope"));
             return;
           }
