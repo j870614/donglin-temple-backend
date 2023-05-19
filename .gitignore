@@ -32,3 +32,7 @@ dist/
 *.sln
 *.sw?
 *.env
+
+# TSOA generated files
+.src/routes.ts
+swagger.json
