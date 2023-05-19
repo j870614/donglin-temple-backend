@@ -5,6 +5,7 @@ import {
   Controller,
   Example,
   Get,
+  Header,
   Post,
   Query,
   Res,
@@ -16,9 +17,11 @@ import {
 } from "tsoa";
 import bcrypt from "bcryptjs";
 import validator from "validator";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/ErrorResponse";
 
+import { successResponse } from "../utils/SuccessResponse";
 import { prisma } from "../configs/prismaClient";
 import { generateAndSendJWT } from "../services/auth/jwtToken.service";
 
@@ -33,6 +36,7 @@ export class ManagersController extends Controller {
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   public async getAll(
     @Query() order: "asc" | "desc" = "desc",
     @Query() take = 100,
@@ -44,7 +48,7 @@ export class ManagersController extends Controller {
       skip
     });
 
-    return { status: true, managers: allManagers };
+    return successResponse("查詢成功", { managers: allManagers });
   }
 
   /**
@@ -62,7 +66,7 @@ export class ManagersController extends Controller {
       generatedManagers.push(manager);
     }
 
-    return { status: true, managers: generatedManagers };
+    return successResponse("產生成功", { managers: generatedManagers });
   }
 
   /**
@@ -75,15 +79,13 @@ export class ManagersController extends Controller {
   @Post("signup")
   @SuccessResponse(StatusCodes.CREATED, "註冊成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
-  @Example<managers>({
+  @Example({
     Id: 1,
     UserId: 1,
-    CreatedAt: new Date(),
-    Email: "a12345679@oao.com",
-    Google: "a123454543",
-    Line: "a12321321321",
-    Password: "password123",
-    UpdateAt: new Date()
+    Email: "a123456789@abc.com",
+    Google: "GoogleAccount",
+    Line: "LineId",
+    Password: "password123"
   })
   public async signUp(
     @BodyProp() Email: string,
@@ -163,7 +165,7 @@ export class ManagersController extends Controller {
       }
     });
 
-    return { status: true, managers: signedManager };
+    return successResponse("註冊成功", { manager: signedManager });
   }
 
   /**
@@ -177,7 +179,6 @@ export class ManagersController extends Controller {
   @Example({
     status: true,
     message: "登入成功",
-    Email: "a12345679@oao.com",
     token: "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
     expired: 1684908011
   })
@@ -215,11 +216,7 @@ export class ManagersController extends Controller {
       });
     }
 
-    return {
-      status: true,
-      message: "登入成功",
-      ...generateAndSendJWT(manager)
-    };
+    return successResponse("登入成功", { ...generateAndSendJWT(manager) });
   }
 
   /**
@@ -234,6 +231,45 @@ export class ManagersController extends Controller {
     message: "管理員已登入"
   })
   public checkAuthorization() {
-    return { status: true, message: "管理員已登入" };
+    return successResponse("管理員已登入");
+  }
+
+  /**
+   * 使用 Jwt token 獲得當前管理員個人檔案
+   */
+  @Security("jwt", ["manager"])
+  @Post("profile")
+  @SuccessResponse(StatusCodes.OK, "已獲得管理員個人檔案")
+  @Response(StatusCodes.BAD_REQUEST, "請重新登入")
+  @Example({
+    status: true,
+    message: "已獲得管理員個人檔案"
+  })
+  public getProfile(
+    @Header() Authorization: string,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    if (!Authorization || !Authorization.startsWith("Bearer")) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "Authorization header 丟失"
+      });
+    }
+
+    const [, token] = Authorization.split(" ");
+    if (!token) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "Token 丟失"
+      });
+    }
+
+    const { UserId } = jwt.decode(token) as JwtPayload;
+
+    return successResponse("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
 }

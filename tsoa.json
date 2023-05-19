@@ -4,7 +4,15 @@
   "controllerPathGlobs": ["./src/**/*.controller.ts"],
   "spec": {
     "outputDirectory": "./",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "name": "Authorization",
+        "in": "headers"
+      }
+    }
   },
   "routes": {
     "routesDir": "./src",
