@@ -12,7 +12,7 @@ export interface User {
   LineId?: string
   Email?: string
   IsMonk: boolean
-  StayIdentity?: number
+  StayIdentity?: string | number
   IsMale: boolean
   BirthDate?: Date
   IdNumber?: string
