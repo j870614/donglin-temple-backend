@@ -34,5 +34,5 @@ dist/
 *.env
 
 # TSOA generated files
-.src/routes.ts
+src/routes.ts
 swagger.json
