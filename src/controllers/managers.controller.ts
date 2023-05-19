@@ -243,7 +243,7 @@ export class ManagersController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "請重新登入")
   @Example({
     status: true,
-    message: "管理員已登入"
+    message: "已獲得管理員個人檔案"
   })
   public getProfile(
     @Header() Authorization: string,

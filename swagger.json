@@ -322,7 +322,14 @@
 				"description": "Model rooms"
 			}
 		},
-		"securitySchemes": {}
+		"securitySchemes": {
+			"jwt": {
+				"type": "http",
+				"scheme": "bearer",
+				"name": "Authorization",
+				"in": "headers"
+			}
+		}
 	},
 	"info": {
 		"title": "donglin-temple-backend",
@@ -608,37 +615,10 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 											"Email": "a123456789@abc.com",
 											"Google": "GoogleAccount",
 											"Line": "LineId",
 											"Password": "password123"
-=======
-=======
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-											"CreatedAt": "2023-05-18T18:04:02.872Z",
-											"Email": "a12345679@oao.com",
-											"Google": "a123454543",
-											"Line": "a12321321321",
-											"Password": "password123",
-											"UpdateAt": "2023-05-18T18:04:02.872Z"
-<<<<<<< HEAD
->>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
-=======
-=======
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
-											"Email": "a123456789@abc.com",
-											"Google": "GoogleAccount",
-											"Line": "LineId",
-											"Password": "password123"
-<<<<<<< HEAD
->>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 										}
 									}
 								}
@@ -848,22 +828,11 @@
 				"parameters": []
 			}
 		},
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 		"/api/managers/profile": {
 			"post": {
 				"operationId": "GetProfile",
 				"responses": {
 					"200": {
-<<<<<<< HEAD
-						"description": "已獲得管理員個資",
-=======
-=======
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-=======
 						"description": "已獲得管理員個人檔案",
 						"content": {
 							"application/json": {
@@ -872,7 +841,7 @@
 									"Example 1": {
 										"value": {
 											"status": true,
-											"message": "管理員已登入"
+											"message": "已獲得管理員個人檔案"
 										}
 									}
 								}
@@ -928,7 +897,6 @@
 				]
 			}
 		},
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 		"/api/rooms": {
 			"get": {
 				"operationId": "GetAll",
@@ -1018,21 +986,6 @@
 					},
 					"400": {
 						"description": "",
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
-=======
-=======
-		"/api/managers/profile": {
-			"post": {
-				"operationId": "GetProfile",
-				"responses": {
-					"200": {
-						"description": "已獲得管理員個資",
->>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 						"content": {
 							"application/json": {
 								"schema": {
@@ -1041,50 +994,6 @@
 											"type": "string"
 										},
 										"status": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-											"type": "boolean"
-										}
-									},
-									"required": [
-										"message",
-										"status"
-									],
-									"type": "object"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"status": true,
-											"message": "管理員已登入"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "請重新登入"
-					}
-				},
-				"description": "查詢當前 JWT token 是否為登入狀態。",
-				"tags": [
-					"Manager"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager"
-						]
-					}
-				],
-				"parameters": []
-=======
-=======
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 											"type": "boolean",
 											"enum": [
 												false
@@ -1117,51 +1026,6 @@
 						}
 					}
 				]
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 65f9716 (feat: 🎸 新增所有寮房狀態 && 單一寮房查詢)
-=======
-=======
-											"type": "boolean"
-										}
-									},
-									"required": [
-										"message",
-										"status"
-									],
-									"type": "object"
-								},
-								"examples": {
-									"Example 1": {
-										"value": {
-											"status": true,
-											"message": "管理員已登入"
-										}
-									}
-								}
-							}
-						}
-					},
-					"400": {
-						"description": "請重新登入"
-					}
-				},
-				"description": "查詢當前 JWT token 是否為登入狀態。",
-				"tags": [
-					"Manager"
-				],
-				"security": [
-					{
-						"jwt": [
-							"manager"
-						]
-					}
-				],
-				"parameters": []
->>>>>>> f8818de (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
->>>>>>> d0deead (chore: 🤖 新增 onchange 讓 tsoa 可以自動生成 specs and routes)
-=======
->>>>>>> 1743316 (feat: 🎸 新增 manager getProfile)
 			}
 		}
 	},
