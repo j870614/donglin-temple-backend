@@ -5,7 +5,6 @@ import { StatusCodes } from "http-status-codes";
 import {
   Body,
   Controller,
-  Example,
   Get,
   Post,
   Query,
@@ -13,7 +12,6 @@ import {
   Res,
   Response,
   Route,
-  Security,
   SuccessResponse,
   Tags,
 } from "tsoa";
