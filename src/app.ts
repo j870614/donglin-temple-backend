@@ -10,7 +10,6 @@ import swaggerDocument from "../swagger.json";
 
 import { indexRouter } from "./routes/index.route";
 import { usersRouter } from "./routes/users.route";
-import { guestsRouter } from "./routes/guests.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 import { parseTsoaRequest } from "./utils/parseTsoaRequest";
@@ -21,7 +20,6 @@ import { handleTsoaError } from "./utils/handleTsoaError";
 // **** Variables **** //
 const API_BASEURL = "/api";
 const API_USERS_ENDPOINT = `${API_BASEURL}/users`;
-const API_GUESTS_ENDPOINT = `${API_BASEURL}/guests`;
 const app = express();
 
 // **** Process Error handler **** //
@@ -65,7 +63,6 @@ app.use(
 );
 app.use(API_BASEURL, indexRouter);
 app.use(API_USERS_ENDPOINT, usersRouter);
-app.use(API_GUESTS_ENDPOINT, guestsRouter);
 
 // Add error handlers
 app.use(handleTsoaNotFoundError);

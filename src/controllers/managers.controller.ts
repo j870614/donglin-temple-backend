@@ -33,6 +33,7 @@ export class ManagersController extends Controller {
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   public async getAll(
     @Query() order: "asc" | "desc" = "desc",
     @Query() take = 100,
@@ -44,7 +45,11 @@ export class ManagersController extends Controller {
       skip
     });
 
-    return { status: true, data: { managers: allManagers } };
+    return {
+      status: true,
+      message: "查詢成功",
+      data: { managers: allManagers }
+    };
   }
 
   /**
@@ -62,7 +67,11 @@ export class ManagersController extends Controller {
       generatedManagers.push(manager);
     }
 
-    return { status: true, data: { managers: generatedManagers } };
+    return {
+      status: true,
+      message: "產生成功",
+      data: { managers: generatedManagers }
+    };
   }
 
   /**
@@ -75,15 +84,13 @@ export class ManagersController extends Controller {
   @Post("signup")
   @SuccessResponse(StatusCodes.CREATED, "註冊成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
-  @Example<managers>({
+  @Example({
     Id: 1,
     UserId: 1,
-    CreatedAt: new Date(),
     Email: "a123456789@abc.com",
     Google: "GoogleAccount",
     Line: "LineId",
-    Password: "password123",
-    UpdateAt: new Date()
+    Password: "password123"
   })
   public async signUp(
     @BodyProp() Email: string,
@@ -163,7 +170,11 @@ export class ManagersController extends Controller {
       }
     });
 
-    return { status: true, data: { manager: signedManager } };
+    return {
+      status: true,
+      message: "註冊成功",
+      data: { manager: signedManager }
+    };
   }
 
   /**
@@ -177,7 +188,6 @@ export class ManagersController extends Controller {
   @Example({
     status: true,
     message: "登入成功",
-    Email: "a12345679@oao.com",
     token: "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
     expired: 1684908011
   })
@@ -235,5 +245,20 @@ export class ManagersController extends Controller {
   })
   public checkAuthorization() {
     return { status: true, message: "管理員已登入" };
+  }
+
+  /**
+   * 查詢當前 JWT token 是否為登入狀態。
+   */
+  @Security("jwt", ["manager"])
+  @Post("profile")
+  @SuccessResponse(StatusCodes.OK, "已獲得管理員個資")
+  @Response(StatusCodes.BAD_REQUEST, "請重新登入")
+  @Example({
+    status: true,
+    message: "管理員已登入"
+  })
+  public getProfile() {
+    return { status: true, message: "已獲得管理員個資" };
   }
 }

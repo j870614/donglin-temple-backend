@@ -465,24 +465,39 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"managers": {
-											"items": {
-												"$ref": "#/components/schemas/managers"
+										"data": {
+											"properties": {
+												"managers": {
+													"items": {
+														"$ref": "#/components/schemas/managers"
+													},
+													"type": "array"
+												}
 											},
-											"type": "array"
+											"required": [
+												"managers"
+											],
+											"type": "object"
+										},
+										"message": {
+											"type": "string"
 										},
 										"status": {
 											"type": "boolean"
 										}
 									},
 									"required": [
-										"managers",
+										"data",
+										"message",
 										"status"
 									],
 									"type": "object"
 								}
 							}
 						}
+					},
+					"400": {
+						"description": "查詢失敗"
 					}
 				},
 				"description": "查詢管理員",
@@ -540,18 +555,30 @@
 							"application/json": {
 								"schema": {
 									"properties": {
-										"managers": {
-											"items": {
-												"$ref": "#/components/schemas/managers"
+										"data": {
+											"properties": {
+												"managers": {
+													"items": {
+														"$ref": "#/components/schemas/managers"
+													},
+													"type": "array"
+												}
 											},
-											"type": "array"
+											"required": [
+												"managers"
+											],
+											"type": "object"
+										},
+										"message": {
+											"type": "string"
 										},
 										"status": {
 											"type": "boolean"
 										}
 									},
 									"required": [
-										"managers",
+										"data",
+										"message",
 										"status"
 									],
 									"type": "object"
@@ -600,12 +627,10 @@
 										"value": {
 											"Id": 1,
 											"UserId": 1,
-											"CreatedAt": "2023-05-18T06:21:02.836Z",
-											"Email": "a12345679@oao.com",
-											"Google": "a123454543",
-											"Line": "a12321321321",
-											"Password": "password123",
-											"UpdateAt": "2023-05-18T06:21:02.836Z"
+											"Email": "a123456789@abc.com",
+											"Google": "GoogleAccount",
+											"Line": "LineId",
+											"Password": "password123"
 										}
 									}
 								}
@@ -695,7 +720,6 @@
 										"value": {
 											"status": true,
 											"message": "登入成功",
-											"Email": "a12345679@oao.com",
 											"token": "eyJhbGciOiJSUzI1NiIsImtpZCI6InRCME0yQSJ9....",
 											"expired": 1684908011
 										}
@@ -768,6 +792,58 @@
 				"responses": {
 					"200": {
 						"description": "管理員已登入",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"message": {
+											"type": "string"
+										},
+										"status": {
+											"type": "boolean"
+										}
+									},
+									"required": [
+										"message",
+										"status"
+									],
+									"type": "object"
+								},
+								"examples": {
+									"Example 1": {
+										"value": {
+											"status": true,
+											"message": "管理員已登入"
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "請重新登入"
+					}
+				},
+				"description": "查詢當前 JWT token 是否為登入狀態。",
+				"tags": [
+					"Manager"
+				],
+				"security": [
+					{
+						"jwt": [
+							"manager"
+						]
+					}
+				],
+				"parameters": []
+			}
+		},
+		"/api/managers/profile": {
+			"post": {
+				"operationId": "GetProfile",
+				"responses": {
+					"200": {
+						"description": "已獲得管理員個資",
 						"content": {
 							"application/json": {
 								"schema": {

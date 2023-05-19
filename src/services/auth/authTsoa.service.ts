@@ -1,6 +1,5 @@
 /* eslint-disable  */
 import { Request } from "express";
-import { IncomingHttpHeaders } from "http";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default-secret";
@@ -17,22 +16,23 @@ export function expressAuthentication(
       return;
     }
 
-    authorization;
-
     const [, token] = authorization.split(" ");
     if (!token) {
       reject(new Error("Token 丟失"));
+      return;
     }
 
     jwt.verify(token, JWT_SECRET, function (err: any, decoded: any) {
       if (err) {
         reject(err);
+        return;
       }
 
       if (scopes) {
         for (let scope of scopes) {
           if (!decoded.aud.includes(scope)) {
             reject(new Error("JWT token 沒有包含必須的 scope"));
+            return;
           }
         }
       }
