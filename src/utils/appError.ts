@@ -1,4 +1,3 @@
-import { NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
 
 export class AppError extends Error {
@@ -17,12 +16,7 @@ export class AppError extends Error {
   }
 }
 
-export const appError = (
-  httpStatus: number,
-  errMessage: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next?: NextFunction
-) => {
+export const appError = (httpStatus: number, errMessage: string) => {
   const currentError = new AppError(errMessage, httpStatus, true);
   return currentError;
 };
