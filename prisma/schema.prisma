@@ -10,12 +10,13 @@ datasource db {
 model managers {
   Id        Int      @id @default(autoincrement())
   UserId    Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
-  CreatedAt DateTime @default(now())
   Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
   Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
   Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
   Password  String?  @db.VarChar(255)
+  CreatedAt DateTime @default(now())
   UpdateAt  DateTime @updatedAt
+  IsActive  Boolean? @default(true)
 }
 
 model users {
@@ -68,10 +69,10 @@ model users {
 }
 
 model buddha_seven_periods {
-  Id            Int      @id @default(autoincrement()) @db.UnsignedSmallInt
-  StarSevenDate DateTime @db.Date
-  CompleteDate  DateTime @db.Date
-  Remarks       String?  @db.VarChar(32)
+  Id             Int      @id @default(autoincrement()) @db.UnsignedSmallInt
+  StartSevenDate DateTime @db.Date
+  CompleteDate   DateTime @db.Date
+  Remarks        String?  @db.VarChar(32)
 }
 
 model item_name_mapping {
@@ -118,10 +119,9 @@ model user_auth_qr_codes {
 }
 
 model user_authorizes {
-  Id              Int       @id @default(autoincrement()) @db.UnsignedInt
-  UserId          Int?      @db.UnsignedInt
-  DeaconType      Int?      @db.TinyInt
-  AuthorizeUserId Int?
+  UserId          Int       @id @db.UnsignedInt
+  DeaconId        Int?      @db.SmallInt
+  AuthorizeUserId Int?      @db.UnsignedInt
   AuthorizeDate   DateTime? @db.Date
 }
 
@@ -196,9 +196,24 @@ model buddha_seven_apply {
   @@index([UserId], map: "idx_buddha_seven_apply_UserId")
 }
 
+model deacon_auth_permissions {
+  Id                  Int     @id @db.TinyInt
+  IsSystemAdmin       Boolean @default(false)
+  HasBuddhaSevenApply Boolean @default(false)
+  HasRefugeApply      Boolean @default(false)
+  HasVisitAndActive   Boolean @default(false)
+  HasRoomApply        Boolean @default(false)
+  HasRoomInfo         Boolean @default(false)
+  HasArrangeService   Boolean @default(false)
+}
 
-model View {
-  id Int @id
-  name String
-
+model user_auth_permissions {
+  UserId              Int     @id @db.UnsignedInt
+  IsSystemAdmin       Boolean @default(false)
+  HasBuddhaSevenApply Boolean @default(false)
+  HasRefugeApply      Boolean @default(false)
+  HasVisitAndActive   Boolean @default(false)
+  HasRoomApply        Boolean @default(false)
+  HasRoomInfo         Boolean @default(false)
+  HasArrangeService   Boolean @default(false)
 }

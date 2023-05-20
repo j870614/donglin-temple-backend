@@ -2,22 +2,23 @@
 
 import { StatusCodes } from "http-status-codes";
 import {
-  BodyProp,
+  // BodyProp,
   Controller,
-  Example,
+  // Example,
   Get,
-  Post,
+  // Post,
   Query,
   Path,
   Res,
   Response,
   Route,
-  Security,
+  // Security,
   SuccessResponse,
   Tags
 } from "tsoa";
 // import { managers } from "@prisma/client";
-import { TsoaResponse } from "src/utils/ErrorResponse";
+import { TsoaResponse } from "src/utils/responseTsoaError";
+import { responseSuccess } from "src/utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
 @Tags("Room - 寮房狀態")
@@ -32,49 +33,47 @@ export class RoomsController extends Controller {
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   public async getAll(
-    @Query() order: 'asc' | "desc" = 'desc',
+    @Query() order: "asc" | "desc" = "desc",
     @Query() take = 100,
     @Query() skip = 0
-    ) {
-
+  ) {
     const allRooms = await prisma.rooms.findMany({
       orderBy: { Id: order },
       take,
       skip
     });
 
-    return { status: true, allRooms };
+    return responseSuccess("查詢成功", { rooms: allRooms });
   }
 
   /**
-   * 
+   *
    * 取得單一寮房狀態
    */
-   @Get('{id}')
-   @SuccessResponse(StatusCodes.OK, "查詢成功")
-   @Response(StatusCodes.BAD_REQUEST, "查無 id")
-   public async getRoom (
-     @Path() id: number,
-     @Res()
-     errorResponse: TsoaResponse<
-       StatusCodes.BAD_REQUEST,
-       { status: false; message?: string }
-     >
-   ) {
-     const room = await prisma.rooms.findUnique({
-       where: {
-         Id: id
-       }
-     });
- 
-     if (!room) {
-       return errorResponse(StatusCodes.BAD_REQUEST, {
-         status: false,
-         message: '查無此 Room Id'
-       })
-     }
- 
-     return { status: true, room };
-   };
- 
+  @Get("{id}")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  public async getRoom(
+    @Path() id: number,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const room = await prisma.rooms.findUnique({
+      where: {
+        Id: id
+      }
+    });
+
+    if (!room) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此 Room Id"
+      });
+    }
+
+    return responseSuccess("查詢成功", { room });
+  }
 }

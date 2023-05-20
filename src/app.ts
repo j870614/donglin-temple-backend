@@ -8,17 +8,12 @@ import path from "path";
 
 import swaggerDocument from "../swagger.json";
 
-import { indexRouter } from "./routes/index.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 import { parseTsoaRequest } from "./utils/parseTsoaRequest";
 import { RegisterRoutes } from "./routes";
-import { handleTsoaNotFoundError } from "./utils/handleTsoaNotFoundError";
-import { handleTsoaError } from "./utils/handleTsoaError";
 
 // **** Variables **** //
-const API_BASEURL = "/api";
-const API_USERS_ENDPOINT = `${API_BASEURL}/users`;
 const app = express();
 
 // **** Process Error handler **** //
@@ -60,11 +55,8 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocument)
 );
-app.use(API_BASEURL, indexRouter);
 
 // Add error handlers
-app.use(handleTsoaNotFoundError);
-app.use(handleTsoaError);
 app.use(handleNotFoundError);
 app.use(handleError);
 

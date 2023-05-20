@@ -1,19 +1,7 @@
-import { Response } from "express";
-import { StatusCodes } from "http-status-codes";
+/* eslint-disable */
 
-export const responseSuccess = (
-  res: Response,
-  statusCode: number = StatusCodes.OK,
-  data?: unknown
-) => {
-  res.status(statusCode).send({
-    status: true,
-    data
-  });
-  res.end();
-};
-
-export const responseSuccessData = (data?: unknown) => ({
+export const responseSuccess = (message: string, data?: any) => ({
   status: true,
+  message,
   data
 });

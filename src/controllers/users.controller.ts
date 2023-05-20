@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 
 import { StatusCodes } from "http-status-codes";
@@ -13,9 +12,11 @@ import {
   Response,
   Route,
   SuccessResponse,
-  Tags,
+  Tags
 } from "tsoa";
-import { TsoaResponse } from "src/utils/ErrorResponse";
+import { TsoaResponse } from "src/utils/responseTsoaError";
+import { responseSuccess } from "src/utils/responseSuccess";
+import { users } from "@prisma/client";
 import { prisma } from "../configs/prismaClient";
 
 import { User } from "../models/users.model";
@@ -39,10 +40,10 @@ export class UsersController extends Controller {
     const allUsers = await prisma.users.findMany({
       orderBy: { Id: order },
       take,
-      skip,
+      skip
     });
 
-    return { status: true, allUsers };
+    return responseSuccess("查詢成功", { users: allUsers });
   }
 
   /**
@@ -60,20 +61,20 @@ export class UsersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    const guest = await prisma.users.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
-        Id: id,
-      },
+        Id: id
+      }
     });
 
-    if (!guest) {
+    if (!user) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "查無此 User Id",
+        message: "查無此 User Id"
       });
     }
 
-    return { status: true, guest };
+    return responseSuccess("查詢成功", { user });
   }
 
   /**
@@ -91,59 +92,54 @@ export class UsersController extends Controller {
     >
   ) {
     // 檢查四眾個資必填欄位，法師居士所須必填之欄位不同
-    const { IsMonk } = newUser;
+    const { IsMonk, StayIdentity } = newUser;
+    let createUserData: User;
+
     if (IsMonk) {
-      this.checkMonkFields(errorResponse, newUser); // 檢查法師欄位 
+      this.checkMonkFields(errorResponse, newUser); // 檢查法師欄位
     } else {
       this.checkBuddhistFields(errorResponse, newUser); // 檢查居士欄位
     }
 
     // 住眾身分別字串轉 ItemId
-    const { StayIdentity } = newUser;
-
-    if ( StayIdentity && typeof StayIdentity === 'string') {
+    if (StayIdentity && typeof StayIdentity === "string") {
       const ItemValue: string = StayIdentity;
       const item = await prisma.item_name_mapping.findFirst({
         where: {
-          ItemValue,
+          ItemValue
         },
         select: {
           ItemId: true,
-          ItemValue: true,
-        },
+          ItemValue: true
+        }
       });
       const newStayIdentity = item?.ItemId;
-      newUser = { ...newUser, StayIdentity: Number(newStayIdentity)}; 
+      createUserData = { ...newUser, StayIdentity: Number(newStayIdentity) };
     } else {
-      console.log('未輸入住眾身分別');
+      console.log("未輸入住眾身分別");
       // 未輸入住眾身分別，則設定預設值
       if (IsMonk) {
-        console.log('法師');
+        console.log("法師");
         // 法師之住眾身分別預設值為外單法師
-        newUser = { ...newUser, StayIdentity: 4}; 
+        createUserData = { ...newUser, StayIdentity: 4 };
       } else {
-        console.log('居士');
+        console.log("居士");
         // 居士之住眾身分別預設值為佛七蓮友
-        newUser = { ...newUser, StayIdentity: 3}; 
+        createUserData = { ...newUser, StayIdentity: 3 };
       }
     }
-    
 
     const user = await prisma.users.create({
-      data: newUser
+      data: createUserData
     });
 
-    return {
-      status: true,
-      message: "新增四眾個資成功",
-      data: { user }
-    };
+    return responseSuccess("新增四眾個資成功", { user });
   }
 
   /**
    *   檢查法師必填欄位
    */
-  private checkMonkFields (
+  private checkMonkFields(
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -162,15 +158,15 @@ export class UsersController extends Controller {
       const errMsg = errMsgArr.join("、");
       errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: `${errMsg} 未填寫`,
-      })
+        message: `${errMsg} 未填寫`
+      });
     }
-  };
+  }
 
   /**
    *   檢查居士必填欄位
    */
-  private checkBuddhistFields  (
+  private checkBuddhistFields(
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -183,8 +179,8 @@ export class UsersController extends Controller {
     if (!Name) {
       errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: '俗名未填寫',
-      })
+        message: "俗名未填寫"
+      });
     }
-  };
+  }
 }

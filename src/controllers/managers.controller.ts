@@ -19,9 +19,9 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { managers } from "@prisma/client";
-import { TsoaResponse } from "src/utils/ErrorResponse";
+import { TsoaResponse } from "src/utils/responseTsoaError";
 
-import { successResponse } from "../utils/SuccessResponse";
+import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 import { generateAndSendJWT } from "../services/auth/jwtToken.service";
 
@@ -48,7 +48,7 @@ export class ManagersController extends Controller {
       skip
     });
 
-    return successResponse("查詢成功", { managers: allManagers });
+    return responseSuccess("查詢成功", { managers: allManagers });
   }
 
   /**
@@ -59,6 +59,7 @@ export class ManagersController extends Controller {
   @SuccessResponse(StatusCodes.CREATED, "產生成功")
   public async generate(@BodyProp() counts = 1) {
     const generatedManagers: managers[] = [];
+
     for (let i = 0; i < counts; i += 1) {
       const manager = await prisma.managers.create({
         data: {}
@@ -66,7 +67,7 @@ export class ManagersController extends Controller {
       generatedManagers.push(manager);
     }
 
-    return successResponse("產生成功", { managers: generatedManagers });
+    return responseSuccess("產生成功", { managers: generatedManagers });
   }
 
   /**
@@ -165,7 +166,7 @@ export class ManagersController extends Controller {
       }
     });
 
-    return successResponse("註冊成功", { manager: signedManager });
+    return responseSuccess("註冊成功", { manager: signedManager });
   }
 
   /**
@@ -216,7 +217,7 @@ export class ManagersController extends Controller {
       });
     }
 
-    return successResponse("登入成功", { ...generateAndSendJWT(manager) });
+    return responseSuccess("登入成功", { ...generateAndSendJWT(manager) });
   }
 
   /**
@@ -231,7 +232,7 @@ export class ManagersController extends Controller {
     message: "管理員已登入"
   })
   public checkAuthorization() {
-    return successResponse("管理員已登入");
+    return responseSuccess("管理員已登入");
   }
 
   /**
@@ -270,6 +271,6 @@ export class ManagersController extends Controller {
 
     const { UserId } = jwt.decode(token) as JwtPayload;
 
-    return successResponse("已獲得管理員個人檔案", { userId: Number(UserId) });
+    return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
 }

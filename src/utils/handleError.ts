@@ -1,30 +1,21 @@
-import { NextFunction, Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-
-import { AppError } from "./appError.js";
-import { responseErrorDev, responseErrorProd } from "./responseError.js";
+import { Response, Request, NextFunction } from "express";
+import { ValidateError } from "tsoa";
+import { responseError, responseValidateError } from "./responseError";
 
 export const handleError = (
-  err: AppError,
+  err: unknown,
   req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next?: NextFunction
-) => {
-  const currentErr = err;
-  if (!currentErr.statusCode) {
-    currentErr.statusCode = StatusCodes.INTERNAL_SERVER_ERROR;
+  next: NextFunction
+): Response | void => {
+  if (err instanceof ValidateError) {
+    console.warn(`Caught Validation Error for ${req.path}:`, err.fields);
+    return responseValidateError(err, res);
   }
 
-  if (process.env.NODE_ENV === "dev") {
-    return responseErrorDev(currentErr, res);
+  if (err instanceof Error) {
+    return responseError(err, res);
   }
 
-  if (currentErr.name === "ValidationError") {
-    currentErr.message = "The input of form is wrong, please try again.";
-    currentErr.isOperational = true;
-    return responseErrorProd(currentErr, res);
-  }
-
-  return responseErrorProd(currentErr, res);
+  return next();
 };
