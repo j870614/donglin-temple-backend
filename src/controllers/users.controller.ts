@@ -15,6 +15,8 @@ import {
   Tags
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
+import { responseSuccess } from "src/utils/responseSuccess";
+import { users } from "@prisma/client";
 import { prisma } from "../configs/prismaClient";
 import { User } from "../models/users.model";
 
@@ -40,7 +42,7 @@ export class UsersController extends Controller {
       skip
     });
 
-    return { status: true, allUsers };
+    return responseSuccess("查詢成功", { users: allUsers });
   }
 
   /**
@@ -58,20 +60,20 @@ export class UsersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    const guest = await prisma.users.findUnique({
+    const user = await prisma.users.findUnique({
       where: {
         Id: id
       }
     });
 
-    if (!guest) {
+    if (!user) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此 User Id"
       });
     }
 
-    return { status: true, guest };
+    return responseSuccess("查詢成功", { user });
   }
 
   /**
@@ -89,7 +91,9 @@ export class UsersController extends Controller {
     >
   ) {
     // 檢查四眾個資必填欄位，法師居士所須必填之欄位不同
-    const { IsMonk } = newUser;
+    const { IsMonk, StayIdentity } = newUser;
+    let createUserData: User;
+
     if (IsMonk) {
       this.checkMonkFields(errorResponse, newUser); // 檢查法師欄位
     } else {
@@ -97,9 +101,6 @@ export class UsersController extends Controller {
     }
 
     // 住眾身分別字串轉 ItemId
-    const { StayIdentity } = newUser;
-    let createUserData: User;
-
     if (StayIdentity && typeof StayIdentity === "string") {
       const ItemValue: string = StayIdentity;
       const item = await prisma.item_name_mapping.findFirst({
@@ -127,11 +128,7 @@ export class UsersController extends Controller {
       data: createUserData,
     });
 
-    return {
-      status: true,
-      message: "新增四眾個資成功",
-      data: { user }
-    };
+    return responseSuccess("新增四眾個資成功", { user });
   }
 
   /**

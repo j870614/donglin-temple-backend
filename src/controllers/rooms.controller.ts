@@ -18,6 +18,7 @@ import {
 } from "tsoa";
 // import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
+import { responseSuccess } from "src/utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
 @Tags("Room - 寮房狀態")
@@ -42,7 +43,7 @@ export class RoomsController extends Controller {
       skip
     });
 
-    return { status: true, allRooms };
+    return responseSuccess("查詢成功", { rooms: allRooms });
   }
 
   /**
@@ -73,6 +74,6 @@ export class RoomsController extends Controller {
       });
     }
 
-    return { status: true, room };
+    return responseSuccess("查詢成功", { room });
   }
 }
