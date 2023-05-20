@@ -36,3 +36,6 @@ dist/
 # TSOA generated files
 src/routes.ts
 swagger.json
+
+# Prisma Schema
+prisma/schema.prisma
