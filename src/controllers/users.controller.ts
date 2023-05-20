@@ -124,6 +124,7 @@ export class UsersController extends Controller {
 
     const user = await prisma.users.create({
       data: createUserData,
+
     });
 
     return responseSuccess("新增四眾個資成功", { user });
