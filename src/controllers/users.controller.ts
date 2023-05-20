@@ -16,7 +16,6 @@ import {
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "src/utils/responseSuccess";
-import { users } from "@prisma/client";
 import { prisma } from "../configs/prismaClient";
 import { User } from "../models/users.model";
 
@@ -119,7 +118,6 @@ export class UsersController extends Controller {
       // 法師之住眾身分別預設值為外單法師
       createUserData = { ...newUser, StayIdentity: 4}; 
     } else {
-      console.log('居士');
       // 居士之住眾身分別預設值為佛七蓮友
       createUserData = { ...newUser, StayIdentity: 3}; 
     }
