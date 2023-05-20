@@ -16,9 +16,7 @@ import {
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "src/utils/responseSuccess";
-import { users } from "@prisma/client";
 import { prisma } from "../configs/prismaClient";
-
 import { User } from "../models/users.model";
 
 @Tags("User - 四眾個資")
@@ -114,23 +112,19 @@ export class UsersController extends Controller {
         }
       });
       const newStayIdentity = item?.ItemId;
-      createUserData = { ...newUser, StayIdentity: Number(newStayIdentity) };
-    } else {
-      console.log("未輸入住眾身分別");
+      createUserData = { ...newUser, StayIdentity: Number(newStayIdentity)}; 
+    } else if (IsMonk) {
       // 未輸入住眾身分別，則設定預設值
-      if (IsMonk) {
-        console.log("法師");
-        // 法師之住眾身分別預設值為外單法師
-        createUserData = { ...newUser, StayIdentity: 4 };
-      } else {
-        console.log("居士");
-        // 居士之住眾身分別預設值為佛七蓮友
-        createUserData = { ...newUser, StayIdentity: 3 };
-      }
+      // 法師之住眾身分別預設值為外單法師
+      createUserData = { ...newUser, StayIdentity: 4}; 
+    } else {
+      // 居士之住眾身分別預設值為佛七蓮友
+      createUserData = { ...newUser, StayIdentity: 3}; 
     }
 
     const user = await prisma.users.create({
-      data: createUserData
+      data: createUserData,
+
     });
 
     return responseSuccess("新增四眾個資成功", { user });
