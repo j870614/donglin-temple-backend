@@ -18,7 +18,7 @@ import {
 } from "tsoa";
 // import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
-import { responseSuccess } from "src/utils/responseSuccess";
+import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
 @Tags("Room - 寮房狀態")
