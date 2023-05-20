@@ -9,7 +9,6 @@ import path from "path";
 import swaggerDocument from "../swagger.json";
 
 import { indexRouter } from "./routes/index.route";
-import { usersRouter } from "./routes/users.route";
 import { handleError } from "./utils/handleError";
 import { handleNotFoundError } from "./utils/handleNotFoundError";
 import { parseTsoaRequest } from "./utils/parseTsoaRequest";
@@ -62,7 +61,6 @@ app.use(
   swaggerUi.setup(swaggerDocument)
 );
 app.use(API_BASEURL, indexRouter);
-app.use(API_USERS_ENDPOINT, usersRouter);
 
 // Add error handlers
 app.use(handleTsoaNotFoundError);
