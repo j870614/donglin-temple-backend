@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-
 import { StatusCodes } from "http-status-codes";
 import {
   Body,
@@ -15,7 +14,7 @@ import {
   Tags
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
-import { responseSuccess } from "../utils/responseSuccess"
+import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
 import { User } from "../models/users.model";
@@ -123,8 +122,15 @@ export class UsersController extends Controller {
       createUserData = { ...newUser, StayIdentity: 3 };
     }
 
+    if (typeof createUserData.StayIdentity === "string")
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: `StayIdentity 型別錯誤`
+      });
+
+
     const user = await prisma.users.create({
-      data: createUserData
+      data: { ...createUserData },
     });
 
     return responseSuccess("新增四眾個資成功", { user });
