@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-
 import { StatusCodes } from "http-status-codes";
 import {
   Body,
@@ -15,10 +14,10 @@ import {
   Tags
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
-import { responseSuccess } from "../utils/responseSuccess"
+import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
-import { User } from "../models/users.model";
+import { UserCreateBody } from "../models/users.model";
 
 @Tags("User - 四眾個資")
 @Route("/api/users")
@@ -83,7 +82,7 @@ export class UsersController extends Controller {
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   public async createUser(
-    @Body() newUser: User,
+    @Body() userCreateBody: UserCreateBody,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -91,13 +90,13 @@ export class UsersController extends Controller {
     >
   ) {
     // 檢查四眾個資必填欄位，法師居士所須必填之欄位不同
-    const { IsMonk, StayIdentity } = newUser;
-    let createUserData: User;
+    const { IsMonk, StayIdentity } = userCreateBody;
+    let parsedStayIdentity: number;
 
     if (IsMonk) {
-      this.checkMonkFields(errorResponse, newUser); // 檢查法師欄位
+      this.checkMonkFields(errorResponse, userCreateBody); // 檢查法師欄位
     } else {
-      this.checkBuddhistFields(errorResponse, newUser); // 檢查居士欄位
+      this.checkBuddhistFields(errorResponse, userCreateBody); // 檢查居士欄位
     }
 
     // 住眾身分別字串轉 ItemId
@@ -113,18 +112,18 @@ export class UsersController extends Controller {
         }
       });
       const newStayIdentity = item?.ItemId;
-      createUserData = { ...newUser, StayIdentity: Number(newStayIdentity) };
+      parsedStayIdentity = Number(newStayIdentity);
     } else if (IsMonk) {
       // 未輸入住眾身分別，則設定預設值
       // 法師之住眾身分別預設值為外單法師
-      createUserData = { ...newUser, StayIdentity: 4 };
+      parsedStayIdentity = 4;
     } else {
       // 居士之住眾身分別預設值為佛七蓮友
-      createUserData = { ...newUser, StayIdentity: 3 };
+      parsedStayIdentity = 3;
     }
 
     const user = await prisma.users.create({
-      data: createUserData
+      data: { ...userCreateBody, StayIdentity: parsedStayIdentity }
     });
 
     return responseSuccess("新增四眾個資成功", { user });
@@ -139,9 +138,9 @@ export class UsersController extends Controller {
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
-    newUser: User
+    userCreateBody: UserCreateBody
   ) {
-    const { DharmaName, ShavedMaster } = newUser;
+    const { DharmaName, ShavedMaster } = userCreateBody;
     const errMsgArr: string[] = [];
 
     if (!DharmaName) errMsgArr.push("法名");
@@ -166,9 +165,9 @@ export class UsersController extends Controller {
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
-    newUser: User
+    userCreateBody: UserCreateBody
   ) {
-    const { Name } = newUser;
+    const { Name } = userCreateBody;
 
     if (!Name) {
       errorResponse(StatusCodes.BAD_REQUEST, {
