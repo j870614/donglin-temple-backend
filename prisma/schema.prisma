@@ -110,12 +110,15 @@ model rooms {
 }
 
 model user_auth_qr_codes {
-  Id       Int       @id @default(autoincrement())
-  AuthType Int?      @default(0) @db.TinyInt
-  QRCode   String?   @db.VarChar(64)
-  UserId   Int       @db.UnsignedInt
-  EndTime  DateTime? @db.DateTime(0)
-  HasUsed  Boolean?  @default(false)
+  Id              Int       @id @default(autoincrement())
+  UserId          Int       @db.UnsignedInt
+  DeaconId        Int       @db.SmallInt
+  QRCode          String?   @db.VarChar(64)
+  EndTime         DateTime? @db.DateTime(0)
+  AuthorizeUserId Int       @db.UnsignedInt
+  HasUsed         Boolean?  @default(false)
+
+  @@index([DeaconId, UserId], map: "idx_user_auth_qr_codes_DeaconId_UserId")
 }
 
 model user_authorizes {
@@ -196,8 +199,8 @@ model buddha_seven_apply {
   @@index([UserId], map: "idx_buddha_seven_apply_UserId")
 }
 
-model deacon_auth_permissions {
-  Id                  Int     @id @db.TinyInt
+model user_auth_permissions {
+  UserId              Int     @id @db.UnsignedInt
   IsSystemAdmin       Boolean @default(false)
   HasBuddhaSevenApply Boolean @default(false)
   HasRefugeApply      Boolean @default(false)
@@ -207,8 +210,8 @@ model deacon_auth_permissions {
   HasArrangeService   Boolean @default(false)
 }
 
-model user_auth_permissions {
-  UserId              Int     @id @db.UnsignedInt
+model deacon_define_permissions {
+  Id                  Int     @id @db.TinyInt
   IsSystemAdmin       Boolean @default(false)
   HasBuddhaSevenApply Boolean @default(false)
   HasRefugeApply      Boolean @default(false)

@@ -1,8 +1,6 @@
-// import { Request } from "express";
-// import { ParamsDictionary } from "express-serve-static-core";
-// import { users } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
-export interface User {
+export interface UserCreateBody {
   MobilePrefix?: string;
   Mobile?: string;
   Name?: string;
@@ -33,30 +31,13 @@ export interface User {
   EmergencyName?: string;
   EmergencyPhone?: string;
   Relationship?: string;
-  Expertise?: Expertise;
+  Expertise?: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
   Education?: string;
   ComeTempleReason?: string;
-  HealthStatus?: HealthStatus;
+  HealthStatus?: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
   EatBreakfast?: boolean;
   EatLunch?: boolean;
   EatDinner?: boolean;
-  Address?: Address;
+  Address?: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
   Remarks?: string;
-}
-
-interface Expertise {
-  expertise?: string[];
-}
-
-interface HealthStatus {
-  healthStatus?: string[];
-}
-
-interface Address {
-  isForeign: boolean;
-  continent?: string;
-  zip?: number;
-  county?: string;
-  districts?: string;
-  address: string;
 }

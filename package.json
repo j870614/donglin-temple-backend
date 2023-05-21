@@ -9,6 +9,7 @@
     "start": "concurrently \"tsc -w -p tsconfig.json\" \"nodemon dist/src/index.js\"",
     "start:build": "tsc -w -p tsconfig.json",
     "start:dev": "concurrently \"onchange -a 'src/controllers/*.ts' -- tsoa spec-and-routes\" \"tsc -w -p tsconfig.json\" \"cross-env NODE_ENV=dev nodemon dist/src/index.js\"",
+    "start:prod:build": "pnpm i && pnpm prisma db pull && pnpm prisma generate && pnpm tsoa spec-and-routes && pnpm tsc -p tsconfig.json",
     "start:prod": "nodemon dist/src/index.js",
     "clean": "rimraf coverage dist tmp",
     "lint": "eslint . --ext .ts --ext .mts --fix --ignore-path .gitignore",
