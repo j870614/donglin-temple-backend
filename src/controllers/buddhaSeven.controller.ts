@@ -11,7 +11,8 @@ import {
   Response,
   Route,
   SuccessResponse,
-  Tags
+  Tags,
+  Patch
 } from "tsoa";
 import moment from 'moment';
 
@@ -88,7 +89,7 @@ export class BuddhaSevenController extends Controller {
   };
 
   /**
-   * 新增佛七
+   * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
    */
   @Post()
   @SuccessResponse(StatusCodes.OK, "新增成功")
@@ -119,5 +120,45 @@ export class BuddhaSevenController extends Controller {
     })
 
     return responseSuccess("新增佛七成功", { buddhaSeven });
+  }
+
+  /**
+   * 修改佛七
+   * @param id 佛七期數
+   */
+  @Patch('{id}')
+  @SuccessResponse(StatusCodes.OK, "修改佛七成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改佛七失敗")
+  public async updateBuddhaSeven (
+    @Path() id: number,
+    @Body() updateData: Partial<BuddhaSeven>,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    // 查詢要更新之佛七期數是否存在
+    const buddhaSeven = await prisma.buddha_seven_periods.findUnique ({
+      where: {
+        Id: id,
+      },
+    });
+
+    if (!buddhaSeven) {
+      return errorResponse(StatusCodes.BAD_REQUEST,{
+        status: false,
+        message: '查無此佛七期數'
+      });
+    }
+
+    const updateBuddhaSeven = await prisma.buddha_seven_periods.update ({
+      where: {
+        Id: id,
+      },
+      data: updateData,
+    })
+
+    return responseSuccess("更新成功", { updateBuddhaSeven });
   }
 }
