@@ -12,7 +12,8 @@ import {
   Route,
   SuccessResponse,
   Tags,
-  Patch
+  Patch,
+  Example
 } from "tsoa";
 import moment from 'moment';
 
@@ -34,6 +35,26 @@ export class BuddhaSevenController extends Controller {
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Example({
+    "status": true,
+    "message": "查詢成功",
+    "data": {
+      "buddhaSevenYearly": [
+        {
+          "Id": 466,
+          "StartSevenDate": "2023-05-01T00:00:00.000Z",
+          "CompleteDate": "2023-05-07T00:00:00.000Z",
+          "Remarks": null
+        },
+        {
+          "Id": 467,
+          "StartSevenDate": "2023-05-11T00:00:00.000Z",
+          "CompleteDate": "2023-05-17T00:00:00.000Z",
+          "Remarks": null
+        }
+      ]
+    }
+  })
   public async getAllBuddhaSeven (
     @Query() year = Number(moment().year()),
     @Query() order: "asc" | "desc" = "asc",
@@ -64,6 +85,18 @@ export class BuddhaSevenController extends Controller {
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查無佛七期數")
+  @Example({
+    "status": true,
+    "message": "查詢成功",
+    "data": {
+      "buddhaSeven": {
+        "Id": 466,
+        "StartSevenDate": "2023-05-01T00:00:00.000Z",
+        "CompleteDate": "2023-05-07T00:00:00.000Z",
+        "Remarks": null
+      }
+    }
+  })
   public async getBuddhaSeven (
     @Path() id: number,
     @Res()
@@ -94,6 +127,18 @@ export class BuddhaSevenController extends Controller {
   @Post()
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
+  @Example({
+    "status": true,
+    "message": "新增佛七成功",
+    "data": {
+      "buddhaSeven": {
+        "Id": 475,
+        "StartSevenDate": "2023-08-11T00:00:00.000Z",
+        "CompleteDate": "2023-08-17T00:00:00.000Z",
+        "Remarks": null
+      }
+    }
+  })
   public async createBuddhaSeven (
     @Body() newBuddhaSeven: BuddhaSeven,
     @Res()
@@ -129,6 +174,18 @@ export class BuddhaSevenController extends Controller {
   @Patch('{id}')
   @SuccessResponse(StatusCodes.OK, "修改佛七成功")
   @Response(StatusCodes.BAD_REQUEST, "修改佛七失敗")
+  @Example({
+    "status": true,
+    "message": "更新成功",
+    "data": {
+      "updateBuddhaSeven": {
+        "Id": 474,
+        "StartSevenDate": "2023-08-01T00:00:00.000Z",
+        "CompleteDate": "2023-08-07T00:00:00.000Z",
+        "Remarks": null
+      }
+    }
+  })
   public async updateBuddhaSeven (
     @Path() id: number,
     @Body() updateData: Partial<BuddhaSeven>,
