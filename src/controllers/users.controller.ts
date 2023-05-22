@@ -5,6 +5,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Query,
   Path,
   Res,
@@ -100,19 +101,14 @@ export class UsersController extends Controller {
     }
 
     // 住眾身分別字串轉 ItemId
-    if (StayIdentity && typeof StayIdentity === "string") {
-      const ItemValue: string = StayIdentity;
-      const item = await prisma.item_name_mapping.findFirst({
-        where: {
-          ItemValue
-        },
-        select: {
-          ItemId: true,
-          ItemValue: true
-        }
-      });
-      const newStayIdentity = item?.ItemId;
-      parsedStayIdentity = Number(newStayIdentity);
+    if ( typeof StayIdentity === "string") {
+      parsedStayIdentity = await this.changeToItemId (StayIdentity);
+      if ( !parsedStayIdentity ) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: 'StayIdentity 住眾身分別填寫錯誤'
+        })
+      }
     } else if (IsMonk) {
       // 未輸入住眾身分別，則設定預設值
       // 法師之住眾身分別預設值為外單法師
@@ -127,6 +123,59 @@ export class UsersController extends Controller {
     });
 
     return responseSuccess("新增四眾個資成功", { user });
+  }
+
+  /**
+   * 修改四眾個資
+   */
+  @Patch('{id}')
+  @SuccessResponse(StatusCodes.OK, "修改成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改失敗")
+  public async updateUser (
+    @Path() id: number,
+    @Body() updateData: Partial<UserCreateBody>,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const user = await prisma.users.findUnique({
+      where: {
+        Id: id,
+      },
+    });
+
+    if (!user) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: '查無此四眾 Id',
+      })
+    }
+
+    // 住眾身分別 StayIdentity 字串轉 ItemId
+    const { StayIdentity } = updateData;
+    let parsedStayIdentity: number;
+    if (typeof StayIdentity === "string") {
+      parsedStayIdentity = await this.changeToItemId (StayIdentity);
+      if ( !parsedStayIdentity ) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: 'StayIdentity 住眾身分別填寫錯誤'
+        })
+      }
+    } else {
+      parsedStayIdentity = Number(user.StayIdentity);
+    }
+
+    const updateUser = await prisma.users.update ({
+      where: {
+        Id: id,
+      },
+      data: { ...updateData, StayIdentity: parsedStayIdentity },
+    });
+
+    return responseSuccess("修改四眾個資成功", { updateUser });
   }
 
   /**
@@ -175,5 +224,27 @@ export class UsersController extends Controller {
         message: "俗名未填寫"
       });
     }
+  }
+
+  /**
+   *  住眾身分別 StayIdentity 字串轉 ItemId
+   */
+  private async changeToItemId (
+    stayIdentity: string
+  ): Promise<number> {
+    const ItemValue: string = stayIdentity;
+    const item = await prisma.item_name_mapping.findFirst({
+      where: {
+        ItemValue
+      },
+      select: {
+        ItemId: true,
+        ItemValue: true
+      }
+    });
+    const newStayIdentity = item?.ItemId;
+    const parsedStayIdentity = Number(newStayIdentity);
+
+    return parsedStayIdentity;
   }
 }
