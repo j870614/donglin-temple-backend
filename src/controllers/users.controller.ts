@@ -332,7 +332,7 @@ export class UsersController extends Controller {
   })
   public async updateUser (
     @Path() id: number,
-    @Body() updateData: Partial<UserCreateBody>,
+    @Body() updateData: Partial<UserCreateRequest>,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
