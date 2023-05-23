@@ -1,13 +1,14 @@
 /* eslint-disable class-methods-use-this */
 import { StatusCodes } from "http-status-codes";
 import {
+  Body,
   BodyProp,
   Controller,
   Example,
   Get,
   Header,
   Post,
-  Query,
+  Queries,
   Res,
   Response,
   Route,
@@ -15,19 +16,24 @@ import {
   SuccessResponse,
   Tags
 } from "tsoa";
-import bcrypt from "bcryptjs";
-import validator from "validator";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
+import { ManagersService } from "../services/managers.service";
+import {
+  GetManyRequest,
+  SignInByEmailRequest,
+  SignUpByEmailRequest
+} from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
-import { prisma } from "../configs/prismaClient";
-import { generateAndSendJWT } from "../services/auth/jwtToken.service";
 
 @Tags("Manager")
 @Route("/api/managers")
 export class ManagersController extends Controller {
+  constructor(private readonly _manager = new ManagersService()) {
+    super();
+  }
+
   /**
    * 查詢管理員
    * @param order 正序("asc") / 倒序("desc")
@@ -37,18 +43,8 @@ export class ManagersController extends Controller {
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
-  public async getAll(
-    @Query() order: "asc" | "desc" = "desc",
-    @Query() take = 100,
-    @Query() skip = 0
-  ) {
-    const allManagers = await prisma.managers.findMany({
-      orderBy: { Id: order },
-      take,
-      skip
-    });
-
-    return responseSuccess("查詢成功", { managers: allManagers });
+  public async getMany(@Queries() getManyRequest: GetManyRequest) {
+    return this._manager.getMany(getManyRequest);
   }
 
   /**
@@ -57,17 +53,9 @@ export class ManagersController extends Controller {
    */
   @Post("generate")
   @SuccessResponse(StatusCodes.CREATED, "產生成功")
+  @Response(StatusCodes.CREATED, "產生失敗")
   public async generate(@BodyProp() counts = 1) {
-    const generatedManagers: managers[] = [];
-
-    for (let i = 0; i < counts; i += 1) {
-      const manager = await prisma.managers.create({
-        data: {}
-      });
-      generatedManagers.push(manager);
-    }
-
-    return responseSuccess("產生成功", { managers: generatedManagers });
+    return this._manager.generate(counts);
   }
 
   /**
@@ -89,84 +77,14 @@ export class ManagersController extends Controller {
     Password: "password123"
   })
   public async signUp(
-    @BodyProp() Email: string,
-    @BodyProp() Password: string,
-    @BodyProp() ConfirmPassword: string,
-    @BodyProp() UserId: number,
+    @Body() signUpByEmailRequest: SignUpByEmailRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    if (!Email || !Password || !ConfirmPassword || !UserId) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "所有欄位都必須填寫"
-      });
-    }
-
-    if (Password !== ConfirmPassword) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "密碼和再次確認密碼不相同"
-      });
-    }
-
-    if (!validator.isLength(Password, { min: 8 })) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "密碼需要至少 8 個字元長度"
-      });
-    }
-
-    if (!validator.isEmail(Email)) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "信箱格式錯誤"
-      });
-    }
-
-    const existingManagerByEmail = await prisma.managers.findFirst({
-      where: { Email }
-    });
-
-    const existingManagerByUserId = await prisma.managers.findFirst({
-      where: { UserId }
-    });
-
-    if (existingManagerByEmail || existingManagerByUserId) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "您的信箱或是個人資料已經建立過管理員帳號"
-      });
-    }
-
-    const UnsignedManager = await prisma.managers.findFirst({
-      where: {
-        Email: null,
-        UserId: null
-      }
-    });
-
-    if (!UnsignedManager) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "沒有足夠的管理員空位"
-      });
-    }
-
-    const hashedPassword = await bcrypt.hash(Password, 12);
-    const signedManager = await prisma.managers.update({
-      where: { Id: UnsignedManager.Id },
-      data: {
-        Email,
-        UserId,
-        Password: hashedPassword
-      }
-    });
-
-    return responseSuccess("註冊成功", { manager: signedManager });
+    return this._manager.signUp(signUpByEmailRequest, errorResponse);
   }
 
   /**
@@ -184,40 +102,14 @@ export class ManagersController extends Controller {
     expired: 1684908011
   })
   public async signIn(
-    @BodyProp() Email: string,
-    @BodyProp() Password: string,
+    @Body() signInByEmailRequest: SignInByEmailRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    if (!Email || !Password) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "所有欄位都必須填寫"
-      });
-    }
-
-    const manager = await prisma.managers.findUnique({
-      where: { Email }
-    });
-    if (!manager || !manager.Password) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "信箱或是密碼錯誤"
-      });
-    }
-
-    const auth = await bcrypt.compare(Password, manager.Password);
-    if (!auth) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "信箱或是密碼錯誤"
-      });
-    }
-
-    return responseSuccess("登入成功", { ...generateAndSendJWT(manager) });
+    return this._manager.signIn(signInByEmailRequest, errorResponse);
   }
 
   /**
@@ -232,7 +124,7 @@ export class ManagersController extends Controller {
     message: "管理員已登入"
   })
   public checkAuthorization() {
-    return responseSuccess("管理員已登入");
+    return this._manager.checkAuthorization();
   }
 
   /**
