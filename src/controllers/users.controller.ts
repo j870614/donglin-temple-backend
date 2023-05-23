@@ -5,13 +5,15 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Query,
   Path,
   Res,
   Response,
   Route,
   SuccessResponse,
-  Tags
+  Tags,
+  Example
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
@@ -21,6 +23,57 @@ import { UserCreateBody } from "../models/users.model";
 
 @Tags("User - 四眾個資")
 @Route("/api/users")
+@Example({
+  "status": true,
+  "message": "查詢成功",
+  "data": {
+    "users": [
+      {
+        "Id": 13,
+        "MobilePrefix": null,
+        "Mobile": "0911123123",
+        "Name": "王某某",
+        "DharmaName": "普某",
+        "MageNickname": null,
+        "LineId": null,
+        "Email": "testUser13@test.com",
+        "IsMonk": false,
+        "StayIdentity": 3,
+        "IsMale": true,
+        "BirthDate": "1990-01-01T00:00:00.000Z",
+        "IdNumber": "G145698745",
+        "PassportNumber": null,
+        "BirthPlace": "宜蘭縣",
+        "Phone": "039590000",
+        "Ordination": null,
+        "Altar": null,
+        "ShavedMaster": null,
+        "ShavedDate": null,
+        "OrdinationTemple": null,
+        "OrdinationDate": null,
+        "ResidentialTemple": null,
+        "RefugueMaster": "某某法師",
+        "RefugueDate": "2023-01-01T00:00:00.000Z",
+        "Referrer": null,
+        "ClothType": null,
+        "ClothSize": null,
+        "EmergencyName": null,
+        "EmergencyPhone": null,
+        "Relationship": null,
+        "Expertise": null,
+        "Education": null,
+        "ComeTempleReason": null,
+        "HealthStatus": null,
+        "EatBreakfast": false,
+        "EatLunch": false,
+        "EatDinner": false,
+        "Address": null,
+        "Remarks": null,
+        "UpdateAt": "2023-05-14T08:51:49.000Z"
+      }
+    ]
+  }
+})
 export class UsersController extends Controller {
   /**
    * 取得所有四眾個資
@@ -51,6 +104,55 @@ export class UsersController extends Controller {
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  @Example({
+    "status": true,
+    "message": "查詢成功",
+    "data": {
+      "user": {
+        "Id": 13,
+        "MobilePrefix": null,
+        "Mobile": "0911123123",
+        "Name": "王某某",
+        "DharmaName": "普某",
+        "MageNickname": null,
+        "LineId": null,
+        "Email": "testUser13@test.com",
+        "IsMonk": false,
+        "StayIdentity": 3,
+        "IsMale": true,
+        "BirthDate": "1990-01-01T00:00:00.000Z",
+        "IdNumber": "G145698745",
+        "PassportNumber": null,
+        "BirthPlace": "宜蘭縣",
+        "Phone": "039590000",
+        "Ordination": null,
+        "Altar": null,
+        "ShavedMaster": null,
+        "ShavedDate": null,
+        "OrdinationTemple": null,
+        "OrdinationDate": null,
+        "ResidentialTemple": null,
+        "RefugueMaster": "某某法師",
+        "RefugueDate": "2023-01-01T00:00:00.000Z",
+        "Referrer": null,
+        "ClothType": null,
+        "ClothSize": null,
+        "EmergencyName": null,
+        "EmergencyPhone": null,
+        "Relationship": null,
+        "Expertise": null,
+        "Education": null,
+        "ComeTempleReason": null,
+        "HealthStatus": null,
+        "EatBreakfast": false,
+        "EatLunch": false,
+        "EatDinner": false,
+        "Address": null,
+        "Remarks": null,
+        "UpdateAt": "2023-05-14T08:51:49.000Z"
+      }
+    }
+  })
   public async getUser(
     @Path() id: number,
     @Res()
@@ -81,6 +183,55 @@ export class UsersController extends Controller {
   @Post()
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
+  @Example({
+    "status": true,
+    "message": "新增四眾個資成功",
+    "data": {
+      "user": {
+        "Id": 44,
+        "MobilePrefix": null,
+        "Mobile": "0905123147",
+        "Name": "黃某某",
+        "DharmaName": "普丙",
+        "MageNickname": null,
+        "LineId": null,
+        "Email": null,
+        "IsMonk": false,
+        "StayIdentity": 3,
+        "IsMale": true,
+        "BirthDate": null,
+        "IdNumber": null,
+        "PassportNumber": null,
+        "BirthPlace": null,
+        "Phone": null,
+        "Ordination": null,
+        "Altar": null,
+        "ShavedMaster": null,
+        "ShavedDate": null,
+        "OrdinationTemple": null,
+        "OrdinationDate": null,
+        "ResidentialTemple": null,
+        "RefugueMaster": null,
+        "RefugueDate": null,
+        "Referrer": null,
+        "ClothType": null,
+        "ClothSize": null,
+        "EmergencyName": null,
+        "EmergencyPhone": null,
+        "Relationship": null,
+        "Expertise": null,
+        "Education": null,
+        "ComeTempleReason": null,
+        "HealthStatus": null,
+        "EatBreakfast": false,
+        "EatLunch": false,
+        "EatDinner": false,
+        "Address": null,
+        "Remarks": "測試",
+        "UpdateAt": "2023-05-22T15:08:35.000Z"
+      }
+    }
+  })
   public async createUser(
     @Body() userCreateBody: UserCreateBody,
     @Res()
@@ -100,19 +251,14 @@ export class UsersController extends Controller {
     }
 
     // 住眾身分別字串轉 ItemId
-    if (StayIdentity && typeof StayIdentity === "string") {
-      const ItemValue: string = StayIdentity;
-      const item = await prisma.item_name_mapping.findFirst({
-        where: {
-          ItemValue
-        },
-        select: {
-          ItemId: true,
-          ItemValue: true
-        }
-      });
-      const newStayIdentity = item?.ItemId;
-      parsedStayIdentity = Number(newStayIdentity);
+    if ( typeof StayIdentity === "string") {
+      parsedStayIdentity = await this.changeToItemId (StayIdentity);
+      if ( !parsedStayIdentity ) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: 'StayIdentity 住眾身分別填寫錯誤'
+        })
+      }
     } else if (IsMonk) {
       // 未輸入住眾身分別，則設定預設值
       // 法師之住眾身分別預設值為外單法師
@@ -127,6 +273,108 @@ export class UsersController extends Controller {
     });
 
     return responseSuccess("新增四眾個資成功", { user });
+  }
+
+  /**
+   * 修改四眾個資
+   */
+  @Patch('{id}')
+  @SuccessResponse(StatusCodes.OK, "修改成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改失敗")
+  @Example({
+    "status": true,
+    "message": "修改四眾個資成功",
+    "data": {
+      "user": {
+        "Id": 44,
+        "MobilePrefix": null,
+        "Mobile": "0905123147",
+        "Name": "黃某某",
+        "DharmaName": "普丙",
+        "MageNickname": null,
+        "LineId": null,
+        "Email": null,
+        "IsMonk": false,
+        "StayIdentity": 3,
+        "IsMale": true,
+        "BirthDate": null,
+        "IdNumber": null,
+        "PassportNumber": null,
+        "BirthPlace": null,
+        "Phone": null,
+        "Ordination": null,
+        "Altar": null,
+        "ShavedMaster": null,
+        "ShavedDate": null,
+        "OrdinationTemple": null,
+        "OrdinationDate": null,
+        "ResidentialTemple": null,
+        "RefugueMaster": null,
+        "RefugueDate": null,
+        "Referrer": null,
+        "ClothType": null,
+        "ClothSize": null,
+        "EmergencyName": null,
+        "EmergencyPhone": null,
+        "Relationship": null,
+        "Expertise": null,
+        "Education": null,
+        "ComeTempleReason": null,
+        "HealthStatus": null,
+        "EatBreakfast": false,
+        "EatLunch": false,
+        "EatDinner": false,
+        "Address": null,
+        "Remarks": "測試",
+        "UpdateAt": "2023-05-22T15:08:35.000Z"
+      }
+    }
+  })
+  public async updateUser (
+    @Path() id: number,
+    @Body() updateData: Partial<UserCreateBody>,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const user = await prisma.users.findUnique({
+      where: {
+        Id: id,
+      },
+    });
+
+    if (!user) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: '查無此四眾 Id',
+      })
+    }
+
+    // 住眾身分別 StayIdentity 字串轉 ItemId
+    const { StayIdentity } = updateData;
+    let parsedStayIdentity: number;
+    if (typeof StayIdentity === "string") {
+      parsedStayIdentity = await this.changeToItemId (StayIdentity);
+      if ( !parsedStayIdentity ) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: 'StayIdentity 住眾身分別填寫錯誤'
+        })
+      }
+    } else {
+      parsedStayIdentity = Number(user.StayIdentity);
+    }
+
+    const updateUser = await prisma.users.update ({
+      where: {
+        Id: id,
+      },
+      data: { ...updateData, StayIdentity: parsedStayIdentity },
+    });
+
+    return responseSuccess("修改四眾個資成功", { updateUser });
   }
 
   /**
@@ -175,5 +423,27 @@ export class UsersController extends Controller {
         message: "俗名未填寫"
       });
     }
+  }
+
+  /**
+   *  住眾身分別 StayIdentity 字串轉 ItemId
+   */
+  private async changeToItemId (
+    stayIdentity: string
+  ): Promise<number> {
+    const ItemValue: string = stayIdentity;
+    const item = await prisma.item_name_mapping.findFirst({
+      where: {
+        ItemValue
+      },
+      select: {
+        ItemId: true,
+        ItemValue: true
+      }
+    });
+    const newStayIdentity = item?.ItemId;
+    const parsedStayIdentity = Number(newStayIdentity);
+
+    return parsedStayIdentity;
   }
 }
