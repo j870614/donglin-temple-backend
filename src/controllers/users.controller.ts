@@ -19,7 +19,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
-import { UserCreateBody } from "../models/users.model";
+import { UserCreateRequest } from "../models";
 
 @Tags("User - 四眾個資")
 @Route("/api/users")
@@ -233,7 +233,7 @@ export class UsersController extends Controller {
     }
   })
   public async createUser(
-    @Body() userCreateBody: UserCreateBody,
+    @Body() userCreateBody: UserCreateRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -332,7 +332,7 @@ export class UsersController extends Controller {
   })
   public async updateUser (
     @Path() id: number,
-    @Body() updateData: Partial<UserCreateBody>,
+    @Body() updateData: Partial<UserCreateRequest>,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -386,7 +386,7 @@ export class UsersController extends Controller {
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
-    userCreateBody: UserCreateBody
+    userCreateBody: UserCreateRequest
   ) {
     const { DharmaName, ShavedMaster } = userCreateBody;
     const errMsgArr: string[] = [];
@@ -413,7 +413,7 @@ export class UsersController extends Controller {
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
-    userCreateBody: UserCreateBody
+    userCreateBody: UserCreateRequest
   ) {
     const { Name } = userCreateBody;
 

@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-export interface UserCreateBody {
+export interface UserCreateRequest {
   MobilePrefix?: string;
   Mobile?: string;
   Name?: string;

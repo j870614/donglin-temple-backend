@@ -4,7 +4,7 @@ import { rooms } from "@prisma/client";
 
 export type RoomParams = ParamsDictionary;
 
-export interface RoomRequestBody extends rooms{
+export interface RoomRequestBody extends rooms {
   ConfirmPassword?: string;
 }
 
@@ -12,4 +12,3 @@ export interface GuestRequest
   extends Request<ParamsDictionary, object, RoomRequestBody> {
   ConfirmPassword?: string;
 }
-
