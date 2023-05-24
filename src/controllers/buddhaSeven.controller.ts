@@ -21,7 +21,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import { prisma } from "../configs/prismaClient";
 
-import { BuddhaSeven } from "../models/buddhaSeven.model";
+import { BuddhaSeven } from "../models";
 
 @Tags("Buddha seven - 佛七")
 @Route("/api/buddha-seven")
