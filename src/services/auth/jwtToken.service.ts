@@ -1,9 +1,9 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { managers } from "@prisma/client";
 import {
-  JwtModuleOptions,
-  JwtSignOptions,
-  JwtVerifyOptions
+  JwtModuleOptions
+  // JwtSignOptions,
+  // JwtVerifyOptions
 } from "../../models";
 
 const JWT_SECRET = process.env.JWT_SECRET || "default-secret";
