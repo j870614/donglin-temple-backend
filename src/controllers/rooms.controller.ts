@@ -75,4 +75,45 @@ export class RoomsController extends Controller {
 
     return responseSuccess("查詢成功", { room });
   }
+
+  /**
+   *
+   * 取得單一寮房狀態
+   */
+  @Get("test/{id}")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  public async viewTest(
+    @Path() id: number,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const room = await prisma.rooms.findUnique({
+      where: {
+        Id: id
+      }
+    });
+    const viewType = await prisma.room_type_list.findMany({
+      where: {
+        RoomType: room?.RoomType
+      }
+    });
+    const viewRoomData = await prisma.rooms_view.findMany({
+      where: {
+        RoomId: room?.Id
+      }
+    });
+
+    if (!room) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此 Room Id"
+      });
+    }
+
+    return responseSuccess("查詢成功", { room, viewType, viewRoomData });
+  }
 }
