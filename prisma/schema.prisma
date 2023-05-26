@@ -185,7 +185,7 @@ model user_family_relationships {
 model buddha_seven_apply {
   Id                   Int       @id @default(autoincrement())
   UserId               Int       @db.UnsignedInt
-  RoomId               Int
+  RoomId               Int?
   BedStayOrderNumber   Int?
   CheckInDate          DateTime? @db.Date
   CheckOutDate         DateTime? @db.Date
@@ -193,10 +193,10 @@ model buddha_seven_apply {
   CheckInDateLunch     Boolean?  @default(false)
   CheckInDateDinner    Boolean?  @default(false)
   CheckInTime          DateTime? @db.Time(0)
-  CheckeInUserId       Int       @db.UnsignedInt
+  CheckInUserId        Int?      @db.UnsignedInt
   Status               String?   @db.VarChar(20)
   Remarks              String?   @db.VarChar(255)
-  UpdateUserId         Int       @db.UnsignedInt
+  UpdateUserId         Int?      @db.UnsignedInt
   UpdateAt             DateTime? @default(now()) @db.DateTime(0)
 
   @@index([CheckInDate, CheckOutDate, RoomId], map: "idx_buddha_seven_apply_CheckInDate_CheckOutDate_RoomId")
