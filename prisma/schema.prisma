@@ -224,25 +224,25 @@ model deacon_define_permissions {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view room_building_list {
-  BuildingId   Int    @unique @db.SmallInt
+  BuildingId   Int     @unique @db.SmallInt
   BuildingName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view room_dormitory_area_list {
-  DormitoryAreaId   Int    @unique @db.SmallInt
+  DormitoryAreaId   Int     @unique @db.SmallInt
   DormitoryAreaName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view room_type_list {
-  RoomType     Int    @unique @db.SmallInt
+  RoomType     Int     @unique @db.SmallInt
   RoomTypeName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view rooms_dormitory_area_building_list {
-  Id                Int  @unique @default(0)
+  Id                BigInt  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -269,25 +269,25 @@ view rooms_view {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_church_dept_list {
-  ChurchDept     Int    @unique @db.SmallInt
+  ChurchDept     Int     @unique @db.SmallInt
   ChurchDeptName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_church_name_list {
-  ChurchId   Int    @unique @db.SmallInt
+  ChurchId   Int     @unique @db.SmallInt
   ChurchName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_church_unit_list {
-  ChurchUnit     Int    @unique @db.SmallInt
+  ChurchUnit     Int     @unique @db.SmallInt
   ChurchUnitName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_deacon_area_list {
-  DeaconArea     Int    @unique @db.SmallInt
+  DeaconArea     Int     @unique @db.SmallInt
   DeaconAreaName String? @db.VarChar(20)
 }
 
@@ -306,12 +306,12 @@ view user_deacon_churchs_view {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_deacon_name_list {
-  DeaconId   Int    @unique @db.SmallInt
+  DeaconId   Int     @unique @db.SmallInt
   DeaconName String? @db.VarChar(20)
 }
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view user_stay_identity_list {
-  StayIdentity     Int    @unique @db.SmallInt
+  StayIdentity     Int     @unique @db.SmallInt
   StayIdentityName String? @db.VarChar(20)
 }
