@@ -9,15 +9,17 @@ datasource db {
 }
 
 model managers {
-  Id        Int      @id @default(autoincrement())
-  UserId    Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
-  Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
-  Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
-  Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
-  Password  String?  @db.VarChar(255)
-  CreatedAt DateTime @default(now())
-  UpdateAt  DateTime @updatedAt
-  IsActive  Boolean? @default(true)
+  Id              Int      @id @default(autoincrement())
+  UserId          Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
+  DeaconId        Int      @default(0) @db.SmallInt
+  Email           String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
+  Google          String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
+  Line            String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
+  Password        String?  @db.VarChar(255)
+  AuthorizeUserId Int      @db.UnsignedInt
+  CreatedAt       DateTime @default(now())
+  UpdateAt        DateTime @updatedAt
+  IsActive        Boolean? @default(true)
 }
 
 model users {
@@ -82,6 +84,7 @@ model item_name_mapping {
   ItemId    Int?    @db.SmallInt
   ItemValue String? @db.VarChar(20)
 
+  @@unique([GroupName, ItemId], map: "idx_item_name_mapping_GroupName_ItemId")
   @@index([GroupName], map: "idx_item_name_mapping_GroupName")
 }
 
@@ -182,7 +185,7 @@ model user_family_relationships {
 model buddha_seven_apply {
   Id                   Int       @id @default(autoincrement())
   UserId               Int       @db.UnsignedInt
-  RoomId               Int
+  RoomId               Int?
   BedStayOrderNumber   Int?
   CheckInDate          DateTime? @db.Date
   CheckOutDate         DateTime? @db.Date
@@ -190,10 +193,10 @@ model buddha_seven_apply {
   CheckInDateLunch     Boolean?  @default(false)
   CheckInDateDinner    Boolean?  @default(false)
   CheckInTime          DateTime? @db.Time(0)
-  CheckeInUserId       Int       @db.UnsignedInt
+  CheckInUserId        Int?      @db.UnsignedInt
   Status               String?   @db.VarChar(20)
   Remarks              String?   @db.VarChar(255)
-  UpdateUserId         Int       @db.UnsignedInt
+  UpdateUserId         Int?      @db.UnsignedInt
   UpdateAt             DateTime? @default(now()) @db.DateTime(0)
 
   @@index([CheckInDate, CheckOutDate, RoomId], map: "idx_buddha_seven_apply_CheckInDate_CheckOutDate_RoomId")

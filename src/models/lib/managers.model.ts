@@ -9,3 +9,9 @@ export interface SignInByEmailRequest {
   Email: string;
   Password: string;
 }
+
+export interface QRCodeRequest {
+  AuthorizeUserId: number;
+  UserId: number;
+  DeaconName: string;
+}
