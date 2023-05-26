@@ -6,7 +6,7 @@
  * }
  */
 export interface BuddhaSeven {
-  StartSevenDate: Date
-  CompleteDate: Date
-  Remarks?: string | null
+  StartSevenDate: Date;
+  CompleteDate: Date;
+  Remarks?: string | null;
 }
