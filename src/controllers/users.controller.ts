@@ -13,7 +13,8 @@ import {
   Route,
   SuccessResponse,
   Tags,
-  Example
+  Example,
+  Security
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
@@ -81,6 +82,7 @@ export class UsersController extends Controller {
    * @param take 顯示數量
    * @param skip 略過數量
    */
+  @Security("jwt", ["manager"])
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   public async getAll(
@@ -101,6 +103,7 @@ export class UsersController extends Controller {
    *
    * 取得單一四眾個資
    */
+  @Security("jwt", ["manager"])
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查無 id")
@@ -180,6 +183,7 @@ export class UsersController extends Controller {
   /**
    * 新增四眾個資
    */
+  @Security("jwt", ["manager"])
   @Post()
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
@@ -278,6 +282,7 @@ export class UsersController extends Controller {
   /**
    * 修改四眾個資
    */
+  @Security("jwt", ["manager"])
   @Patch('{id}')
   @SuccessResponse(StatusCodes.OK, "修改成功")
   @Response(StatusCodes.BAD_REQUEST, "修改失敗")

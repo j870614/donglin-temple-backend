@@ -15,7 +15,7 @@ import {
   Patch,
   Example
 } from "tsoa";
-import moment from 'moment';
+import moment from "moment";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
@@ -36,30 +36,30 @@ export class BuddhaSevenController extends Controller {
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Example({
-    "status": true,
-    "message": "查詢成功",
-    "data": {
-      "buddhaSevenYearly": [
+    status: true,
+    message: "查詢成功",
+    data: {
+      buddhaSevenYearly: [
         {
-          "Id": 466,
-          "StartSevenDate": "2023-05-01T00:00:00.000Z",
-          "CompleteDate": "2023-05-07T00:00:00.000Z",
-          "Remarks": null
+          Id: 466,
+          StartSevenDate: "2023-05-01T00:00:00.000Z",
+          CompleteDate: "2023-05-07T00:00:00.000Z",
+          Remarks: null
         },
         {
-          "Id": 467,
-          "StartSevenDate": "2023-05-11T00:00:00.000Z",
-          "CompleteDate": "2023-05-17T00:00:00.000Z",
-          "Remarks": null
+          Id: 467,
+          StartSevenDate: "2023-05-11T00:00:00.000Z",
+          CompleteDate: "2023-05-17T00:00:00.000Z",
+          Remarks: null
         }
       ]
     }
   })
-  public async getAllBuddhaSeven (
+  public async getAllBuddhaSeven(
     @Query() year = Number(moment().year()),
     @Query() order: "asc" | "desc" = "asc",
     @Query() take = 36,
-    @Query() skip = 0,
+    @Query() skip = 0
   ) {
     const startDate = new Date(`${year}-01-01`);
     const endDate = new Date(`${year}-12-31`);
@@ -70,13 +70,13 @@ export class BuddhaSevenController extends Controller {
       where: {
         StartSevenDate: {
           gte: startDate,
-          lte: endDate,
+          lte: endDate
         }
       }
     });
-    
+
     return responseSuccess("查詢成功", { buddhaSevenYearly });
-  };
+  }
 
   /**
    * 取得單期佛七
@@ -86,18 +86,18 @@ export class BuddhaSevenController extends Controller {
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查無佛七期數")
   @Example({
-    "status": true,
-    "message": "查詢成功",
-    "data": {
-      "buddhaSeven": {
-        "Id": 466,
-        "StartSevenDate": "2023-05-01T00:00:00.000Z",
-        "CompleteDate": "2023-05-07T00:00:00.000Z",
-        "Remarks": null
+    status: true,
+    message: "查詢成功",
+    data: {
+      buddhaSeven: {
+        Id: 466,
+        StartSevenDate: "2023-05-01T00:00:00.000Z",
+        CompleteDate: "2023-05-07T00:00:00.000Z",
+        Remarks: null
       }
     }
   })
-  public async getBuddhaSeven (
+  public async getBuddhaSeven(
     @Path() id: number,
     @Res()
     errorResponse: TsoaResponse<
@@ -108,7 +108,7 @@ export class BuddhaSevenController extends Controller {
     const buddhaSeven = await prisma.buddha_seven_periods.findUnique({
       where: {
         Id: id
-      },
+      }
     });
 
     if (!buddhaSeven) {
@@ -117,9 +117,9 @@ export class BuddhaSevenController extends Controller {
         message: "查無此佛七期數"
       });
     }
-    
+
     return responseSuccess("查詢成功", { buddhaSeven });
-  };
+  }
 
   /**
    * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
@@ -128,28 +128,28 @@ export class BuddhaSevenController extends Controller {
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   @Example({
-    "status": true,
-    "message": "新增佛七成功",
-    "data": {
-      "buddhaSeven": {
-        "Id": 475,
-        "StartSevenDate": "2023-08-11T00:00:00.000Z",
-        "CompleteDate": "2023-08-17T00:00:00.000Z",
-        "Remarks": null
+    status: true,
+    message: "新增佛七成功",
+    data: {
+      buddhaSeven: {
+        Id: 475,
+        StartSevenDate: "2023-08-11T00:00:00.000Z",
+        CompleteDate: "2023-08-17T00:00:00.000Z",
+        Remarks: null
       }
     }
   })
-  public async createBuddhaSeven (
+  public async createBuddhaSeven(
     @Body() newBuddhaSeven: BuddhaSeven,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
-   ) {
+  ) {
     const { StartSevenDate, CompleteDate, Remarks } = newBuddhaSeven;
 
-    if (!StartSevenDate || !CompleteDate ) {
+    if (!StartSevenDate || !CompleteDate) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: `起七日、圓滿日 未填寫`
@@ -160,9 +160,9 @@ export class BuddhaSevenController extends Controller {
       data: {
         StartSevenDate: new Date(StartSevenDate),
         CompleteDate: new Date(CompleteDate),
-        Remarks,
-      },
-    })
+        Remarks
+      }
+    });
 
     return responseSuccess("新增佛七成功", { buddhaSeven });
   }
@@ -171,22 +171,22 @@ export class BuddhaSevenController extends Controller {
    * 修改佛七
    * @param id 佛七期數
    */
-  @Patch('{id}')
+  @Patch("{id}")
   @SuccessResponse(StatusCodes.OK, "修改佛七成功")
   @Response(StatusCodes.BAD_REQUEST, "修改佛七失敗")
   @Example({
-    "status": true,
-    "message": "更新成功",
-    "data": {
-      "updateBuddhaSeven": {
-        "Id": 474,
-        "StartSevenDate": "2023-08-01T00:00:00.000Z",
-        "CompleteDate": "2023-08-07T00:00:00.000Z",
-        "Remarks": null
+    status: true,
+    message: "更新成功",
+    data: {
+      updateBuddhaSeven: {
+        Id: 474,
+        StartSevenDate: "2023-08-01T00:00:00.000Z",
+        CompleteDate: "2023-08-07T00:00:00.000Z",
+        Remarks: null
       }
     }
   })
-  public async updateBuddhaSeven (
+  public async updateBuddhaSeven(
     @Path() id: number,
     @Body() updateData: Partial<BuddhaSeven>,
     @Res()
@@ -196,25 +196,25 @@ export class BuddhaSevenController extends Controller {
     >
   ) {
     // 查詢要更新之佛七期數是否存在
-    const buddhaSeven = await prisma.buddha_seven_periods.findUnique ({
+    const buddhaSeven = await prisma.buddha_seven_periods.findUnique({
       where: {
-        Id: id,
-      },
+        Id: id
+      }
     });
 
     if (!buddhaSeven) {
-      return errorResponse(StatusCodes.BAD_REQUEST,{
+      return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: '查無此佛七期數'
+        message: "查無此佛七期數"
       });
     }
 
-    const updateBuddhaSeven = await prisma.buddha_seven_periods.update ({
+    const updateBuddhaSeven = await prisma.buddha_seven_periods.update({
       where: {
-        Id: id,
+        Id: id
       },
-      data: updateData,
-    })
+      data: updateData
+    });
 
     return responseSuccess("更新成功", { updateBuddhaSeven });
   }
