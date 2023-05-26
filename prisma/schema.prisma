@@ -8,15 +8,17 @@ datasource db {
 }
 
 model managers {
-  Id        Int      @id @default(autoincrement())
-  UserId    Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
-  Email     String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
-  Google    String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
-  Line      String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
-  Password  String?  @db.VarChar(255)
-  CreatedAt DateTime @default(now())
-  UpdateAt  DateTime @updatedAt
-  IsActive  Boolean? @default(true)
+  Id              Int      @id @default(autoincrement())
+  UserId          Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
+  DeaconId        Int      @default(0) @db.SmallInt
+  Email           String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
+  Google          String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
+  Line            String?  @unique(map: "Managers_Line_key") @db.VarChar(255)
+  Password        String?  @db.VarChar(255)
+  AuthorizeUserId Int      @db.UnsignedInt
+  CreatedAt       DateTime @default(now())
+  UpdateAt        DateTime @updatedAt
+  IsActive        Boolean? @default(true)
 }
 
 model users {
@@ -81,6 +83,7 @@ model item_name_mapping {
   ItemId    Int?    @db.SmallInt
   ItemValue String? @db.VarChar(20)
 
+  @@unique([GroupName, ItemId], map: "idx_item_name_mapping_GroupName_ItemId")
   @@index([GroupName], map: "idx_item_name_mapping_GroupName")
 }
 
