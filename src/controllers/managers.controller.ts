@@ -231,15 +231,17 @@ export class ManagersController extends Controller {
         }
       }
 
+      const newData =  { 
+        DeaconId: deaconId,
+        AuthorizeUserId,
+        IsActive: true,
+        UpdateAt: this.getDate()
+      };
+
       // 停用帳戶 or 權限等級不一樣，重新設定
-      let isSucess = await prisma.managers.update({
+      const isSucess = await prisma.managers.update({
           where: { UserId },
-          data: { 
-            DeaconId: deaconId,
-            AuthorizeUserId,
-            IsActive: true,
-            UpdateAt: this.getDate()
-          }
+          data: newData
       });
 
       if (isSucess) {
