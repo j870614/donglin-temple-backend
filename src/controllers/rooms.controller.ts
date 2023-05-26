@@ -36,13 +36,27 @@ export class RoomsController extends Controller {
     @Query() take = 100,
     @Query() skip = 0
   ) {
-    const allRooms = await prisma.rooms.findMany({
+    const rooms = await prisma.rooms.findMany({
       orderBy: { Id: order },
       take,
       skip
     });
+    const viewType = await prisma.room_type_list.findMany({});
+    const viewRoomData = await prisma.rooms_view.findMany({});
+    const roomsDormitoryAreaBuildingList=await prisma.rooms_dormitory_area_building_list.findMany({});
 
-    return responseSuccess("查詢成功", { rooms: allRooms });
+    const mergedData=rooms.map(room=>{
+      const viewRoom=viewRoomData.find(view => view.RoomId === room.Id);
+      const roomType=viewType.find(type => type.RoomType === room.RoomType);
+      const viewAreaBuildList=roomsDormitoryAreaBuildingList.find(buildList=>buildList.Id === room.Id);
+      return {
+        ...room,
+        ...viewRoom,
+        ...roomType,
+        ...viewAreaBuildList
+      }
+    })
+    return responseSuccess("查詢成功", { rooms: mergedData });
   }
 
   /**
@@ -60,60 +74,51 @@ export class RoomsController extends Controller {
       { status: false; message?: string }
     >
   ) {
+    let mergedData;
+
     const room = await prisma.rooms.findUnique({
       where: {
         Id: id
       }
     });
+    if (room) {
+      const viewType = await prisma.room_type_list.findMany({
+        where: {
+          RoomType: room.RoomType
+        }
+      });
+      const viewRoomData = await prisma.rooms_view.findMany({
+        where: {
+          RoomId: room.Id
+        }
+      });
+    
+      const viewRoomAreaBuildList = await prisma.rooms_dormitory_area_building_list.findMany({
+        where: {
+          Id: room.Id
+        }
+      });
+    
+      const viewRoom = viewRoomData.find(view => view.RoomId === room.Id);
+      const roomType = viewType.find(type => type.RoomType === room.RoomType);
+      const viewAreaBuildList = viewRoomAreaBuildList.find(buildList => buildList.Id === room.Id);
+    
+      mergedData = {
+        ...(room || {}),
+        ...(viewRoom || {}),
+        ...(roomType || {}),
+        ...(viewAreaBuildList || {})
+      };
 
-    if (!room) {
+    } else {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此 Room Id"
       });
     }
 
-    return responseSuccess("查詢成功", { room });
+    return responseSuccess("查詢成功", { mergedData });
   }
 
-  /**
-   *
-   * 取得單一寮房狀態
-   */
-  @Get("test/{id}")
-  @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查無 id")
-  public async viewTest(
-    @Path() id: number,
-    @Res()
-    errorResponse: TsoaResponse<
-      StatusCodes.BAD_REQUEST,
-      { status: false; message?: string }
-    >
-  ) {
-    const room = await prisma.rooms.findUnique({
-      where: {
-        Id: id
-      }
-    });
-    const viewType = await prisma.room_type_list.findMany({
-      where: {
-        RoomType: room?.RoomType
-      }
-    });
-    const viewRoomData = await prisma.rooms_view.findMany({
-      where: {
-        RoomId: room?.Id
-      }
-    });
 
-    if (!room) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "查無此 Room Id"
-      });
-    }
-
-    return responseSuccess("查詢成功", { room, viewType, viewRoomData });
-  }
 }
