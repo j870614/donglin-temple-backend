@@ -86,7 +86,7 @@ export class BuddhaSevenAppleController extends Controller {
   };
 
   /**
-   * 取得單筆佛七報名
+   * 取得單筆佛七報名資料
    * @param id 報名序號
    */
   @Get("{id}")
@@ -210,10 +210,10 @@ export class BuddhaSevenAppleController extends Controller {
     return responseSuccess("佛七報名成功", { buddhaSevenApplyData });
   }
 
-  // /**
-  //  * 修改佛七
-  //  * @param id 佛七期數
-  //  */
+  /**
+   * 修改佛七報名資料
+   * 
+   */
   @Patch('{id}')
   @SuccessResponse(StatusCodes.OK, "修改成功")
   @Response(StatusCodes.BAD_REQUEST, "修改失敗")
