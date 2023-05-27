@@ -240,7 +240,7 @@ export class BuddhaSevenAppleController extends Controller {
       }
     }
   })
-  public async updateBuddhaSeven (
+  public async updateBuddhaSevenApply (
     @Path() id: number,
     @Body() updateData: Partial<BuddhaSevenApplyRequest>,
     @Res()
