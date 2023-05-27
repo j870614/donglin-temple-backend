@@ -13,7 +13,8 @@ import {
   SuccessResponse,
   Tags,
   Patch,
-  Example
+  Example,
+  Delete
 } from "tsoa";
 import moment from 'moment';
 
@@ -212,7 +213,7 @@ export class BuddhaSevenAppleController extends Controller {
 
   /**
    * 修改佛七報名資料
-   * 
+   * @param id 報名序號
    */
   @Patch('{id}')
   @SuccessResponse(StatusCodes.OK, "修改成功")
@@ -271,5 +272,67 @@ export class BuddhaSevenAppleController extends Controller {
     })
 
     return responseSuccess("更新成功", { updateBuddhaSevenApply });
+  }
+
+  /**
+   * 取消佛七報名
+   * @param id 報名序號
+   */
+  @Delete('{id}')
+  @SuccessResponse(StatusCodes.OK, "已取消報名")
+  @Response(StatusCodes.BAD_REQUEST, "取消失敗")
+  @Example({
+    "status": true,
+    "message": "取消成功",
+    "data": {
+      "cancelBuddhaSevenApply": {
+        "Id": 1,
+        "UserId": 11,
+        "RoomId": null,
+        "BedStayOrderNumber": null,
+        "CheckInDate": "2023-06-11T00:00:00.000Z",
+        "CheckOutDate": "2023-06-17T00:00:00.000Z",
+        "CheckInDateBreakfast": true,
+        "CheckInDateLunch": true,
+        "CheckInDateDinner": true,
+        "CheckInTime": null,
+        "CheckInUserId": null,
+        "Status": "已取消",
+        "Remarks": "修改測試",
+        "UpdateUserId": 11,
+        "UpdateAt": "2023-05-27T13:58:10.000Z"
+      }
+    }
+  })
+  public async cancelBuddhaSevenApply (
+    @Path() id: number,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    // 查詢要取消之佛七報名資料是否存在
+    const buddhaSevenApply = await prisma.buddha_seven_apply.findUnique ({
+      where: {
+        Id: id,
+      },
+    });
+
+    if (!buddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST,{
+        status: false,
+        message: '查無此佛七報名資料'
+      });
+    }
+
+    const cancelBuddhaSevenApply = await prisma.buddha_seven_apply.update ({
+      where: {
+        Id: id,
+      },
+      data: { Status: '已取消'},     
+    })
+
+    return responseSuccess("取消成功", { cancelBuddhaSevenApply });
   }
 }
