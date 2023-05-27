@@ -30,7 +30,7 @@ export class BuddhaSevenAppleController extends Controller {
    * 取得佛七預約報名表
    * @param year 查詢該年度之佛七預約報名表，預設為本年度
    * @param month 查詢該月份之佛七預約報名表，預設為當月
-   * @param order 正序("asc") / 倒序("desc")，佛七預設為正序排列
+   * @param order 正序("asc") / 倒序("desc")，預設為正序排列
    * @param take 顯示數量，預設為 100 筆
    * @param skip 略過數量
    */
@@ -40,7 +40,25 @@ export class BuddhaSevenAppleController extends Controller {
     "status": true,
     "message": "查詢成功",
     "data": {
-      "buddhaSevenApplyMonthly": []
+      "buddhaSevenApplyMonthly": [
+        {
+          "Id": 1,
+          "UserId": 11,
+          "RoomId": null,
+          "BedStayOrderNumber": null,
+          "CheckInDate": "2023-06-11T00:00:00.000Z",
+          "CheckOutDate": "2023-06-17T00:00:00.000Z",
+          "CheckInDateBreakfast": true,
+          "CheckInDateLunch": true,
+          "CheckInDateDinner": true,
+          "CheckInTime": null,
+          "CheckInUserId": null,
+          "Status": "新登錄報名",
+          "Remarks": "佛七報名測試 20230527001",
+          "UpdateUserId": 11,
+          "UpdateAt": "2023-05-27T08:28:09.000Z"
+        }
+      ]
     }
   })
   public async getAllBuddhaSevenApply (
@@ -111,20 +129,31 @@ export class BuddhaSevenAppleController extends Controller {
   };
 
   /**
-   * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
+   * 佛七報名
    */
   @Post()
   @SuccessResponse(StatusCodes.OK, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   @Example({
     "status": true,
-    "message": "新增佛七成功",
+    "message": "佛七報名成功",
     "data": {
-      "buddhaSeven": {
-        "Id": 475,
-        "StartSevenDate": "2023-08-11T00:00:00.000Z",
-        "CompleteDate": "2023-08-17T00:00:00.000Z",
-        "Remarks": null
+      "buddhaSevenApplyData": {
+        "Id": 1,
+        "UserId": 11,
+        "RoomId": null,
+        "BedStayOrderNumber": null,
+        "CheckInDate": "2023-06-11T00:00:00.000Z",
+        "CheckOutDate": "2023-06-17T00:00:00.000Z",
+        "CheckInDateBreakfast": true,
+        "CheckInDateLunch": true,
+        "CheckInDateDinner": true,
+        "CheckInTime": null,
+        "CheckInUserId": null,
+        "Status": "新登錄報名",
+        "Remarks": "佛七報名測試 20230527001",
+        "UpdateUserId": 11,
+        "UpdateAt": "2023-05-27T08:28:09.000Z"
       }
     }
   })
@@ -174,9 +203,6 @@ export class BuddhaSevenAppleController extends Controller {
     const buddhaSevenApplyData = await prisma.buddha_seven_apply.create({
       data: {
         ...applyData,
-        RoomId: 1,
-        UpdateUserId: 1,
-        CheckeInUserId: 1,
         Status: '新登錄報名'
       },
     })
@@ -195,11 +221,22 @@ export class BuddhaSevenAppleController extends Controller {
     "status": true,
     "message": "更新成功",
     "data": {
-      "updateBuddhaSeven": {
-        "Id": 474,
-        "StartSevenDate": "2023-08-01T00:00:00.000Z",
-        "CompleteDate": "2023-08-07T00:00:00.000Z",
-        "Remarks": null
+      "updateBuddhaSevenApply": {
+        "Id": 1,
+        "UserId": 11,
+        "RoomId": null,
+        "BedStayOrderNumber": null,
+        "CheckInDate": "2023-06-11T00:00:00.000Z",
+        "CheckOutDate": "2023-06-17T00:00:00.000Z",
+        "CheckInDateBreakfast": true,
+        "CheckInDateLunch": true,
+        "CheckInDateDinner": true,
+        "CheckInTime": null,
+        "CheckInUserId": null,
+        "Status": "新登錄報名",
+        "Remarks": "修改測試",
+        "UpdateUserId": 11,
+        "UpdateAt": "2023-05-27T08:33:19.000Z"
       }
     }
   })
