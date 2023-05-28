@@ -117,11 +117,12 @@ model user_auth_qr_codes {
   Id              Int       @id @default(autoincrement())
   UserId          Int       @db.UnsignedInt
   DeaconId        Int       @db.SmallInt
-  QRCode          String?   @db.VarChar(64)
+  QRCode          String?   @unique(map: "idx_user_auth_qr_codes_QRCode") @db.VarChar(64)
   EndTime         DateTime? @db.DateTime(0)
   AuthorizeUserId Int       @db.UnsignedInt
   HasUsed         Boolean?  @default(false)
 
+  @@unique([QRCode, EndTime, HasUsed], map: "idx_user_auth_qr_codes_QRCode_EndTime_HasUsed")
   @@index([DeaconId, UserId], map: "idx_user_auth_qr_codes_DeaconId_UserId")
 }
 
@@ -317,4 +318,35 @@ view user_deacon_name_list {
 view user_stay_identity_list {
   StayIdentity     Int     @unique @db.SmallInt
   StayIdentityName String? @db.VarChar(20)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+view buddha_seven_apply_view {
+  Id                    Int       @unique @default(0)
+  UserId                Int       @db.UnsignedInt
+  Name                  String?   @db.VarChar(50)
+  DharmaName            String?   @db.VarChar(50)
+  IsMonk                Boolean?  @default(false)
+  IsMale                Boolean?  @default(true)
+  Mobile                String?   @db.VarChar(20)
+  Phone                 String?   @db.VarChar(20)
+  RoomId                Int?
+  BedStayOrderNumber    Int?
+  CheckInDate           DateTime? @db.Date
+  CheckOutDate          DateTime? @db.Date
+  CheckInDateBreakfast  Boolean?  @default(false)
+  CheckInDateLunch      Boolean?  @default(false)
+  CheckInDateDinner     Boolean?  @default(false)
+  CheckInTime           DateTime? @db.Time(0)
+  CheckInUserId         Int?      @db.UnsignedInt
+  CheckInUserName       String?   @db.VarChar(50)
+  CheckInUserDharmaName String?   @db.VarChar(50)
+  CheckInUserIsMale     Boolean?  @default(true)
+  Status                String?   @db.VarChar(20)
+  Remarks               String?   @db.VarChar(255)
+  UpdateUserId          Int?      @db.UnsignedInt
+  UpdateUserName        String?   @db.VarChar(50)
+  UpdateUserDharmaName  String?   @db.VarChar(50)
+  UpdateUserIsMale      Boolean?  @default(false)
+  UpdateAt              DateTime? @default(now()) @db.DateTime(0)
 }
