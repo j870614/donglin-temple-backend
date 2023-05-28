@@ -2,7 +2,6 @@
 import { StatusCodes } from "http-status-codes";
 import {
   Body,
-  BodyProp,
   Controller,
   Example,
   Get,
@@ -48,17 +47,6 @@ export class ManagersController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   public async getMany(@Queries() getManyRequest: GetManyRequest) {
     return this._manager.getMany(getManyRequest);
-  }
-
-  /**
-   * 產生空白管理員
-   * @param counts 產生個數
-   */
-  @Post("generate")
-  @SuccessResponse(StatusCodes.CREATED, "產生成功")
-  @Response(StatusCodes.CREATED, "產生失敗")
-  public async generate(@BodyProp() counts = 1) {
-    return this._manager.generate(counts);
   }
 
   /**
