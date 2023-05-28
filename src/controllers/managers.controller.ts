@@ -2,7 +2,6 @@
 import { StatusCodes } from "http-status-codes";
 import {
   Body,
-  BodyProp,
   Controller,
   Example,
   Get,
@@ -17,7 +16,7 @@ import {
   Tags
 } from "tsoa";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
 import { ManagersService } from "../services/managers.service";
@@ -48,17 +47,6 @@ export class ManagersController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   public async getMany(@Queries() getManyRequest: GetManyRequest) {
     return this._manager.getMany(getManyRequest);
-  }
-
-  /**
-   * 產生空白管理員
-   * @param counts 產生個數
-   */
-  @Post("generate")
-  @SuccessResponse(StatusCodes.CREATED, "產生成功")
-  @Response(StatusCodes.CREATED, "產生失敗")
-  public async generate(@BodyProp() counts = 1) {
-    return this._manager.generate(counts);
   }
 
   /**
@@ -168,23 +156,23 @@ export class ManagersController extends Controller {
 
     return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
-  
+
   /**
    * 取得註冊碼 or 更新 managers 授權
    * @param Authorization JWT
-   * @param qrCodeRequest 
-   * @param errorResponse 
-   * @returns 
+   * @param qrCodeRequest
+   * @param errorResponse
+   * @returns
    */
   @Security("jwt", ["manager"])
   @Post("qrcode")
   @SuccessResponse(StatusCodes.OK, "註冊碼取得成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊碼取得失敗")
   @Example({
-    "status": true,
-    "message": "註冊碼取得成功",
-    "data": {
-      "qrcode": "109156be-c4fb-41ea-b1b4-efe1671c5836"
+    status: true,
+    message: "註冊碼取得成功",
+    data: {
+      qrcode: "109156be-c4fb-41ea-b1b4-efe1671c5836"
     }
   })
   public async getQRCodeOrResetManager(
@@ -213,25 +201,25 @@ export class ManagersController extends Controller {
     }
 
     const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.changeToItemId ("執事名稱", DeaconName);
+    const deaconId = await this.changeToItemId("執事名稱", DeaconName);
 
-    // 檢查 UserId 有沒建過資料 
-    const manager = await prisma.managers.findFirst({ where: { UserId  } });
+    // 檢查 UserId 有沒建過資料
+    const manager = await prisma.managers.findFirst({ where: { UserId } });
 
     if (manager != null) {
       // 已建過
-      
+
       if (manager.IsActive) {
         // 帳號可使用，且權限等級一樣，不做處理
-        if(manager.DeaconId === deaconId){
+        if (manager.DeaconId === deaconId) {
           return errorResponse(StatusCodes.BAD_REQUEST, {
-              status: false,
-              message: "帳號已存在，請使用原帳號登入"
+            status: false,
+            message: "帳號已存在，請使用原帳號登入"
           });
         }
       }
 
-      const newData =  { 
+      const newData = {
         DeaconId: deaconId,
         AuthorizeUserId,
         IsActive: true,
@@ -240,72 +228,71 @@ export class ManagersController extends Controller {
 
       // 停用帳戶 or 權限等級不一樣，重新設定
       const isSucess = await prisma.managers.update({
-          where: { UserId },
-          data: newData
+        where: { UserId },
+        data: newData
       });
 
       if (isSucess) {
-          return errorResponse(StatusCodes.BAD_REQUEST, {
-              status: false,
-              message: "帳號已存在，已更新設定，請使用原帳號登入"
-          });
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: "帳號已存在，已更新設定，請使用原帳號登入"
+        });
       }
 
       return errorResponse(StatusCodes.BAD_REQUEST, {
-          status: false,
-          message: "帳號停用，重新啟用失敗"
+        status: false,
+        message: "帳號停用，重新啟用失敗"
       });
     }
-    
+
     // 沒建過帳戶，要產生註冊碼
     const endTime = this.getDate();
 
     let qrCodeData = await prisma.user_auth_qr_codes.findFirst({
       where: {
-          UserId,
-          DeaconId: deaconId,
-          EndTime: { gte: endTime },
-          HasUsed: false
+        UserId,
+        DeaconId: deaconId,
+        EndTime: { gte: endTime },
+        HasUsed: false
       }
     });
 
-    if(qrCodeData == null){
+    if (qrCodeData == null) {
       // 沒有可用註冊碼
       endTime.setMinutes(endTime.getMinutes() + 20);
 
       const data = {
-          UserId,
-          DeaconId: deaconId,
-          AuthorizeUserId,
-          QRCode:  uuidv4(),
-          EndTime: endTime
+        UserId,
+        DeaconId: deaconId,
+        AuthorizeUserId,
+        QRCode: uuidv4(),
+        EndTime: endTime
       };
-     
+
       // 新建註冊碼
       qrCodeData = await prisma.user_auth_qr_codes.create({
-          data
+        data
       });
     }
 
     if (qrCodeData == null) {
-        return errorResponse(StatusCodes.BAD_REQUEST, {
-            status: false,
-            message: "註冊碼取得失敗"
-        });
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "註冊碼取得失敗"
+      });
     }
 
     return responseSuccess("註冊碼取得成功", { qrcode: qrCodeData.QRCode });
   }
 
-  
   /**
    * 選項名稱換代號
    * @param groupName 選項種類名稱
    * @param itemValue 選項名稱
    * @returns 選項Id
    */
-  private async changeToItemId (
-    groupName:string,
+  private async changeToItemId(
+    groupName: string,
     itemValue: string
   ): Promise<number> {
     const GroupName: string = groupName;
@@ -327,11 +314,11 @@ export class ManagersController extends Controller {
 
   /**
    * 取得現在本地時間
-   * @returns 
+   * @returns
    */
-  private getDate(){
+  private getDate() {
     const date = new Date();
-    date.setUTCHours(date.getUTCHours()+8);
+    date.setUTCHours(date.getUTCHours() + 8);
     return date;
   }
 }
