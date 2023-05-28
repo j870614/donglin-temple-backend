@@ -43,19 +43,22 @@ export class RoomsController extends Controller {
     });
     const viewType = await prisma.room_type_list.findMany({});
     const viewRoomData = await prisma.rooms_view.findMany({});
-    const roomsDormitoryAreaBuildingList=await prisma.rooms_dormitory_area_building_list.findMany({});
+    const roomsDormitoryAreaBuildingList =
+      await prisma.rooms_dormitory_area_building_list.findMany({});
 
-    const mergedData=rooms.map(room=>{
-      const viewRoom=viewRoomData.find(view => view.RoomId === room.Id);
-      const roomType=viewType.find(type => type.RoomType === room.RoomType);
-      const viewAreaBuildList=roomsDormitoryAreaBuildingList.find(buildList=>buildList.Id === room.Id);
+    const mergedData = rooms.map((room) => {
+      const viewRoom = viewRoomData.find((view) => view.RoomId === room.Id);
+      const roomType = viewType.find((type) => type.RoomType === room.RoomType);
+      const viewAreaBuildList = roomsDormitoryAreaBuildingList.find(
+        (buildList) => buildList.Id === room.Id
+      );
       return {
         ...room,
         ...viewRoom,
         ...roomType,
         ...viewAreaBuildList
-      }
-    })
+      };
+    });
     return responseSuccess("查詢成功", { rooms: mergedData });
   }
 
@@ -92,24 +95,26 @@ export class RoomsController extends Controller {
           RoomId: room.Id
         }
       });
-    
-      const viewRoomAreaBuildList = await prisma.rooms_dormitory_area_building_list.findMany({
-        where: {
-          Id: room.Id
-        }
-      });
-    
-      const viewRoom = viewRoomData.find(view => view.RoomId === room.Id);
-      const roomType = viewType.find(type => type.RoomType === room.RoomType);
-      const viewAreaBuildList = viewRoomAreaBuildList.find(buildList => buildList.Id === room.Id);
-    
+
+      const viewRoomAreaBuildList =
+        await prisma.rooms_dormitory_area_building_list.findMany({
+          where: {
+            Id: room.Id
+          }
+        });
+
+      const viewRoom = viewRoomData.find((view) => view.RoomId === room.Id);
+      const roomType = viewType.find((type) => type.RoomType === room.RoomType);
+      const viewAreaBuildList = viewRoomAreaBuildList.find(
+        (buildList) => buildList.Id === room.Id
+      );
+
       mergedData = {
         ...(room || {}),
         ...(viewRoom || {}),
         ...(roomType || {}),
         ...(viewAreaBuildList || {})
       };
-
     } else {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
@@ -119,6 +124,4 @@ export class RoomsController extends Controller {
 
     return responseSuccess("查詢成功", { mergedData });
   }
-
-
 }
