@@ -53,6 +53,9 @@ dependencies:
   passport:
     specifier: ^0.6.0
     version: 0.6.0
+  promise.any:
+    specifier: ^2.0.5
+    version: 2.0.5
   rxjs:
     specifier: ^7.8.1
     version: 7.8.1
@@ -1115,6 +1118,10 @@ packages:
 
   /@types/prettier@2.7.2:
     resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
+
+  /@types/promise.any@2.0.0:
+    resolution: {integrity: sha512-2CNmKwxBdEikQGBM+CSN/xKRmp48Z4BYGRCpbeX+w5YJw+e6JEShFNs1yR8dHpoKpj+XG58GCgtNk8izUDrbnQ==}
+    dev: true
 
   /@types/promise.any@2.0.0:
     resolution: {integrity: sha512-2CNmKwxBdEikQGBM+CSN/xKRmp48Z4BYGRCpbeX+w5YJw+e6JEShFNs1yR8dHpoKpj+XG58GCgtNk8izUDrbnQ==}
