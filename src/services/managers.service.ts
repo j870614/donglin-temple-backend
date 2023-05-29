@@ -1,5 +1,4 @@
 import { StatusCodes } from "http-status-codes";
-import { managers } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import { TsoaResponse } from "src/utils/responseTsoaError";
@@ -30,19 +29,6 @@ export class ManagersService {
     });
 
     return responseSuccess("查詢成功", { managers: allManagers });
-  }
-
-  async generate(counts = 1) {
-    const generatedManagers: managers[] = [];
-
-    for (let i = 0; i < counts; i += 1) {
-      const manager = await this.prismaClient.managers.create({
-        data: {}
-      });
-      generatedManagers.push(manager);
-    }
-
-    return responseSuccess("產生成功", { managers: generatedManagers });
   }
 
   async signUp(
