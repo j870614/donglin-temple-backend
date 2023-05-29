@@ -115,8 +115,7 @@ export class ManagersService {
     }
 
     const hashedPassword = await bcrypt.hash(Password, 12);
-    let data;
-    
+    let data;    
 
    if(userData){
     // 註冊碼帶的權限資料
@@ -140,7 +139,6 @@ export class ManagersService {
       where: { Id: UnsignedManager.Id },
       data
     });
-    console.log(signedManager);
 
     if(userData){
       await this.getQRCodeSetUsed(QRCode);
@@ -211,6 +209,11 @@ export class ManagersService {
     });
   }
 
+  /**
+   * 將 user_auth_qr_codes 指定的 QRCode，註記已使用
+   * @param qrCode 註冊碼
+   * @returns 
+   */
   async getQRCodeSetUsed(qrCode: string){
     if(!qrCode){
       return null;
