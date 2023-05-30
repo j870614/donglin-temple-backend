@@ -28,13 +28,13 @@ jobs:
           node-version: '18'
           cache: 'pnpm'
       
-      - name: Install nodejs package
+      - name: Install dependencies
         run: pnpm install
       
       - name: Generate PrismaClient
         run: pnpm prisma generate
       
-      - name: Generate Tsoa files
+      - name: Generate route and swagger file by Tsoa
         run: pnpm tsoa spec-and-routes
         
       - name: Lint code
