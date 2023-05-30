@@ -82,6 +82,8 @@ export class BuddhaSevenApplyController extends Controller {
         }
       }
     });
+    console.log(year, month);
+    console.log(startDate, endDate);
 
     return responseSuccess("查詢成功", { buddhaSevenApplyMonthly });
   }

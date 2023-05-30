@@ -10,3 +10,11 @@ export interface BuddhaSeven {
   CompleteDate: Date;
   Remarks?: string | null;
 }
+
+export interface BuddhaSevenGetManyRequest {
+  year?: number;
+  month?: number;
+  order?: "asc" | "desc";
+  take?: number;
+  skip?: number;
+}

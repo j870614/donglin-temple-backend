@@ -1,4 +1,4 @@
-export interface BuddhaSevenApplyRequest {
+export interface BuddhaSevenCheckInRequest {
   UserId: number;
   RoomId?: number;
   BedStayOrderNumber?: number;
