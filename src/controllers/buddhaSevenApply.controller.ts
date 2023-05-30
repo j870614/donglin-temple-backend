@@ -45,6 +45,12 @@ export class BuddhaSevenApplyController extends Controller {
         {
           Id: 1,
           UserId: 11,
+          Name: null,
+          DharmaName: "普某",
+          IsMonk: true,
+          IsMale: true,
+          Mobile: "0901123123",
+          Phone: "0395123123",
           RoomId: null,
           BedStayOrderNumber: null,
           CheckInDate: "2023-06-11T00:00:00.000Z",
@@ -54,10 +60,16 @@ export class BuddhaSevenApplyController extends Controller {
           CheckInDateDinner: true,
           CheckInTime: null,
           CheckInUserId: null,
-          Status: "新登錄報名",
-          Remarks: "佛七報名測試 20230527001",
+          CheckInUserName: null,
+          CheckInUserDharmaName: null,
+          CheckInUserIsMale: null,
+          Status: "已取消",
+          Remarks: "修改測試",
           UpdateUserId: 11,
-          UpdateAt: "2023-05-27T08:28:09.000Z"
+          UpdateUserName: null,
+          UpdateUserDharmaName: "普某",
+          UpdateUserIsMale: true,
+          UpdateAt: "2023-05-27T13:58:10.000Z"
         }
       ]
     }
@@ -71,17 +83,18 @@ export class BuddhaSevenApplyController extends Controller {
   ) {
     const startDate = new Date(`${year}-${month}-01`);
     const endDate = new Date(`${year}-${month + 1}-01`);
-    const buddhaSevenApplyMonthly = await prisma.buddha_seven_apply.findMany({
-      orderBy: { Id: order },
-      take,
-      skip,
-      where: {
-        CheckInDate: {
-          gte: startDate,
-          lt: endDate
+    const buddhaSevenApplyMonthly =
+      await prisma.buddha_seven_apply_view.findMany({
+        orderBy: { Id: order },
+        take,
+        skip,
+        where: {
+          CheckInDate: {
+            gte: startDate,
+            lt: endDate
+          }
         }
-      }
-    });
+      });
 
     return responseSuccess("查詢成功", { buddhaSevenApplyMonthly });
   }
@@ -97,11 +110,34 @@ export class BuddhaSevenApplyController extends Controller {
     status: true,
     message: "查詢成功",
     data: {
-      buddhaSeven: {
-        Id: 466,
-        StartSevenDate: "2023-05-01T00:00:00.000Z",
-        CompleteDate: "2023-05-07T00:00:00.000Z",
-        Remarks: null
+      buddhaSevenApply: {
+        Id: 2,
+        UserId: 11,
+        Name: null,
+        DharmaName: "普某",
+        IsMonk: true,
+        IsMale: true,
+        Mobile: "0901123123",
+        Phone: "0395123123",
+        RoomId: null,
+        BedStayOrderNumber: null,
+        CheckInDate: "2023-06-11T00:00:00.000Z",
+        CheckOutDate: "2023-06-30T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
+        CheckInUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "新登錄報名",
+        Remarks: "新增測試",
+        UpdateUserId: 6,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普中",
+        UpdateUserIsMale: true,
+        UpdateAt: "2023-05-30T07:38:34.000Z"
       }
     }
   })
@@ -140,21 +176,21 @@ export class BuddhaSevenApplyController extends Controller {
     message: "佛七報名成功",
     data: {
       buddhaSevenApplyData: {
-        Id: 1,
+        Id: 2,
         UserId: 11,
         RoomId: null,
         BedStayOrderNumber: null,
         CheckInDate: "2023-06-11T00:00:00.000Z",
-        CheckOutDate: "2023-06-17T00:00:00.000Z",
+        CheckOutDate: "2023-06-30T00:00:00.000Z",
         CheckInDateBreakfast: true,
         CheckInDateLunch: true,
         CheckInDateDinner: true,
         CheckInTime: null,
         CheckInUserId: null,
         Status: "新登錄報名",
-        Remarks: "佛七報名測試 20230527001",
-        UpdateUserId: 11,
-        UpdateAt: "2023-05-27T08:28:09.000Z"
+        Remarks: "新增測試",
+        UpdateUserId: 6,
+        UpdateAt: "2023-05-30T07:38:34.000Z"
       }
     }
   })
@@ -277,7 +313,10 @@ export class BuddhaSevenApplyController extends Controller {
       where: {
         Id: id
       },
-      data: updateData
+      data: {
+        ...updateData,
+        UpdateAt: new Date()
+      }
     });
 
     return responseSuccess("更新成功", { updateBuddhaSevenApply });
@@ -339,7 +378,10 @@ export class BuddhaSevenApplyController extends Controller {
       where: {
         Id: id
       },
-      data: { Status: "已取消" }
+      data: {
+        Status: "已取消",
+        UpdateAt: new Date()
+      }
     });
 
     return responseSuccess("取消成功", { cancelBuddhaSevenApply });
