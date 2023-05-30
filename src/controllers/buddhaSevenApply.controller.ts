@@ -236,6 +236,15 @@ export class BuddhaSevenAppleController extends Controller {
       });
     }
 
+    // 驗證同一位 UserId 是否重複報名同一個日期區間
+    const isDuplicate = await this.checkDuplicateDates(applyData);
+    if (isDuplicate) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+          message: '同一個四眾報名之日期區間重複，如欲修改掛單日期，請修改佛七報名資料。'
+      })
+    }
+
     const buddhaSevenApplyData = await prisma.buddha_seven_apply.create({
       data: {
         ...applyData,
@@ -375,5 +384,37 @@ export class BuddhaSevenAppleController extends Controller {
     })
 
     return responseSuccess("取消成功", { cancelBuddhaSevenApply });
+  }
+
+  // 驗證同一位 UserId 是否重複報名同一個日期區間
+  private async checkDuplicateDates(applyData: BuddhaSevenApplyRequest): Promise<boolean> {
+    const { UserId, CheckInDate, CheckOutDate } = applyData;
+
+    const existingApply = await prisma.buddha_seven_apply.findFirst({
+      where: {
+        UserId,
+        OR: [
+          {
+            AND: [ // 驗證 CheckInDate 是否在已報名過的日期區間內
+              { CheckInDate: { lte: CheckInDate } },
+              { CheckOutDate: { gte: CheckInDate } },
+            ],
+          },
+          { // 驗證 CheckOutDate 是否在已報名過的日期區間內
+            AND: [
+              { CheckInDate: { lte: CheckOutDate } },
+              { CheckOutDate: { gte: CheckOutDate } },
+            ],
+          },
+          { // 驗證 報名日期區間 是否完全重複報名過
+            AND: [
+              { CheckInDate: { gte: CheckInDate } },
+              { CheckOutDate: { lte: CheckOutDate } },
+            ],
+          },
+        ],
+      }
+    });
+    return !!existingApply;
   }
 }
