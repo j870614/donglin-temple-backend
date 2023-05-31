@@ -11,5 +11,9 @@
   // moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
   //   prefix: "<rootDir>/",
   // }),
-  // setupFilesAfterEnv: ["<rootDir>/test/setup.ts"]
+  setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
+  // globals: {
+  //   "ts-jest": {
+  //     tsconfig: "<rootDir>/tsconfig.json"}
+  // }
 };
