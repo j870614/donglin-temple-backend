@@ -6,10 +6,6 @@ export interface SignUpByEmailRequest {
   Email: string;
   Password: string;
   ConfirmPassword: string;
-  /**
-   * 註冊碼：與 UserId 則一填寫<br>有給的話，會自動寫入 QRCodeRequest 的資訊
-   */
-  QRCode?: string
 }
 
 export interface SignInByEmailRequest {

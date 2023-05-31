@@ -33,14 +33,15 @@ export class ManagersService {
 
   async signUp(
     signUpByEmailRequest: SignUpByEmailRequest,
+    qrCodeRequest?: string,
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    const { UserId, Email, Password, ConfirmPassword, QRCode } = signUpByEmailRequest;
+    const { UserId, Email, Password, ConfirmPassword } = signUpByEmailRequest;
     
-    if (!Email || !Password || !ConfirmPassword || !(UserId || QRCode)) {
+    if (!Email || !Password || !ConfirmPassword || !(UserId || qrCodeRequest)) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "所有欄位都必須填寫"
@@ -67,12 +68,12 @@ export class ManagersService {
         message: "信箱格式錯誤"
       });
     }
-
+    
     const existingManagerByEmail = await prisma.managers.findFirst({
       where: { Email }
     });
-    
-    const userData = await this.getUserAuthDataFromQRCode(QRCode);
+    const qrCode = qrCodeRequest || "";
+    const userData = await this.getUserAuthDataFromQRCode(qrCode);
     const userId = userData? userData.UserId: UserId;
     
     const existingManagerByUserId = await prisma.managers.findFirst({
@@ -127,7 +128,7 @@ export class ManagersService {
     });
 
     if(userData){
-      await this.getQRCodeSetUsed(QRCode);
+      await this.getQRCodeSetUsed(qrCode);
     }
 
     return responseSuccess("註冊成功", { manager: signedManager });

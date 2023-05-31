@@ -8,6 +8,7 @@ import {
   Header,
   Post,
   Queries,
+  Query,
   Res,
   Response,
   Route,
@@ -65,10 +66,10 @@ export class ManagersController extends Controller {
     Email: "a123456789@abc.com",
     Google: "GoogleAccount",
     Line: "LineId",
-    Password: "password123",
-    QRCode: "109156be-c4fb-41ea-b1b4-efe1671c5836"
+    Password: "password123"
   })
   public async signUp(
+    @Query() qrCodeRequest?: string,
     @Body() signUpByEmailRequest: SignUpByEmailRequest,
     @Res()
     errorResponse: TsoaResponse<
@@ -76,7 +77,7 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    return this._manager.signUp(signUpByEmailRequest, errorResponse);
+    return this._manager.signUp(signUpByEmailRequest, qrCodeRequest, errorResponse);
   }
 
   /**
