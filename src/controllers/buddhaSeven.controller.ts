@@ -19,7 +19,7 @@ import moment from "moment";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
-import { prisma } from "../configs/prismaClient";
+import prisma from "../configs/prismaClient";
 
 import { BuddhaSeven } from "../models";
 

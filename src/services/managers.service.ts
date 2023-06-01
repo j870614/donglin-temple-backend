@@ -9,7 +9,7 @@ import {
   SignUpByEmailRequest
 } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
-import { prisma } from "../configs/prismaClient";
+import prisma from "../configs/prismaClient";
 import { generateAndSendJWT } from "./auth/jwtToken.service";
 
 /* eslint-disable class-methods-use-this */
@@ -39,9 +39,11 @@ export class ManagersService {
       { status: false; message?: string }
     >
   ) {
+
     const { UserId, Email, Password, ConfirmPassword } = signUpByEmailRequest;
     
     if (!Email || !Password || !ConfirmPassword || !(UserId || qrCodeRequest)) {
+
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "所有欄位都必須填寫"
@@ -68,7 +70,7 @@ export class ManagersService {
         message: "信箱格式錯誤"
       });
     }
-    
+
     const existingManagerByEmail = await prisma.managers.findFirst({
       where: { Email }
     });
@@ -84,6 +86,7 @@ export class ManagersService {
 
     const userId = userData? userData.UserId: UserId;    
     const existingManagerByUserId = await prisma.managers.findFirst({
+
       where: { UserId: userId }
     });
 
@@ -94,7 +97,7 @@ export class ManagersService {
       });
     }
 
-    const UnsignedManager = await prisma.managers.findFirst({
+    const UnsignedManager = await this.prismaClient.managers.findFirst({
       where: {
         Email: null,
         UserId: null
@@ -109,27 +112,26 @@ export class ManagersService {
     }
 
     const hashedPassword = await bcrypt.hash(Password, 12);
-    let data;    
+    let data;
 
-   if(userData){
-    // 註冊碼帶的權限資料
+    if (userData) {
+      // 註冊碼帶的權限資料
       data = {
-        Email,        
+        Email,
         UserId: userData.UserId,
-        Password: hashedPassword,        
+        Password: hashedPassword,
         DeaconId: userData.DeaconId,
         AuthorizeUserId: userData.AuthorizeUserId
       };
-
-    }else{
+    } else {
       data = {
-        Email,        
+        Email,
         UserId,
         Password: hashedPassword
-      }; 
+      };
     }
 
-    const signedManager = await prisma.managers.update({
+    const signedManager = await this.prismaClient.managers.update({
       where: { Id: UnsignedManager.Id },
       data
     });
@@ -156,7 +158,7 @@ export class ManagersService {
       });
     }
 
-    const manager = await prisma.managers.findUnique({
+    const manager = await this.prismaClient.managers.findUnique({
       where: { Email }
     });
     if (!manager || !manager.Password) {
@@ -184,19 +186,19 @@ export class ManagersService {
   /**
    * 取得 user_auth_qr_codes 指定 QRCode，時效內且尚未啟用的資料
    * @param qrCode 註冊碼
-   * @returns 
+   * @returns
    */
-  async getUserAuthDataFromQRCode(qrCode: string){
-    if(!qrCode){
+  async getUserAuthDataFromQRCode(qrCode: string) {
+    if (!qrCode) {
       return null;
     }
 
     const endTime = new Date();
-    endTime.setUTCHours(endTime.getUTCHours()+8);
+    endTime.setUTCHours(endTime.getUTCHours() + 8);
 
-    return prisma.user_auth_qr_codes.findFirst({
-      where: { 
-        QRCode: qrCode ,
+    return this.prismaClient.user_auth_qr_codes.findFirst({
+      where: {
+        QRCode: qrCode,
         EndTime: { gte: endTime },
         HasUsed: false
       }
@@ -206,14 +208,14 @@ export class ManagersService {
   /**
    * 將 user_auth_qr_codes 指定的 QRCode，註記已使用
    * @param qrCode 註冊碼
-   * @returns 
+   * @returns
    */
-  async getQRCodeSetUsed(qrCode: string){
-    if(!qrCode){
+  async getQRCodeSetUsed(qrCode: string) {
+    if (!qrCode) {
       return null;
     }
 
-    return prisma.user_auth_qr_codes.update({
+    return this.prismaClient.user_auth_qr_codes.update({
       where: { QRCode: qrCode },
       data: { HasUsed: true }
     });
