@@ -33,7 +33,7 @@ export class ManagersService {
 
   async signUp(
     signUpByEmailRequest: SignUpByEmailRequest,
-    qrCodeRequest?: string,
+    qrCodeRequest: string | undefined,
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
@@ -74,8 +74,15 @@ export class ManagersService {
     });
     const qrCode = qrCodeRequest || "";
     const userData = await this.getUserAuthDataFromQRCode(qrCode);
-    const userId = userData? userData.UserId: UserId;
     
+    if(qrCodeRequest && !userData){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "QRCode 無效或是已過期"
+      });
+    }
+
+    const userId = userData? userData.UserId: UserId;    
     const existingManagerByUserId = await prisma.managers.findFirst({
       where: { UserId: userId }
     });
