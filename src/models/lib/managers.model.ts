@@ -17,9 +17,9 @@ export interface SignInByEmailRequest {
  * 產生註冊碼用的請求物件
  * @example
  * {
- *   "AuthorizeUserId": 1,
+ *   "AuthorizeUserId": 4,
  *   "UserId": 45,
- *   "DeaconName": "知客師"
+ *   "DeaconName": "知客志工"
  * }
  */
 export interface QRCodeRequest {
@@ -37,7 +37,7 @@ export interface QRCodeRequest {
   UserId: number;
   /**
    * QRCode 使用者的管理權限等級
-   * - 執事名稱：知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員
+   * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
    */
   DeaconName: string;
 }
