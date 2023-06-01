@@ -8,7 +8,7 @@ export interface BuddhaSevenCheckInRequest {
   CheckInDateLunch: boolean;
   CheckInDateDinner: boolean;
   CheckInTime?: Date;
-  CheckeInUserId?: number;
+  CheckInUserId?: number;
   Status?: string;
   Remarks?: string;
   UpdateUserId: number;
