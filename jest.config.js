@@ -1,7 +1,7 @@
 // const { pathsToModuleNameMapper } = require("ts-jest");
 // const { compilerOptions } = require("./tsconfig");
 
- module.exports =  {
+module.exports =  {
   clearMocks: true,
   coverageProvider: "v8",
   preset: "ts-jest",
@@ -12,8 +12,4 @@
   //   prefix: "<rootDir>/",
   // }),
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
-  // globals: {
-  //   "ts-jest": {
-  //     tsconfig: "<rootDir>/tsconfig.json"}
-  // }
 };

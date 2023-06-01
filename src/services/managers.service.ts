@@ -193,7 +193,7 @@ export class ManagersService {
     const endTime = new Date();
     endTime.setUTCHours(endTime.getUTCHours() + 8);
 
-    return prisma.user_auth_qr_codes.findFirst({
+    return this.prismaClient.user_auth_qr_codes.findFirst({
       where: {
         QRCode: qrCode,
         EndTime: { gte: endTime },
