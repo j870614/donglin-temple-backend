@@ -7,6 +7,7 @@ import {
   getStartDateFromYearAndMonth
 } from "../utils/useDate";
 import { responseSuccess } from "../utils/responseSuccess";
+import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
 
 export class BuddhaSevenCheckInService {
   constructor(private readonly prismaClient = prisma) {}
@@ -31,9 +32,12 @@ export class BuddhaSevenCheckInService {
           CheckInDate: {
             gte: startDate,
             lt: endDate
-          }
+          },
+          Status: BuddhaSevenStatus.APPLIED
         }
       });
+
+    console.log(BuddhaSevenStatus.APPLIED);
 
     return responseSuccess("查詢成功", { buddhaSevenCheckInMonthly });
   }
