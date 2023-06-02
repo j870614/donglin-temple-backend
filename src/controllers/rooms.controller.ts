@@ -1,24 +1,25 @@
 /* eslint-disable class-methods-use-this */
 import { StatusCodes } from "http-status-codes";
 import {
-  // BodyProp,
+  Body,
   Controller,
-  // Example,
+  Example,
   Get,
-  // Post,
+  Post,
   Query,
   Path,
   Res,
   Response,
   Route,
   // Security,
+  Patch,
   SuccessResponse,
   Tags
 } from "tsoa";
 // import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
-import { prisma } from "../configs/prismaClient";
+import prisma from "../configs/prismaClient";
 
 @Tags("Room - 寮房狀態")
 @Route("/api/rooms")
@@ -123,5 +124,317 @@ export class RoomsController extends Controller {
     }
 
     return responseSuccess("查詢成功", { mergedData });
+  }
+
+  /**
+   * 幫佛七報名 安排寮房
+   * @param id 報名序號
+   * @param roomId 寮房序號
+   */
+  @Post("room-arrange")
+  @SuccessResponse(StatusCodes.OK, "寮房分配成功")
+  @Response(StatusCodes.BAD_REQUEST, "無法分配寮房")
+  @Example({
+    "status": true,
+    "message": "安排寮房成功",
+    "data": {
+      "room": {
+        "Id": 50704,
+        "DormitoryAreaId": 5,
+        "BuildingId": 7,
+        "ShareId": 4,
+        "RoomType": 1,
+        "IsMale": true,
+        "TotalBeds": 2,
+        "ReservedBeds": 1,
+        "IsActive": true,
+        "UpdateAt": "2023-05-15T23:56:33.000Z",
+        "RoomId": 50704,
+        "DormitoryAreaName": "其他",
+        "BuildingName": "G",
+        "RoomTypeName": "一般寮房",
+        "GenderName": "男"
+      },
+      "buddhaSevenApply": {
+        "Id": 1,
+        "UserId": 11,
+        "Name": null,
+        "DharmaName": "普某",
+        "IsMonk": true,
+        "IsMale": true,
+        "Mobile": "0901123123",
+        "Phone": "0395123123",
+        "RoomId": 50704,
+        "BedStayOrderNumber": 2,
+        "CheckInDate": "2023-06-11T00:00:00.000Z",
+        "CheckOutDate": "2023-06-17T00:00:00.000Z",
+        "CheckInDateBreakfast": true,
+        "CheckInDateLunch": true,
+        "CheckInDateDinner": true,
+        "CheckInTime": null,
+        "CheckInUserId": null,
+        "CheckInUserName": null,
+        "CheckInUserDharmaName": null,
+        "CheckInUserIsMale": null,
+        "Status": "已取消",
+        "Remarks": "修改測試",
+        "UpdateUserId": 11,
+        "UpdateUserName": null,
+        "UpdateUserDharmaName": "普某",
+        "UpdateUserIsMale": true,
+        "UpdateAt": "2023-05-27T13:58:10.000Z"
+      }
+    }
+  })
+  public async assignRoom(
+    @Body() request: { id: number; roomId: number },
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const { id, roomId } = request;
+
+    //  根據 Id 取得報名人資料
+    const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
+      where: {
+        Id: id
+      },
+    });
+
+    if (!buddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此報名序號"
+      });
+    }
+
+    // 根據 roomId 取得寮房資料
+    const room = await prisma.rooms.findUnique({
+      where: {
+        Id: roomId
+      }
+    });
+
+    if (!room) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此寮房序號"
+      });
+    }
+
+    // 檢查是否已經安排過寮房
+    if (buddhaSevenApply.RoomId) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "已經安排過寮房",
+      });
+    }
+
+
+    // 檢查佛七報名表性別與寮房性別是否相同
+    if (buddhaSevenApply.IsMale !== room.IsMale) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "報名者性別與寮房性別不相符"
+      });
+    }
+
+    // 檢查寮房是否已滿房
+    const availableBeds = room.TotalBeds - room.ReservedBeds;
+    if (availableBeds <= 0) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "寮房已滿"
+      });
+    }
+
+    // 檢查寮房是否為一般寮房
+    if (room.RoomType !== 1) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "寮房非一般寮房"
+      });
+    }
+
+
+    // 根據可住人數更新寮房資料
+    const updatedRoom = await prisma.rooms.update({
+      where: {
+        Id: roomId
+      },
+      data: {
+        ReservedBeds: room.ReservedBeds + 1
+      }
+    });
+
+    //  更新 buddha_seven_apply 的 RoomId 和 BedStayOrderNumber
+    const updatedBuddhaSevenApply = await prisma.buddha_seven_apply.update({
+      where: {
+        Id: id
+      },
+      data: {
+        RoomId: updatedRoom.Id,
+        BedStayOrderNumber: updatedRoom.ReservedBeds
+      }
+    });
+
+    return responseSuccess("寮房分配成功", { room: updatedRoom, buddhaSevenApply: updatedBuddhaSevenApply });
+  }
+
+  /**
+   * 更改佛七報名表的寮房
+   * @param id 報名序號
+   * @param newRoomId 新的寮房 ID
+   */
+  @Patch("/room-change")
+  @SuccessResponse(StatusCodes.OK, "更改寮房成功")
+  @Response(StatusCodes.BAD_REQUEST, "查無佛七報名資料或寮房資料不符合條件")
+  public async changeBuddhaSevenRoom(
+    @Body() request: { id: number; newRoomId: number },
+    @Res() errorResponse: TsoaResponse<StatusCodes.BAD_REQUEST, { status: false; message?: string }>
+  ) {
+
+    const { id, newRoomId } = request;
+    // 取得佛七報名資料
+    const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
+      where: { Id: id },
+    });
+
+    if (!buddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此報名序號",
+      });
+    }
+
+    // 若原本沒有 RoomId
+    if (buddhaSevenApply.RoomId === null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "佛七報名資料的寮房 ID 為空，請使用安排寮房的 API ",
+      });
+    }
+    // 取得舊的寮房資料
+    const oldRoom = await prisma.rooms_view.findUnique({
+      where: { RoomId: buddhaSevenApply.RoomId },
+    });
+
+    // 取得新的寮房資料
+    const newRoom = await prisma.rooms_view.findUnique({
+      where: { RoomId: newRoomId },
+    });
+
+    // 檢查新舊寮房在不再
+    if (!oldRoom || !newRoom) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無寮房資料",
+      });
+    }
+
+    // 檢查寮房性別是否符合報名表
+    if (oldRoom.GenderName !== newRoom.GenderName) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "新寮房性別與報名表不相符",
+      });
+    }
+
+    // 檢查新的寮房是否有變更
+    if (newRoom.RoomId === oldRoom.RoomId) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "新的寮房與原寮房相同，請選擇不同的寮房",
+      });
+    }
+
+    // 檢查新的寮房是否已滿
+    if (!newRoom.IsActive || newRoom.ReservedBeds === newRoom.TotalBeds) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "新寮房已滿房",
+      });
+    }
+
+    // 檢查新的寮房是否為一般寮房
+    if (newRoom.RoomTypeName !== "一般寮房") {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "新寮房不是一般寮房",
+      });
+    }
+
+    // 更新舊的寮房資料
+    const updatedOldRoom = await prisma.rooms.update({
+      where: { Id: oldRoom.RoomId },
+      data: {
+        ReservedBeds: oldRoom.ReservedBeds - 1,
+      },
+    });
+
+    // 更新新的寮房資料
+    const updatedNewRoom = await prisma.rooms.update({
+      where: { Id: newRoom.RoomId },
+      data: {
+        ReservedBeds: newRoom.ReservedBeds + 1,
+      },
+    });
+
+    // 更新佛七報名資料的寮房 ID
+    const updatedBuddhaSevenApply = await prisma.buddha_seven_apply.update({
+      where: { Id: buddhaSevenApply.Id },
+      data: {
+        RoomId: newRoom.RoomId,
+        BedStayOrderNumber: updatedNewRoom.ReservedBeds
+      },
+    });
+
+    let changeOldBedStayOrderNumber = null;
+    let changeNewBedStayOrderNumber = null;
+    // 如果佛七報名舊寮房的 BedStayOrderNumber 為 1 的住戶更換房間，則將舊寮房的 BedStayOrderNumber 為 2 的住戶設為 1
+    if (buddhaSevenApply.BedStayOrderNumber === 1) {
+
+      changeOldBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 2,
+        },
+      });
+
+      await prisma.buddha_seven_apply.updateMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 2,
+        },
+        data: {
+          BedStayOrderNumber: 1,
+        },
+      });
+
+      changeNewBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 1,
+        },
+      });
+
+
+    }
+
+    return {
+      status: true,
+      message: "更改寮房成功",
+      data: {
+        oldRoom: updatedOldRoom,
+        newRoom: updatedNewRoom,
+        oldBuddhaSevenApply: buddhaSevenApply,
+        newBuddhaSevenApply: updatedBuddhaSevenApply,
+        changeOldBedStayOrderNumber: buddhaSevenApply.BedStayOrderNumber === 1 ? changeOldBedStayOrderNumber : null,
+        changeNewBedStayOrderNumber: buddhaSevenApply.BedStayOrderNumber === 1 ? changeNewBedStayOrderNumber : null,
+      },
+    };
+
   }
 }
