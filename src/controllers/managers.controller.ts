@@ -7,6 +7,7 @@ import {
   Get,
   Header,
   Post,
+  Path,
   Queries,
   Res,
   Response,
@@ -49,14 +50,43 @@ export class ManagersController extends Controller {
     return this._manager.getMany(getManyRequest);
   }
 
-  /**
+ /**
    * 使用四眾使用者 ID 來註冊管理員身分
    * @param Email 信箱
    * @param Password 密碼
    * @param ConfirmPassword 再次確認密碼
    * @param UserId 使用者 ID
    */
-  @Post("signup")
+ @Post("signup")
+ @SuccessResponse(StatusCodes.CREATED, "註冊成功")
+ @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
+ @Example({
+   Id: 1,
+   UserId: 1,
+   Email: "a123456789@abc.com",
+   Google: "GoogleAccount",
+   Line: "LineId",
+   Password: "password123"
+ })
+ public async signUp(    
+   @Body() signUpByEmailRequest: SignUpByEmailRequest,
+   @Res()    
+   errorResponse: TsoaResponse<
+     StatusCodes.BAD_REQUEST,
+     { status: false; message?: string }
+   >    
+ ) {
+   return this._manager.signUp(signUpByEmailRequest, undefined, errorResponse);
+ }
+
+  /**
+   * 用 QRCode 信箱註冊管理員身分
+   * @param qrcode 
+   * @param signUpByEmailRequest 
+   * @param errorResponse 
+   * @returns 
+   */
+  @Post("signup/{qrcode}")
   @SuccessResponse(StatusCodes.CREATED, "註冊成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
   @Example({
@@ -65,20 +95,20 @@ export class ManagersController extends Controller {
     Email: "a123456789@abc.com",
     Google: "GoogleAccount",
     Line: "LineId",
-    Password: "password123",
-    QRCode: "109156be-c4fb-41ea-b1b4-efe1671c5836"
+    Password: "password123"
   })
-  public async signUp(
+  public async signUpByQRCode(    
+    @Path() qrcode: string,
     @Body() signUpByEmailRequest: SignUpByEmailRequest,
-    @Res()
+    @Res()    
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >    
   ) {
-    return this._manager.signUp(signUpByEmailRequest, errorResponse);
+    return this._manager.signUp(signUpByEmailRequest, qrcode, errorResponse);
   }
-
+   
   /**
    * 使用信箱、密碼登入管理員帳號，成功會返回 JWT token
    * @param Email 信箱
