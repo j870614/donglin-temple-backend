@@ -5,15 +5,14 @@ import {
   Controller,
   Example,
   Get,
-  Post,
   Query,
   Path,
   Res,
   Response,
   Route,
-  // Security,
   SuccessResponse,
-  Tags
+  Tags,
+  Patch
 } from "tsoa";
 // import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
@@ -130,58 +129,58 @@ export class RoomsController extends Controller {
    * @param id 報名序號
    * @param roomId 寮房序號
    */
-  @Post("room-arrange")
+  @Patch("room-arrange")
   @SuccessResponse(StatusCodes.OK, "寮房分配成功")
   @Response(StatusCodes.BAD_REQUEST, "無法分配寮房")
   @Example({
-    "status": true,
-    "message": "安排寮房成功",
-    "data": {
-      "room": {
-        "Id": 50704,
-        "DormitoryAreaId": 5,
-        "BuildingId": 7,
-        "ShareId": 4,
-        "RoomType": 1,
-        "IsMale": true,
-        "TotalBeds": 2,
-        "ReservedBeds": 1,
-        "IsActive": true,
-        "UpdateAt": "2023-05-15T23:56:33.000Z",
-        "RoomId": 50704,
-        "DormitoryAreaName": "其他",
-        "BuildingName": "G",
-        "RoomTypeName": "一般寮房",
-        "GenderName": "男"
+    status: true,
+    message: "安排寮房成功",
+    data: {
+      room: {
+        Id: 50704,
+        DormitoryAreaId: 5,
+        BuildingId: 7,
+        ShareId: 4,
+        RoomType: 1,
+        IsMale: true,
+        TotalBeds: 2,
+        ReservedBeds: 1,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:33.000Z",
+        RoomId: 50704,
+        DormitoryAreaName: "其他",
+        BuildingName: "G",
+        RoomTypeName: "一般寮房",
+        GenderName: "男"
       },
-      "buddhaSevenApply": {
-        "Id": 1,
-        "UserId": 11,
-        "Name": null,
-        "DharmaName": "普某",
-        "IsMonk": true,
-        "IsMale": true,
-        "Mobile": "0901123123",
-        "Phone": "0395123123",
-        "RoomId": 50704,
-        "BedStayOrderNumber": 2,
-        "CheckInDate": "2023-06-11T00:00:00.000Z",
-        "CheckOutDate": "2023-06-17T00:00:00.000Z",
-        "CheckInDateBreakfast": true,
-        "CheckInDateLunch": true,
-        "CheckInDateDinner": true,
-        "CheckInTime": null,
-        "CheckInUserId": null,
-        "CheckInUserName": null,
-        "CheckInUserDharmaName": null,
-        "CheckInUserIsMale": null,
-        "Status": "已取消",
-        "Remarks": "修改測試",
-        "UpdateUserId": 11,
-        "UpdateUserName": null,
-        "UpdateUserDharmaName": "普某",
-        "UpdateUserIsMale": true,
-        "UpdateAt": "2023-05-27T13:58:10.000Z"
+      buddhaSevenApply: {
+        Id: 1,
+        UserId: 11,
+        Name: null,
+        DharmaName: "普某",
+        IsMonk: true,
+        IsMale: true,
+        Mobile: "0901123123",
+        Phone: "0395123123",
+        RoomId: 50704,
+        BedStayOrderNumber: 2,
+        CheckInDate: "2023-06-11T00:00:00.000Z",
+        CheckOutDate: "2023-06-17T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
+        CheckInUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "已取消",
+        Remarks: "修改測試",
+        UpdateUserId: 11,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普某",
+        UpdateUserIsMale: true,
+        UpdateAt: "2023-05-27T13:58:10.000Z"
       }
     }
   })
@@ -199,7 +198,7 @@ export class RoomsController extends Controller {
     const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
       where: {
         Id: id
-      },
+      }
     });
 
     if (!buddhaSevenApply) {
@@ -227,10 +226,9 @@ export class RoomsController extends Controller {
     if (buddhaSevenApply.RoomId) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "已經安排過寮房",
+        message: "已經安排過寮房"
       });
     }
-
 
     // 檢查佛七報名表性別與寮房性別是否相同
     if (buddhaSevenApply.IsMale !== room.IsMale) {
@@ -257,7 +255,6 @@ export class RoomsController extends Controller {
       });
     }
 
-
     // 根據可住人數更新寮房資料
     const updatedRoom = await prisma.rooms.update({
       where: {
@@ -279,9 +276,9 @@ export class RoomsController extends Controller {
       }
     });
 
-    return responseSuccess("寮房分配成功", { room: updatedRoom, buddhaSevenApply: updatedBuddhaSevenApply });
+    return responseSuccess("寮房分配成功", {
+      room: updatedRoom,
+      buddhaSevenApply: updatedBuddhaSevenApply
+    });
   }
-
-
-
 }
