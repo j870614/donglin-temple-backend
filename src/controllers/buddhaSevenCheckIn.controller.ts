@@ -144,7 +144,7 @@ export class BuddhaSevenCheckInController extends Controller {
    * @param id 報名序號
    */
   @Patch("cancel/{id}")
-  @SuccessResponse(StatusCodes.OK, "已取消掛單")
+  @SuccessResponse(StatusCodes.NO_CONTENT, "已取消掛單")
   @Response(StatusCodes.BAD_REQUEST, "取消失敗")
   @Example({
     status: true,

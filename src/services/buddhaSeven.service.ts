@@ -15,7 +15,7 @@ import {
 import { responseSuccess } from "../utils/responseSuccess";
 import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
 
-export class BuddhaSevenCheckInService {
+export class BuddhaSevenService {
   constructor(private readonly prismaClient = prisma) {}
 
   async findMany(getManyRequest: BuddhaSevenGetManyRequest) {
