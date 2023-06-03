@@ -31,6 +31,8 @@
     "no-process-exit": "off",
     "no-console": "off",
     "no-await-in-loop": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    // "default-param-last": "off",
+    "@typescript-eslint/default-param-last": "off"
   }
 }

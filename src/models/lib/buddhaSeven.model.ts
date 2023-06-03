@@ -1,3 +1,5 @@
+import { BuddhaSevenStatusValues } from "../../enums/buddhaSeven.enum";
+
 /**
  * @example {
  *  "StartSevenDate": "2023-01-01",
@@ -17,4 +19,5 @@ export interface BuddhaSevenGetManyRequest {
   order?: "asc" | "desc";
   take?: number;
   skip?: number;
+  status?: BuddhaSevenStatusValues;
 }

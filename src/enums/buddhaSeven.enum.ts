@@ -6,6 +6,11 @@ export enum BuddhaSevenStatus {
   ROOM_CHECKED_OUT = "已離單", // 已離單
   NOT_CHECKED_IN = "無故未報到", // 無故未報到
   // 已完成？
-  CANCELED = "已取消掛單" // 取消掛單？
+  CANCELLED = "已取消掛單" // 取消掛單？
 }
+
+export type BuddhaSevenStatusKeys = keyof typeof BuddhaSevenStatus;
+
+export type BuddhaSevenStatusValues =
+  (typeof BuddhaSevenStatus)[keyof typeof BuddhaSevenStatus];
 // 新登錄報名、寮房已確認、已報到、已離單、取消掛單、未報到
