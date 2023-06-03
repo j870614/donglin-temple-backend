@@ -24,57 +24,6 @@ import { UserCreateRequest } from "../models";
 
 @Tags("User - 四眾個資")
 @Route("/api/users")
-@Example({
-  status: true,
-  message: "查詢成功",
-  data: {
-    users: [
-      {
-        Id: 13,
-        MobilePrefix: null,
-        Mobile: "0911123123",
-        Name: "王某某",
-        DharmaName: "普某",
-        MageNickname: null,
-        LineId: null,
-        Email: "testUser13@test.com",
-        IsMonk: false,
-        StayIdentity: 3,
-        IsMale: true,
-        BirthDate: "1990-01-01T00:00:00.000Z",
-        IdNumber: "G145698745",
-        PassportNumber: null,
-        BirthPlace: "宜蘭縣",
-        Phone: "039590000",
-        Ordination: null,
-        Altar: null,
-        ShavedMaster: null,
-        ShavedDate: null,
-        OrdinationTemple: null,
-        OrdinationDate: null,
-        ResidentialTemple: null,
-        RefugueMaster: "某某法師",
-        RefugueDate: "2023-01-01T00:00:00.000Z",
-        Referrer: null,
-        ClothType: null,
-        ClothSize: null,
-        EmergencyName: null,
-        EmergencyPhone: null,
-        Relationship: null,
-        Expertise: null,
-        Education: null,
-        ComeTempleReason: null,
-        HealthStatus: null,
-        EatBreakfast: false,
-        EatLunch: false,
-        EatDinner: false,
-        Address: null,
-        Remarks: null,
-        UpdateAt: "2023-05-14T08:51:49.000Z"
-      }
-    ]
-  }
-})
 export class UsersController extends Controller {
   /**
    * 取得所有四眾個資
@@ -85,6 +34,57 @@ export class UsersController extends Controller {
   @Security("jwt", ["manager"])
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      users: [
+        {
+          Id: 13,
+          MobilePrefix: null,
+          Mobile: "0911123123",
+          Name: "王某某",
+          DharmaName: "普某",
+          MageNickname: null,
+          LineId: null,
+          Email: "testUser13@test.com",
+          IsMonk: false,
+          StayIdentity: 3,
+          IsMale: true,
+          BirthDate: "1990-01-01T00:00:00.000Z",
+          IdNumber: "G145698745",
+          PassportNumber: null,
+          BirthPlace: "宜蘭縣",
+          Phone: "039590000",
+          Ordination: null,
+          Altar: null,
+          ShavedMaster: null,
+          ShavedDate: null,
+          OrdinationTemple: null,
+          OrdinationDate: null,
+          ResidentialTemple: null,
+          RefugueMaster: "某某法師",
+          RefugueDate: "2023-01-01T00:00:00.000Z",
+          Referrer: null,
+          ClothType: null,
+          ClothSize: null,
+          EmergencyName: null,
+          EmergencyPhone: null,
+          Relationship: null,
+          Expertise: null,
+          Education: null,
+          ComeTempleReason: null,
+          HealthStatus: null,
+          EatBreakfast: false,
+          EatLunch: false,
+          EatDinner: false,
+          Address: null,
+          Remarks: null,
+          UpdateAt: "2023-05-14T08:51:49.000Z"
+        }
+      ]
+    }
+  })
   public async getAll(
     @Query() order: "asc" | "desc" = "desc",
     @Query() take = 100,
@@ -185,7 +185,7 @@ export class UsersController extends Controller {
    */
   @Security("jwt", ["manager"])
   @Post()
-  @SuccessResponse(StatusCodes.OK, "新增成功")
+  @SuccessResponse(StatusCodes.CREATED, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   @Example({
     status: true,
@@ -284,56 +284,11 @@ export class UsersController extends Controller {
    */
   @Security("jwt", ["manager"])
   @Patch("{id}")
-  @SuccessResponse(StatusCodes.OK, "修改成功")
+  @SuccessResponse(StatusCodes.NO_CONTENT, "修改成功")
   @Response(StatusCodes.BAD_REQUEST, "修改失敗")
   @Example({
     status: true,
-    message: "修改四眾個資成功",
-    data: {
-      user: {
-        Id: 44,
-        MobilePrefix: null,
-        Mobile: "0905123147",
-        Name: "黃某某",
-        DharmaName: "普丙",
-        MageNickname: null,
-        LineId: null,
-        Email: null,
-        IsMonk: false,
-        StayIdentity: 3,
-        IsMale: true,
-        BirthDate: null,
-        IdNumber: null,
-        PassportNumber: null,
-        BirthPlace: null,
-        Phone: null,
-        Ordination: null,
-        Altar: null,
-        ShavedMaster: null,
-        ShavedDate: null,
-        OrdinationTemple: null,
-        OrdinationDate: null,
-        ResidentialTemple: null,
-        RefugueMaster: null,
-        RefugueDate: null,
-        Referrer: null,
-        ClothType: null,
-        ClothSize: null,
-        EmergencyName: null,
-        EmergencyPhone: null,
-        Relationship: null,
-        Expertise: null,
-        Education: null,
-        ComeTempleReason: null,
-        HealthStatus: null,
-        EatBreakfast: false,
-        EatLunch: false,
-        EatDinner: false,
-        Address: null,
-        Remarks: "測試",
-        UpdateAt: "2023-05-22T15:08:35.000Z"
-      }
-    }
+    message: "修改四眾個資成功"
   })
   public async updateUser(
     @Path() id: number,
@@ -372,14 +327,14 @@ export class UsersController extends Controller {
       parsedStayIdentity = Number(user.StayIdentity);
     }
 
-    const updateUser = await prisma.users.update({
+    await prisma.users.update({
       where: {
         Id: id
       },
       data: { ...updateData, StayIdentity: parsedStayIdentity }
     });
 
-    return responseSuccess("修改四眾個資成功", { updateUser });
+    return responseSuccess("修改四眾個資成功");
   }
 
   /**

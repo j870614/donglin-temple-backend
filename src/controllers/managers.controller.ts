@@ -153,7 +153,7 @@ export class ManagersController extends Controller {
    * 使用 Jwt token 獲得當前管理員個人檔案
    */
   @Security("jwt", ["manager"])
-  @Post("profile")
+  @Get("profile")
   @SuccessResponse(StatusCodes.OK, "已獲得管理員個人檔案")
   @Response(StatusCodes.BAD_REQUEST, "請重新登入")
   @Example({
@@ -197,7 +197,7 @@ export class ManagersController extends Controller {
    */
   @Security("jwt", ["manager"])
   @Post("qrcode")
-  @SuccessResponse(StatusCodes.OK, "註冊碼取得成功")
+  @SuccessResponse(StatusCodes.CREATED, "註冊碼取得成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊碼取得失敗")
   @Example({
     status: true,
@@ -258,12 +258,12 @@ export class ManagersController extends Controller {
       };
 
       // 停用帳戶 or 權限等級不一樣，重新設定
-      const isSucess = await prisma.managers.update({
+      const isSuccess = await prisma.managers.update({
         where: { UserId },
         data: newData
       });
 
-      if (isSucess) {
+      if (isSuccess) {
         return errorResponse(StatusCodes.BAD_REQUEST, {
           status: false,
           message: "帳號已存在，已更新設定，請使用原帳號登入"

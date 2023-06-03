@@ -5,16 +5,14 @@ import {
   Controller,
   Example,
   Get,
-  Post,
   Query,
   Path,
   Res,
   Response,
   Route,
-  // Security,
-  Patch,
   SuccessResponse,
-  Tags
+  Tags,
+  Patch
 } from "tsoa";
 // import { managers } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
@@ -131,58 +129,58 @@ export class RoomsController extends Controller {
    * @param id 報名序號
    * @param roomId 寮房序號
    */
-  @Post("room-arrange")
+  @Patch("room-arrange")
   @SuccessResponse(StatusCodes.OK, "寮房分配成功")
   @Response(StatusCodes.BAD_REQUEST, "無法分配寮房")
   @Example({
-    "status": true,
-    "message": "安排寮房成功",
-    "data": {
-      "room": {
-        "Id": 50704,
-        "DormitoryAreaId": 5,
-        "BuildingId": 7,
-        "ShareId": 4,
-        "RoomType": 1,
-        "IsMale": true,
-        "TotalBeds": 2,
-        "ReservedBeds": 1,
-        "IsActive": true,
-        "UpdateAt": "2023-05-15T23:56:33.000Z",
-        "RoomId": 50704,
-        "DormitoryAreaName": "其他",
-        "BuildingName": "G",
-        "RoomTypeName": "一般寮房",
-        "GenderName": "男"
+    status: true,
+    message: "安排寮房成功",
+    data: {
+      room: {
+        Id: 50704,
+        DormitoryAreaId: 5,
+        BuildingId: 7,
+        ShareId: 4,
+        RoomType: 1,
+        IsMale: true,
+        TotalBeds: 2,
+        ReservedBeds: 1,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:33.000Z",
+        RoomId: 50704,
+        DormitoryAreaName: "其他",
+        BuildingName: "G",
+        RoomTypeName: "一般寮房",
+        GenderName: "男"
       },
-      "buddhaSevenApply": {
-        "Id": 1,
-        "UserId": 11,
-        "Name": null,
-        "DharmaName": "普某",
-        "IsMonk": true,
-        "IsMale": true,
-        "Mobile": "0901123123",
-        "Phone": "0395123123",
-        "RoomId": 50704,
-        "BedStayOrderNumber": 2,
-        "CheckInDate": "2023-06-11T00:00:00.000Z",
-        "CheckOutDate": "2023-06-17T00:00:00.000Z",
-        "CheckInDateBreakfast": true,
-        "CheckInDateLunch": true,
-        "CheckInDateDinner": true,
-        "CheckInTime": null,
-        "CheckInUserId": null,
-        "CheckInUserName": null,
-        "CheckInUserDharmaName": null,
-        "CheckInUserIsMale": null,
-        "Status": "已取消",
-        "Remarks": "修改測試",
-        "UpdateUserId": 11,
-        "UpdateUserName": null,
-        "UpdateUserDharmaName": "普某",
-        "UpdateUserIsMale": true,
-        "UpdateAt": "2023-05-27T13:58:10.000Z"
+      buddhaSevenApply: {
+        Id: 1,
+        UserId: 11,
+        Name: null,
+        DharmaName: "普某",
+        IsMonk: true,
+        IsMale: true,
+        Mobile: "0901123123",
+        Phone: "0395123123",
+        RoomId: 50704,
+        BedStayOrderNumber: 2,
+        CheckInDate: "2023-06-11T00:00:00.000Z",
+        CheckOutDate: "2023-06-17T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
+        CheckInUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "已取消",
+        Remarks: "修改測試",
+        UpdateUserId: 11,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普某",
+        UpdateUserIsMale: true,
+        UpdateAt: "2023-05-27T13:58:10.000Z"
       }
     }
   })
@@ -200,7 +198,7 @@ export class RoomsController extends Controller {
     const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
       where: {
         Id: id
-      },
+      }
     });
 
     if (!buddhaSevenApply) {
@@ -228,10 +226,9 @@ export class RoomsController extends Controller {
     if (buddhaSevenApply.RoomId) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "已經安排過寮房",
+        message: "已經安排過寮房"
       });
     }
-
 
     // 檢查佛七報名表性別與寮房性別是否相同
     if (buddhaSevenApply.IsMale !== room.IsMale) {
@@ -258,7 +255,6 @@ export class RoomsController extends Controller {
       });
     }
 
-
     // 根據可住人數更新寮房資料
     const updatedRoom = await prisma.rooms.update({
       where: {
@@ -280,7 +276,10 @@ export class RoomsController extends Controller {
       }
     });
 
-    return responseSuccess("寮房分配成功", { room: updatedRoom, buddhaSevenApply: updatedBuddhaSevenApply });
+    return responseSuccess("寮房分配成功", {
+      room: updatedRoom,
+      buddhaSevenApply: updatedBuddhaSevenApply
+    });
   }
 
   /**
@@ -293,19 +292,22 @@ export class RoomsController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "查無佛七報名資料或寮房資料不符合條件")
   public async changeBuddhaSevenRoom(
     @Body() request: { id: number; newRoomId: number },
-    @Res() errorResponse: TsoaResponse<StatusCodes.BAD_REQUEST, { status: false; message?: string }>
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
   ) {
-
     const { id, newRoomId } = request;
     // 取得佛七報名資料
     const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
-      where: { Id: id },
+      where: { Id: id }
     });
 
     if (!buddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "查無此報名序號",
+        message: "查無此報名序號"
       });
     }
 
@@ -313,24 +315,24 @@ export class RoomsController extends Controller {
     if (buddhaSevenApply.RoomId === null) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "佛七報名資料的寮房 ID 為空，請使用安排寮房的 API ",
+        message: "佛七報名資料的寮房 ID 為空，請使用安排寮房的 API "
       });
     }
     // 取得舊的寮房資料
     const oldRoom = await prisma.rooms_view.findUnique({
-      where: { RoomId: buddhaSevenApply.RoomId },
+      where: { RoomId: buddhaSevenApply.RoomId }
     });
 
     // 取得新的寮房資料
     const newRoom = await prisma.rooms_view.findUnique({
-      where: { RoomId: newRoomId },
+      where: { RoomId: newRoomId }
     });
 
     // 檢查新舊寮房在不再
     if (!oldRoom || !newRoom) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "查無寮房資料",
+        message: "查無寮房資料"
       });
     }
 
@@ -338,7 +340,7 @@ export class RoomsController extends Controller {
     if (oldRoom.GenderName !== newRoom.GenderName) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "新寮房性別與報名表不相符",
+        message: "新寮房性別與報名表不相符"
       });
     }
 
@@ -346,7 +348,7 @@ export class RoomsController extends Controller {
     if (newRoom.RoomId === oldRoom.RoomId) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "新的寮房與原寮房相同，請選擇不同的寮房",
+        message: "新的寮房與原寮房相同，請選擇不同的寮房"
       });
     }
 
@@ -354,7 +356,7 @@ export class RoomsController extends Controller {
     if (!newRoom.IsActive || newRoom.ReservedBeds === newRoom.TotalBeds) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "新寮房已滿房",
+        message: "新寮房已滿房"
       });
     }
 
@@ -362,7 +364,7 @@ export class RoomsController extends Controller {
     if (newRoom.RoomTypeName !== "一般寮房") {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "新寮房不是一般寮房",
+        message: "新寮房不是一般寮房"
       });
     }
 
@@ -370,16 +372,16 @@ export class RoomsController extends Controller {
     const updatedOldRoom = await prisma.rooms.update({
       where: { Id: oldRoom.RoomId },
       data: {
-        ReservedBeds: oldRoom.ReservedBeds - 1,
-      },
+        ReservedBeds: oldRoom.ReservedBeds - 1
+      }
     });
 
     // 更新新的寮房資料
     const updatedNewRoom = await prisma.rooms.update({
       where: { Id: newRoom.RoomId },
       data: {
-        ReservedBeds: newRoom.ReservedBeds + 1,
-      },
+        ReservedBeds: newRoom.ReservedBeds + 1
+      }
     });
 
     // 更新佛七報名資料的寮房 ID
@@ -388,39 +390,36 @@ export class RoomsController extends Controller {
       data: {
         RoomId: newRoom.RoomId,
         BedStayOrderNumber: updatedNewRoom.ReservedBeds
-      },
+      }
     });
 
     let changeOldBedStayOrderNumber = null;
     let changeNewBedStayOrderNumber = null;
     // 如果佛七報名舊寮房的 BedStayOrderNumber 為 1 的住戶更換房間，則將舊寮房的 BedStayOrderNumber 為 2 的住戶設為 1
     if (buddhaSevenApply.BedStayOrderNumber === 1) {
-
       changeOldBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
         where: {
           RoomId: oldRoom.RoomId,
-          BedStayOrderNumber: 2,
-        },
+          BedStayOrderNumber: 2
+        }
       });
 
       await prisma.buddha_seven_apply.updateMany({
         where: {
           RoomId: oldRoom.RoomId,
-          BedStayOrderNumber: 2,
+          BedStayOrderNumber: 2
         },
         data: {
-          BedStayOrderNumber: 1,
-        },
+          BedStayOrderNumber: 1
+        }
       });
 
       changeNewBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
         where: {
           RoomId: oldRoom.RoomId,
-          BedStayOrderNumber: 1,
-        },
+          BedStayOrderNumber: 1
+        }
       });
-
-
     }
 
     return {
@@ -431,10 +430,15 @@ export class RoomsController extends Controller {
         newRoom: updatedNewRoom,
         oldBuddhaSevenApply: buddhaSevenApply,
         newBuddhaSevenApply: updatedBuddhaSevenApply,
-        changeOldBedStayOrderNumber: buddhaSevenApply.BedStayOrderNumber === 1 ? changeOldBedStayOrderNumber : null,
-        changeNewBedStayOrderNumber: buddhaSevenApply.BedStayOrderNumber === 1 ? changeNewBedStayOrderNumber : null,
-      },
+        changeOldBedStayOrderNumber:
+          buddhaSevenApply.BedStayOrderNumber === 1
+            ? changeOldBedStayOrderNumber
+            : null,
+        changeNewBedStayOrderNumber:
+          buddhaSevenApply.BedStayOrderNumber === 1
+            ? changeNewBedStayOrderNumber
+            : null
+      }
     };
-
   }
 }

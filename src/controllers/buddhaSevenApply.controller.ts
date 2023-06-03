@@ -22,6 +22,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 
+import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
 import { BuddhaSevenApplyRequest } from "../models";
 
 @Tags("Buddha seven apply - 佛七報名")
@@ -249,7 +250,8 @@ export class BuddhaSevenAppleController extends Controller {
     const buddhaSevenApplyData = await prisma.buddha_seven_apply.create({
       data: {
         ...applyData,
-        Status: "新登錄報名"
+        Status: BuddhaSevenStatus.APPLIED
+        // Status: "新登錄報名"
       }
     });
 
