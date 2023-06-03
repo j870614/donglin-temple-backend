@@ -33,15 +33,15 @@ export class ManagersService {
 
   async signUp(
     signUpByEmailRequest: SignUpByEmailRequest,
+    qrCodeRequest: string | undefined,
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    const { UserId, Email, Password, ConfirmPassword, QRCode } =
-      signUpByEmailRequest;
-
-    if (!Email || !Password || !ConfirmPassword || !(UserId || QRCode)) {
+    const { UserId, Email, Password, ConfirmPassword } = signUpByEmailRequest;
+    
+    if (!Email || !Password || !ConfirmPassword || !(UserId || qrCodeRequest)) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "所有欄位都必須填寫"
@@ -68,18 +68,21 @@ export class ManagersService {
         message: "信箱格式錯誤"
       });
     }
-
+    
     const existingManagerByEmail = await this.prismaClient.managers.findFirst({
       where: { Email }
     });
-
-    let userData;
-    if (QRCode) {
-      userData = await this.getUserAuthDataFromQRCode(QRCode);
+    const qrCode = qrCodeRequest || "";
+    const userData = await this.getUserAuthDataFromQRCode(qrCode);
+    
+    if(qrCodeRequest && !userData){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "QRCode 無效或是已過期"
+      });
     }
 
-    const userId = userData ? userData.UserId : UserId;
-
+    const userId = userData? userData.UserId: UserId;    
     const existingManagerByUserId = await this.prismaClient.managers.findFirst({
       where: { UserId: userId }
     });
@@ -130,8 +133,8 @@ export class ManagersService {
       data
     });
 
-    if (userData && QRCode) {
-      await this.getQRCodeSetUsed(QRCode);
+    if(userData){
+      await this.getQRCodeSetUsed(qrCode);
     }
 
     return responseSuccess("註冊成功", { manager: signedManager });
