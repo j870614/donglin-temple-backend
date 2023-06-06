@@ -21,8 +21,8 @@ import {
   BuddhaSevenGetManyRequest
 } from "../models";
 
-@Tags("Buddha seven check in - 佛七報到")
-@Route("/api/buddha-seven-check-in")
+@Tags("Buddha seven check-in - 佛七報到")
+@Route("/api/buddha-seven/check-ins")
 export class BuddhaSevenCheckInController extends Controller {
   constructor(
     private readonly _buddhaSevenCheckIn = new BuddhaSevenCheckInService()

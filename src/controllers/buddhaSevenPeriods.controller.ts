@@ -16,16 +16,15 @@ import {
   Example
 } from "tsoa";
 import moment from "moment";
+import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 
-import { BuddhaSeven } from "../models";
-
-@Tags("Buddha seven - 佛七")
-@Route("/api/buddha-seven")
-export class BuddhaSevenController extends Controller {
+@Tags("Buddha seven period - 佛七期數")
+@Route("/api/buddha-seven/periods/")
+export class BuddhaSevenPeriodsController extends Controller {
   /**
    * 取得年度佛七
    * @param year 查詢該年度之佛七，預設為本年度
@@ -34,12 +33,12 @@ export class BuddhaSevenController extends Controller {
    * @param skip 略過數量
    */
   @Get()
-  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @SuccessResponse(StatusCodes.OK, "查詢佛七期數成功")
   @Example({
     status: true,
-    message: "查詢成功",
+    message: "查詢佛七期數成功",
     data: {
-      buddhaSevenYearly: [
+      buddhaSevenPeriods: [
         {
           Id: 466,
           StartSevenDate: "2023-05-01T00:00:00.000Z",
@@ -63,7 +62,7 @@ export class BuddhaSevenController extends Controller {
   ) {
     const startDate = new Date(`${year}-01-01`);
     const endDate = new Date(`${year}-12-31`);
-    const buddhaSevenYearly = await prisma.buddha_seven_periods.findMany({
+    const buddhaSevenPeriods = await prisma.buddha_seven_periods.findMany({
       orderBy: { Id: order },
       take,
       skip,
@@ -75,7 +74,7 @@ export class BuddhaSevenController extends Controller {
       }
     });
 
-    return responseSuccess("查詢成功", { buddhaSevenYearly });
+    return responseSuccess("查詢佛七期數成功", { buddhaSevenPeriods });
   }
 
   /**
@@ -83,13 +82,13 @@ export class BuddhaSevenController extends Controller {
    * @param id 佛七期數
    */
   @Get("{id}")
-  @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查無佛七期數")
+  @SuccessResponse(StatusCodes.OK, "查詢佛七期數成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢佛七期數失敗")
   @Example({
     status: true,
-    message: "查詢成功",
+    message: "查詢佛七期數成功",
     data: {
-      buddhaSeven: {
+      buddhaSevenPeriod: {
         Id: 466,
         StartSevenDate: "2023-05-01T00:00:00.000Z",
         CompleteDate: "2023-05-07T00:00:00.000Z",
@@ -105,33 +104,33 @@ export class BuddhaSevenController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    const buddhaSeven = await prisma.buddha_seven_periods.findUnique({
+    const buddhaSevenPeriod = await prisma.buddha_seven_periods.findUnique({
       where: {
         Id: id
       }
     });
 
-    if (!buddhaSeven) {
+    if (!buddhaSevenPeriod) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此佛七期數"
       });
     }
 
-    return responseSuccess("查詢成功", { buddhaSeven });
+    return responseSuccess("查詢佛七期數成功", { buddhaSevenPeriod });
   }
 
   /**
    * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
    */
   @Post()
-  @SuccessResponse(StatusCodes.OK, "新增成功")
-  @Response(StatusCodes.BAD_REQUEST, "新增失敗")
+  @SuccessResponse(StatusCodes.OK, "新增佛七期數成功")
+  @Response(StatusCodes.BAD_REQUEST, "新增佛七期數失敗")
   @Example({
     status: true,
-    message: "新增佛七成功",
+    message: "新增佛七期數成功",
     data: {
-      buddhaSeven: {
+      buddhaSevenPeriod: {
         Id: 475,
         StartSevenDate: "2023-08-11T00:00:00.000Z",
         CompleteDate: "2023-08-17T00:00:00.000Z",
@@ -140,7 +139,7 @@ export class BuddhaSevenController extends Controller {
     }
   })
   public async createBuddhaSeven(
-    @Body() newBuddhaSeven: BuddhaSeven,
+    @Body() newBuddhaSeven: Prisma.buddha_seven_periodsCreateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -156,7 +155,7 @@ export class BuddhaSevenController extends Controller {
       });
     }
 
-    const buddhaSeven = await prisma.buddha_seven_periods.create({
+    const buddhaSevenPeriod = await prisma.buddha_seven_periods.create({
       data: {
         StartSevenDate: new Date(StartSevenDate),
         CompleteDate: new Date(CompleteDate),
@@ -164,7 +163,7 @@ export class BuddhaSevenController extends Controller {
       }
     });
 
-    return responseSuccess("新增佛七成功", { buddhaSeven });
+    return responseSuccess("新增佛七期數成功", { buddhaSevenPeriod });
   }
 
   /**
@@ -172,23 +171,15 @@ export class BuddhaSevenController extends Controller {
    * @param id 佛七期數
    */
   @Patch("{id}")
-  @SuccessResponse(StatusCodes.OK, "修改佛七成功")
-  @Response(StatusCodes.BAD_REQUEST, "修改佛七失敗")
+  @SuccessResponse(StatusCodes.OK, "修改佛七期數成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改佛七期數失敗")
   @Example({
     status: true,
-    message: "更新成功",
-    data: {
-      updateBuddhaSeven: {
-        Id: 474,
-        StartSevenDate: "2023-08-01T00:00:00.000Z",
-        CompleteDate: "2023-08-07T00:00:00.000Z",
-        Remarks: null
-      }
-    }
+    message: "修改佛七期數成功"
   })
   public async updateBuddhaSeven(
     @Path() id: number,
-    @Body() updateData: Partial<BuddhaSeven>,
+    @Body() updateData: Prisma.buddha_seven_periodsUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -196,26 +187,33 @@ export class BuddhaSevenController extends Controller {
     >
   ) {
     // 查詢要更新之佛七期數是否存在
-    const buddhaSeven = await prisma.buddha_seven_periods.findUnique({
+    const buddhaSevenPeriod = await prisma.buddha_seven_periods.findUnique({
       where: {
         Id: id
       }
     });
 
-    if (!buddhaSeven) {
+    if (!buddhaSevenPeriod) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此佛七期數"
       });
     }
 
-    const updateBuddhaSeven = await prisma.buddha_seven_periods.update({
+    const updateBuddhaSevenPeriod = await prisma.buddha_seven_periods.update({
       where: {
         Id: id
       },
       data: updateData
     });
 
-    return responseSuccess("更新成功", { updateBuddhaSeven });
+    if (!updateBuddhaSevenPeriod) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "修改佛七期數失敗"
+      });
+    }
+
+    return responseSuccess("修改佛七期數成功");
   }
 }

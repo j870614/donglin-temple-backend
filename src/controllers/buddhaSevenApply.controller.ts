@@ -17,6 +17,7 @@ import {
   Delete
 } from "tsoa";
 import moment from "moment";
+import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
@@ -26,8 +27,8 @@ import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
 import { BuddhaSevenApplyRequest } from "../models";
 
 @Tags("Buddha seven apply - 佛七報名")
-@Route("/api/buddha-seven-apply")
-export class BuddhaSevenAppleController extends Controller {
+@Route("/api/buddha-seven/applies")
+export class BuddhaSevenAppliesController extends Controller {
   /**
    * 取得佛七預約報名表
    * @param year 查詢該年度之佛七預約報名表，預設為本年度
@@ -84,20 +85,19 @@ export class BuddhaSevenAppleController extends Controller {
   ) {
     const startDate = new Date(`${year}-${month}-01`);
     const endDate = new Date(`${year}-${month + 1}-01`);
-    const buddhaSevenApplyMonthly =
-      await prisma.buddha_seven_apply_view.findMany({
-        orderBy: { Id: order },
-        take,
-        skip,
-        where: {
-          CheckInDate: {
-            gte: startDate,
-            lt: endDate
-          }
+    const buddhaSevenApplies = await prisma.buddha_seven_apply_view.findMany({
+      orderBy: { Id: order },
+      take,
+      skip,
+      where: {
+        CheckInDate: {
+          gte: startDate,
+          lt: endDate
         }
-      });
+      }
+    });
 
-    return responseSuccess("查詢成功", { buddhaSevenApplyMonthly });
+    return responseSuccess("查詢成功", { buddhaSevenApplies });
   }
 
   /**
@@ -247,7 +247,7 @@ export class BuddhaSevenAppleController extends Controller {
       });
     }
 
-    const buddhaSevenApplyData = await prisma.buddha_seven_apply.create({
+    const buddhaSevenApply = await prisma.buddha_seven_apply.create({
       data: {
         ...applyData,
         Status: BuddhaSevenStatus.APPLIED
@@ -255,7 +255,7 @@ export class BuddhaSevenAppleController extends Controller {
       }
     });
 
-    return responseSuccess("佛七報名成功", { buddhaSevenApplyData });
+    return responseSuccess("佛七報名成功", { buddhaSevenApply });
   }
 
   /**
@@ -267,30 +267,11 @@ export class BuddhaSevenAppleController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "修改失敗")
   @Example({
     status: true,
-    message: "更新成功",
-    data: {
-      updateBuddhaSevenApply: {
-        Id: 1,
-        UserId: 11,
-        RoomId: null,
-        BedStayOrderNumber: null,
-        CheckInDate: "2023-06-11T00:00:00.000Z",
-        CheckOutDate: "2023-06-17T00:00:00.000Z",
-        CheckInDateBreakfast: true,
-        CheckInDateLunch: true,
-        CheckInDateDinner: true,
-        CheckInTime: null,
-        CheckInUserId: null,
-        Status: "新登錄報名",
-        Remarks: "修改測試",
-        UpdateUserId: 11,
-        UpdateAt: "2023-05-27T08:33:19.000Z"
-      }
-    }
+    message: "修改成功"
   })
   public async updateBuddhaSevenApply(
     @Path() id: number,
-    @Body() updateData: Partial<BuddhaSevenApplyRequest>,
+    @Body() updateData: Prisma.buddha_seven_applyUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -311,7 +292,7 @@ export class BuddhaSevenAppleController extends Controller {
       });
     }
 
-    const updateBuddhaSevenApply = await prisma.buddha_seven_apply.update({
+    const updatedBuddhaSevenApply = await prisma.buddha_seven_apply.update({
       where: {
         Id: id
       },
@@ -321,38 +302,26 @@ export class BuddhaSevenAppleController extends Controller {
       }
     });
 
-    return responseSuccess("更新成功", { updateBuddhaSevenApply });
+    if (!updatedBuddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "修改失敗"
+      });
+    }
+
+    return responseSuccess("修改成功");
   }
 
   /**
    * 取消佛七報名
    * @param id 報名序號
    */
-  @Delete("{id}")
-  @SuccessResponse(StatusCodes.OK, "已取消報名")
+  @Patch("cancel/{id}")
+  @SuccessResponse(StatusCodes.OK, "取消成功")
   @Response(StatusCodes.BAD_REQUEST, "取消失敗")
   @Example({
     status: true,
-    message: "取消成功",
-    data: {
-      cancelBuddhaSevenApply: {
-        Id: 1,
-        UserId: 11,
-        RoomId: null,
-        BedStayOrderNumber: null,
-        CheckInDate: "2023-06-11T00:00:00.000Z",
-        CheckOutDate: "2023-06-17T00:00:00.000Z",
-        CheckInDateBreakfast: true,
-        CheckInDateLunch: true,
-        CheckInDateDinner: true,
-        CheckInTime: null,
-        CheckInUserId: null,
-        Status: "已取消",
-        Remarks: "修改測試",
-        UpdateUserId: 11,
-        UpdateAt: "2023-05-27T13:58:10.000Z"
-      }
-    }
+    message: "取消成功"
   })
   public async cancelBuddhaSevenApply(
     @Path() id: number,
@@ -386,7 +355,14 @@ export class BuddhaSevenAppleController extends Controller {
       }
     });
 
-    return responseSuccess("取消成功", { cancelBuddhaSevenApply });
+    if (!cancelBuddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "取消失敗"
+      });
+    }
+
+    return responseSuccess("取消成功");
   }
 
   // 驗證同一位 UserId 是否重複報名同一個日期區間

@@ -16,10 +16,11 @@ import {
   Example,
   Security
 } from "tsoa";
-import { TsoaResponse } from "src/utils/responseTsoaError";
-import { responseSuccess } from "../utils/responseSuccess";
-import prisma from "../configs/prismaClient";
+import { Prisma } from "@prisma/client";
 
+import { TsoaResponse } from "src/utils/responseTsoaError";
+import prisma from "../configs/prismaClient";
+import { responseSuccess } from "../utils/responseSuccess";
 import { UserCreateRequest } from "../models";
 
 @Tags("User - 四眾個資")
@@ -106,7 +107,7 @@ export class UsersController extends Controller {
   @Security("jwt", ["manager"])
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  @Response(StatusCodes.BAD_REQUEST, "查無此 User Id")
   @Example({
     status: true,
     message: "查詢成功",
@@ -185,8 +186,8 @@ export class UsersController extends Controller {
    */
   @Security("jwt", ["manager"])
   @Post()
-  @SuccessResponse(StatusCodes.CREATED, "新增成功")
-  @Response(StatusCodes.BAD_REQUEST, "新增失敗")
+  @SuccessResponse(StatusCodes.CREATED, "新增四眾個資成功")
+  @Response(StatusCodes.BAD_REQUEST, "新增四眾個資失敗")
   @Example({
     status: true,
     message: "新增四眾個資成功",
@@ -284,15 +285,16 @@ export class UsersController extends Controller {
    */
   @Security("jwt", ["manager"])
   @Patch("{id}")
-  @SuccessResponse(StatusCodes.NO_CONTENT, "修改成功")
-  @Response(StatusCodes.BAD_REQUEST, "修改失敗")
+  @SuccessResponse(StatusCodes.OK, "修改四眾個資成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改四眾個資失敗")
   @Example({
     status: true,
     message: "修改四眾個資成功"
   })
   public async updateUser(
     @Path() id: number,
-    @Body() updateData: Partial<UserCreateRequest>,
+    // @Body() updateData: Partial<UserCreateRequest>,
+    @Body() updateData: Prisma.usersUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,

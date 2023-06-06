@@ -7,7 +7,7 @@ import { BuddhaSevenStatusValues } from "../../enums/buddhaSeven.enum";
     "Remarks":"前端新增測試"
  * }
  */
-export interface BuddhaSeven {
+export interface BuddhaSevenPeriods {
   StartSevenDate: Date;
   CompleteDate: Date;
   Remarks?: string | null;
