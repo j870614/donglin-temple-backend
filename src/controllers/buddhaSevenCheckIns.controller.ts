@@ -117,7 +117,7 @@ export class BuddhaSevenCheckInController extends Controller {
    * @param id 報名序號
    */
   @Patch("{id}")
-  @SuccessResponse(StatusCodes.NO_CONTENT, "報到成功")
+  @SuccessResponse(StatusCodes.OK, "報到成功")
   @Response(StatusCodes.BAD_REQUEST, "報到失敗")
   @Example({
     status: true,
@@ -144,7 +144,7 @@ export class BuddhaSevenCheckInController extends Controller {
    * @param id 報名序號
    */
   @Patch("cancel/{id}")
-  @SuccessResponse(StatusCodes.NO_CONTENT, "已取消掛單")
+  @SuccessResponse(StatusCodes.OK, "已取消掛單")
   @Response(StatusCodes.BAD_REQUEST, "取消失敗")
   @Example({
     status: true,

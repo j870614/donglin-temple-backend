@@ -13,8 +13,7 @@ import {
   SuccessResponse,
   Tags,
   Patch,
-  Example,
-  Delete
+  Example
 } from "tsoa";
 import moment from "moment";
 import { Prisma } from "@prisma/client";
@@ -170,7 +169,7 @@ export class BuddhaSevenAppliesController extends Controller {
    * 佛七報名
    */
   @Post()
-  @SuccessResponse(StatusCodes.OK, "新增成功")
+  @SuccessResponse(StatusCodes.CREATED, "新增成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   @Example({
     status: true,
