@@ -124,7 +124,7 @@ export class BuddhaSevenPeriodsController extends Controller {
    * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
    */
   @Post()
-  @SuccessResponse(StatusCodes.OK, "新增佛七期數成功")
+  @SuccessResponse(StatusCodes.CREATED, "新增佛七期數成功")
   @Response(StatusCodes.BAD_REQUEST, "新增佛七期數失敗")
   @Example({
     status: true,
