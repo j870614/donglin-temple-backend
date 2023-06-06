@@ -40,7 +40,7 @@ export class ManagersService {
     >
   ) {
     const { UserId, Email, Password, ConfirmPassword } = signUpByEmailRequest;
-    
+
     if (!Email || !Password || !ConfirmPassword || !(UserId || qrCodeRequest)) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
@@ -68,21 +68,21 @@ export class ManagersService {
         message: "信箱格式錯誤"
       });
     }
-    
+
     const existingManagerByEmail = await this.prismaClient.managers.findFirst({
       where: { Email }
     });
     const qrCode = qrCodeRequest || "";
     const userData = await this.getUserAuthDataFromQRCode(qrCode);
-    
-    if(qrCodeRequest && !userData){
+
+    if (qrCodeRequest && !userData) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "QRCode 無效或是已過期"
       });
     }
 
-    const userId = userData? userData.UserId: UserId;    
+    const userId = userData ? userData.UserId : UserId;
     const existingManagerByUserId = await this.prismaClient.managers.findFirst({
       where: { UserId: userId }
     });
@@ -133,7 +133,7 @@ export class ManagersService {
       data
     });
 
-    if(userData){
+    if (userData) {
       await this.getQRCodeSetUsed(qrCode);
     }
 

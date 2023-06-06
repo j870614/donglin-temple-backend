@@ -58,6 +58,7 @@ export class RoomsController extends Controller {
         ...viewAreaBuildList
       };
     });
+
     return responseSuccess("查詢成功", { rooms: mergedData });
   }
 
@@ -67,7 +68,7 @@ export class RoomsController extends Controller {
    */
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查無 id")
+  @Response(StatusCodes.BAD_REQUEST, "查無此 Room Id")
   public async getRoom(
     @Path() id: number,
     @Res()
@@ -134,7 +135,7 @@ export class RoomsController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "無法分配寮房")
   @Example({
     status: true,
-    message: "安排寮房成功",
+    message: "寮房分配成功",
     data: {
       room: {
         Id: 50704,
