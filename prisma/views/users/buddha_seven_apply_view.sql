@@ -5,8 +5,13 @@ SELECT
   `u`.`DharmaName` AS `DharmaName`,
   `u`.`IsMonk` AS `IsMonk`,
   `u`.`IsMale` AS `IsMale`,
+  `u`.`StayIdentity` AS `StayIdentity`,
+  `users`.`sid`.`StayIdentityName` AS `StayIdentityName`,
   `u`.`Mobile` AS `Mobile`,
   `u`.`Phone` AS `Phone`,
+  `u`.`EatBreakfast` AS `EatBreakfast`,
+  `u`.`EatLunch` AS `EatLunch`,
+  `u`.`EatDinner` AS `EatDinner`,
   `a`.`RoomId` AS `RoomId`,
   `a`.`BedStayOrderNumber` AS `BedStayOrderNumber`,
   `a`.`CheckInDate` AS `CheckInDate`,
@@ -30,10 +35,17 @@ FROM
   (
     (
       (
-        `users`.`buddha_seven_apply` `a`
-        LEFT JOIN `users`.`users` `u` ON((`a`.`UserId` = `u`.`Id`))
+        (
+          `users`.`buddha_seven_apply` `a`
+          LEFT JOIN `users`.`users` `u` ON((`a`.`UserId` = `u`.`Id`))
+        )
+        LEFT JOIN `users`.`users` `c` ON((`a`.`CheckInUserId` = `c`.`Id`))
       )
-      LEFT JOIN `users`.`users` `c` ON((`a`.`CheckInUserId` = `c`.`Id`))
+      LEFT JOIN `users`.`users` `u2` ON((`a`.`UpdateUserId` = `u2`.`Id`))
     )
-    LEFT JOIN `users`.`users` `u2` ON((`a`.`UpdateUserId` = `u2`.`Id`))
+    LEFT JOIN `users`.`user_stay_identity_list` `sid` ON(
+      (
+        `u`.`StayIdentity` = `users`.`sid`.`StayIdentity`
+      )
+    )
   )

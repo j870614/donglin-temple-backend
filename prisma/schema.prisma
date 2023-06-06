@@ -62,6 +62,7 @@ model users {
   EatLunch          Boolean   @default(false)
   EatDinner         Boolean   @default(false)
   Address           Json?
+  Area              String?   @db.VarChar(10)
   Remarks           String?   @db.VarChar(255)
   UpdateAt          DateTime  @default(now()) @db.DateTime(0)
 
@@ -81,7 +82,7 @@ model buddha_seven_periods {
 model item_name_mapping {
   Id        Int     @id @default(autoincrement())
   GroupName String? @db.VarChar(20)
-  ItemId    Int?    @db.SmallInt
+  ItemId    Int     @db.SmallInt
   ItemValue String? @db.VarChar(20)
 
   @@unique([GroupName, ItemId], map: "idx_item_name_mapping_GroupName_ItemId")
@@ -246,7 +247,7 @@ view room_type_list {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 view rooms_dormitory_area_building_list {
-  Id                Int     @unique @default(0)
+  Id                BigInt  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -328,8 +329,13 @@ view buddha_seven_apply_view {
   DharmaName            String?   @db.VarChar(50)
   IsMonk                Boolean?  @default(false)
   IsMale                Boolean?  @default(true)
+  StayIdentity          Int?      @db.TinyInt
+  StayIdentityName      String?   @db.VarChar(20)
   Mobile                String?   @db.VarChar(20)
   Phone                 String?   @db.VarChar(20)
+  EatBreakfast          Boolean?  @default(false)
+  EatLunch              Boolean?  @default(false)
+  EatDinner             Boolean?  @default(false)
   RoomId                Int?
   BedStayOrderNumber    Int?
   CheckInDate           DateTime? @db.Date
@@ -349,4 +355,19 @@ view buddha_seven_apply_view {
   UpdateUserDharmaName  String?   @db.VarChar(50)
   UpdateUserIsMale      Boolean?  @default(false)
   UpdateAt              DateTime? @default(now()) @db.DateTime(0)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view user_auth_qr_codes_view {
+  Id                Int     @unique @default(0)
+  UserId            Int     @db.UnsignedInt
+  Name              String? @db.VarChar(50)
+  DharmaName        String? @db.VarChar(50)
+  MageNickname      String? @db.VarChar(50)
+  DeaconId          Int?    @db.SmallInt
+  DeaconName        String? @db.VarChar(20)
+  AuthorizeUserId   Int     @db.UnsignedInt
+  AuthorizeUserName String? @db.VarChar(50)
+  AuthorizeDate     String? @db.VarChar(10)
+  Status            String  @default("") @db.VarChar(7)
 }
