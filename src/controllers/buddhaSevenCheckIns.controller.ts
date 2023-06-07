@@ -14,7 +14,7 @@ import {
   Queries
 } from "tsoa";
 import { TsoaResponse } from "src/utils/responseTsoaError";
-import { BuddhaSevenCheckInService } from "../services/buddhaSevenCheckIn.service";
+import { BuddhaSevenCheckInService } from "../services/buddhaSeven/buddhaSevenCheckIn.service";
 import {
   BuddhaSevenCheckInCancelRequest,
   BuddhaSevenCheckInUpdateRequest,

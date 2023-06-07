@@ -2,20 +2,20 @@ import moment from "moment";
 import { StatusCodes } from "http-status-codes";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
-import prisma from "../configs/prismaClient";
+import prisma from "../../configs/prismaClient";
 import {
   BuddhaSevenCheckInCancelRequest,
   BuddhaSevenCheckInUpdateRequest,
   BuddhaSevenGetManyRequest
-} from "../models";
+} from "../../models";
 import {
   getEndDateFromYearAndMonth,
   getStartDateFromYearAndMonth
-} from "../utils/useDate";
-import { responseSuccess } from "../utils/responseSuccess";
-import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
+} from "../../utils/useDate";
+import { responseSuccess } from "../../utils/responseSuccess";
+import { BuddhaSevenStatus } from "../../enums/buddhaSeven.enum";
 
-export class BuddhaSevenService {
+export class BuddhaSevenCheckInService {
   constructor(private readonly prismaClient = prisma) {}
 
   async findMany(getManyRequest: BuddhaSevenGetManyRequest) {
