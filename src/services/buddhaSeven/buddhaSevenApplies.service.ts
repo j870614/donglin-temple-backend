@@ -13,7 +13,7 @@ import {
   getStartDateFromYearAndMonth
 } from "../../utils/useDate";
 import { responseSuccess } from "../../utils/responseSuccess";
-import { BuddhaSevenStatus } from "../../enums/buddhaSeven.enum";
+import { BuddhaSevenStatus } from "../../enums/buddhaSevenApplies.enum";
 
 export class BuddhaSevenAppliesService {
   constructor(private readonly prismaClient = prisma) {}

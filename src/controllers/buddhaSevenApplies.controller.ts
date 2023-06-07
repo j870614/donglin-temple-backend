@@ -22,8 +22,8 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 
-import { BuddhaSevenStatus } from "../enums/buddhaSeven.enum";
-import { BuddhaSevenApplyRequest } from "../models";
+import { BuddhaSevenApplyStatus } from "../enums/buddhaSevenApplies.enum";
+import { BuddhaSevenApplyCreateRequest } from "../models";
 
 @Tags("Buddha seven apply - 佛七報名")
 @Route("/api/buddha-seven/applies")
@@ -195,7 +195,7 @@ export class BuddhaSevenAppliesController extends Controller {
     }
   })
   public async createBuddhaSevenApply(
-    @Body() applyData: BuddhaSevenApplyRequest,
+    @Body() applyData: BuddhaSevenApplyCreateRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -249,7 +249,7 @@ export class BuddhaSevenAppliesController extends Controller {
     const buddhaSevenApply = await prisma.buddha_seven_apply.create({
       data: {
         ...applyData,
-        Status: BuddhaSevenStatus.APPLIED
+        Status: BuddhaSevenApplyStatus.APPLIED
         // Status: "新登錄報名"
       }
     });
@@ -366,7 +366,7 @@ export class BuddhaSevenAppliesController extends Controller {
 
   // 驗證同一位 UserId 是否重複報名同一個日期區間
   private async checkDuplicateDates(
-    applyData: BuddhaSevenApplyRequest
+    applyData: BuddhaSevenApplyCreateRequest
   ): Promise<boolean> {
     const { UserId, CheckInDate, CheckOutDate } = applyData;
 

@@ -18,7 +18,7 @@ import { BuddhaSevenCheckInService } from "../services/buddhaSeven/buddhaSevenCh
 import {
   BuddhaSevenCheckInCancelRequest,
   BuddhaSevenCheckInUpdateRequest,
-  BuddhaSevenGetManyRequest
+  BuddhaSevenApplyGetManyRequest
 } from "../models";
 
 @Tags("Buddha seven check-in - 佛七報到")
@@ -66,7 +66,7 @@ export class BuddhaSevenCheckInController extends Controller {
     }
   })
   public async getAllBuddhaSevenCheckIn(
-    @Queries() getManyRequest: BuddhaSevenGetManyRequest
+    @Queries() getManyRequest: BuddhaSevenApplyGetManyRequest
   ) {
     return this._buddhaSevenCheckIn.findMany(getManyRequest);
   }
