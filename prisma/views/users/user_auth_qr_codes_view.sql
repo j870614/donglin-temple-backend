@@ -1,13 +1,18 @@
 SELECT
   `u`.`Id` AS `Id`,
   `u`.`UserId` AS `UserId`,
-  `a`.`Name` AS `Name`,
+(
+    CASE
+      WHEN (`a`.`IsMale` = 1) THEN '男'
+      ELSE '女'
+    END
+  ) AS `Gender`,
   `a`.`DharmaName` AS `DharmaName`,
-  `a`.`MageNickname` AS `MageNickname`,
+  `a`.`Name` AS `Name`,
   `users`.`d`.`DeaconId` AS `DeaconId`,
   `users`.`d`.`DeaconName` AS `DeaconName`,
   `u`.`AuthorizeUserId` AS `AuthorizeUserId`,
-  `b`.`Name` AS `AuthorizeUserName`,
+  `b`.`DharmaName` AS `AuthorizeDharmaName`,
   date_format((`u`.`EndTime` - INTERVAL 20 MINUTE), '%Y/%c/%e') AS `AuthorizeDate`,
 (
     CASE
@@ -45,7 +50,7 @@ FROM
             `users`.`users`.`Id` AS `Id`,
             `users`.`users`.`Name` AS `Name`,
             `users`.`users`.`DharmaName` AS `DharmaName`,
-            `users`.`users`.`MageNickname` AS `MageNickname`
+            `users`.`users`.`IsMale` AS `IsMale`
           FROM
             `users`.`users`
         ) `a` ON((`u`.`UserId` = `a`.`Id`))
@@ -53,7 +58,7 @@ FROM
       LEFT JOIN (
         SELECT
           `users`.`users`.`Id` AS `Id`,
-          `users`.`users`.`Name` AS `Name`
+          `users`.`users`.`DharmaName` AS `DharmaName`
         FROM
           `users`.`users`
       ) `b` ON((`u`.`AuthorizeUserId` = `a`.`Id`))
