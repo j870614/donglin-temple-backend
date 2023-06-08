@@ -1,11 +1,9 @@
-/* eslint-disable class-methods-use-this */
 import { StatusCodes } from "http-status-codes";
 import {
   Body,
   Controller,
   Get,
   Post,
-  Query,
   Path,
   Res,
   Response,
@@ -13,28 +11,38 @@ import {
   SuccessResponse,
   Tags,
   Patch,
-  Example
+  Example,
+  Queries,
+  Query
 } from "tsoa";
-import moment from "moment";
 import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
+import { BuddhaSevenAppliesService } from "../services/buddhaSeven/buddhaSevenApplies.service";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 
-import { BuddhaSevenApplyStatus } from "../enums/buddhaSevenApplies.enum";
-import { BuddhaSevenApplyCreateRequest } from "../models";
+import {
+  BuddhaSevenApplyStatus,
+  BuddhaSevenApplyStatusValues
+} from "../enums/buddhaSevenApplies.enum";
+import {
+  BuddhaSevenApplyCancelRequest,
+  BuddhaSevenApplyCreateRequest,
+  BuddhaSevenApplyGetManyRequest
+} from "../models";
 
 @Tags("Buddha seven apply - 佛七報名")
 @Route("/api/buddha-seven/applies")
 export class BuddhaSevenAppliesController extends Controller {
+  constructor(
+    private readonly _buddhaSevenApplies = new BuddhaSevenAppliesService()
+  ) {
+    super();
+  }
+
   /**
    * 取得佛七預約報名表
-   * @param year 查詢該年度之佛七預約報名表，預設為本年度
-   * @param month 查詢該月份之佛七預約報名表，預設為當月
-   * @param order 正序("asc") / 倒序("desc")，預設為正序排列
-   * @param take 顯示數量，預設為 100 筆
-   * @param skip 略過數量
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -42,7 +50,7 @@ export class BuddhaSevenAppliesController extends Controller {
     status: true,
     message: "查詢成功",
     data: {
-      buddhaSevenApplyMonthly: [
+      buddhaSevenApplies: [
         {
           Id: 1,
           UserId: 11,
@@ -75,27 +83,13 @@ export class BuddhaSevenAppliesController extends Controller {
       ]
     }
   })
-  public async getAllBuddhaSevenApply(
-    @Query() year = Number(moment().year()),
-    @Query() month = Number(moment().month()),
-    @Query() order: "asc" | "desc" = "asc",
-    @Query() take = 100,
-    @Query() skip = 0
+  public async getBuddhaSevenAppliesByYearAndMonth(
+    @Queries() buddhaSevenApplyGetManyRequest: BuddhaSevenApplyGetManyRequest
   ) {
-    const startDate = new Date(`${year}-${month}-01`);
-    const endDate = new Date(`${year}-${month + 1}-01`);
-    const buddhaSevenApplies = await prisma.buddha_seven_apply_view.findMany({
-      orderBy: { Id: order },
-      take,
-      skip,
-      where: {
-        CheckInDate: {
-          gte: startDate,
-          lt: endDate
-        }
-      }
-    });
-
+    const buddhaSevenApplies =
+      await this._buddhaSevenApplies.findManyByRequests(
+        buddhaSevenApplyGetManyRequest
+      );
     return responseSuccess("查詢成功", { buddhaSevenApplies });
   }
 
@@ -105,7 +99,7 @@ export class BuddhaSevenAppliesController extends Controller {
    */
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查無佛七報名資料")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   @Example({
     status: true,
     message: "查詢成功",
@@ -131,7 +125,7 @@ export class BuddhaSevenAppliesController extends Controller {
         CheckInUserName: null,
         CheckInUserDharmaName: null,
         CheckInUserIsMale: null,
-        Status: "新登錄報名",
+        Status: "已報名佛七",
         Remarks: "新增測試",
         UpdateUserId: 6,
         UpdateUserName: null,
@@ -141,19 +135,17 @@ export class BuddhaSevenAppliesController extends Controller {
       }
     }
   })
-  public async getBuddhaSeven(
+  public async getBuddhaSevenApplyByIdAndStatus(
     @Path() id: number,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >,
+    @Query() status?: BuddhaSevenApplyStatusValues
   ) {
-    const buddhaSevenApply = await prisma.buddha_seven_apply_view.findUnique({
-      where: {
-        Id: id
-      }
-    });
+    const buddhaSevenApply =
+      await this._buddhaSevenApplies.findOneByIdAndStatus(id, status);
 
     if (!buddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -169,13 +161,13 @@ export class BuddhaSevenAppliesController extends Controller {
    * 佛七報名
    */
   @Post()
-  @SuccessResponse(StatusCodes.CREATED, "新增成功")
+  @SuccessResponse(StatusCodes.CREATED, "佛七報名成功")
   @Response(StatusCodes.BAD_REQUEST, "新增失敗")
   @Example({
     status: true,
     message: "佛七報名成功",
     data: {
-      buddhaSevenApplyData: {
+      buddhaSevenApply: {
         Id: 2,
         UserId: 11,
         RoomId: null,
@@ -195,50 +187,28 @@ export class BuddhaSevenAppliesController extends Controller {
     }
   })
   public async createBuddhaSevenApply(
-    @Body() applyData: BuddhaSevenApplyCreateRequest,
+    @Body() buddhaSevenApplyCreateRequest: BuddhaSevenApplyCreateRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    // 報名表必填欄位驗證
-    const { UserId, CheckInDate, CheckOutDate } = applyData;
-    const errMsgArr: string[] = [];
-
-    if (!UserId) {
-      errMsgArr.push("四眾 Id");
-    } else {
-      const user = await prisma.users.findUnique({
-        where: {
-          Id: UserId
-        }
-      });
-
-      if (!user) {
-        return errorResponse(StatusCodes.BAD_REQUEST, {
-          status: false,
-          message: "查無此四眾 Id，報名佛七前請先新增四眾個資"
-        });
-      }
-    }
-
-    if (!CheckInDate || !CheckOutDate) {
-      errMsgArr.push("預計報到日、預計離單日");
-    }
-
-    if (errMsgArr.length !== 0) {
-      const errMsg: string = errMsgArr.join("、");
-
+    const { UserId } = buddhaSevenApplyCreateRequest;
+    // 驗證此 UserId 是否存在
+    const user = await this._buddhaSevenApplies.findOneByIdAndStatus(UserId);
+    if (!user) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: `${errMsg} 未填寫`
+        message: "查無此四眾 Id，報名佛七前請先新增四眾個資"
       });
     }
 
-    // 驗證同一位 UserId 是否重複報名同一個日期區間
-    const isDuplicate = await this.checkDuplicateDates(applyData);
-    if (isDuplicate) {
+    // 驗證同一位 UserId 報名的日期區間是否重複
+    const isOverlap = await this._buddhaSevenApplies.checkIfDateOverlap(
+      buddhaSevenApplyCreateRequest
+    );
+    if (isOverlap) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message:
@@ -246,12 +216,9 @@ export class BuddhaSevenAppliesController extends Controller {
       });
     }
 
-    const buddhaSevenApply = await prisma.buddha_seven_apply.create({
-      data: {
-        ...applyData,
-        Status: BuddhaSevenApplyStatus.APPLIED
-        // Status: "新登錄報名"
-      }
+    const buddhaSevenApply = await this._buddhaSevenApplies.createOne({
+      ...buddhaSevenApplyCreateRequest,
+      Status: BuddhaSevenApplyStatus.APPLIED
     });
 
     return responseSuccess("佛七報名成功", { buddhaSevenApply });
@@ -270,7 +237,7 @@ export class BuddhaSevenAppliesController extends Controller {
   })
   public async updateBuddhaSevenApply(
     @Path() id: number,
-    @Body() updateData: Prisma.buddha_seven_applyUpdateInput,
+    @Body() buddhaSevenApplyUpdateRequest: Prisma.buddha_seven_applyUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -278,28 +245,20 @@ export class BuddhaSevenAppliesController extends Controller {
     >
   ) {
     // 查詢要更新之佛七報名資料是否存在
-    const buddhaSevenApply = await prisma.buddha_seven_apply.findUnique({
-      where: {
-        Id: id
-      }
-    });
+    const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(id);
 
-    if (!buddhaSevenApply) {
+    if (!isExisted) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此佛七報名資料"
       });
     }
-
-    const updatedBuddhaSevenApply = await prisma.buddha_seven_apply.update({
-      where: {
-        Id: id
-      },
-      data: {
-        ...updateData,
-        UpdateAt: new Date()
-      }
-    });
+    // 更新佛七報名資料
+    const updatedBuddhaSevenApply =
+      await this._buddhaSevenApplies.updateOneByIdAndUpdateData(
+        id,
+        buddhaSevenApplyUpdateRequest
+      );
 
     if (!updatedBuddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -324,37 +283,38 @@ export class BuddhaSevenAppliesController extends Controller {
   })
   public async cancelBuddhaSevenApply(
     @Path() id: number,
+    @Queries() buddhaSevenApplyCancelRequest: BuddhaSevenApplyCancelRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >
   ) {
-    // 查詢要取消之佛七報名資料是否存在
-    const buddhaSevenApply = await prisma.buddha_seven_apply.findUnique({
-      where: {
-        Id: id
-      }
-    });
+    // 查詢目標佛七報名資料是否存在
+    const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(
+      id,
+      BuddhaSevenApplyStatus.APPLIED
+    );
 
-    if (!buddhaSevenApply) {
+    if (!isExisted) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此佛七報名資料"
       });
     }
 
-    const cancelBuddhaSevenApply = await prisma.buddha_seven_apply.update({
+    // 取消目標佛七報名資料
+    const canceledBuddhaSevenApply = await prisma.buddha_seven_apply.update({
       where: {
         Id: id
       },
       data: {
-        Status: "已取消",
-        UpdateAt: new Date()
+        ...buddhaSevenApplyCancelRequest,
+        Status: BuddhaSevenApplyStatus.CANCELLED
       }
     });
 
-    if (!cancelBuddhaSevenApply) {
+    if (!canceledBuddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "取消失敗"
@@ -362,42 +322,5 @@ export class BuddhaSevenAppliesController extends Controller {
     }
 
     return responseSuccess("取消成功");
-  }
-
-  // 驗證同一位 UserId 是否重複報名同一個日期區間
-  private async checkDuplicateDates(
-    applyData: BuddhaSevenApplyCreateRequest
-  ): Promise<boolean> {
-    const { UserId, CheckInDate, CheckOutDate } = applyData;
-
-    const existingApply = await prisma.buddha_seven_apply.findFirst({
-      where: {
-        UserId,
-        OR: [
-          {
-            AND: [
-              // 驗證 CheckInDate 是否在已報名過的日期區間內
-              { CheckInDate: { lte: CheckInDate } },
-              { CheckOutDate: { gte: CheckInDate } }
-            ]
-          },
-          {
-            // 驗證 CheckOutDate 是否在已報名過的日期區間內
-            AND: [
-              { CheckInDate: { lte: CheckOutDate } },
-              { CheckOutDate: { gte: CheckOutDate } }
-            ]
-          },
-          {
-            // 驗證 報名日期區間 是否完全重複報名過
-            AND: [
-              { CheckInDate: { gte: CheckInDate } },
-              { CheckOutDate: { lte: CheckOutDate } }
-            ]
-          }
-        ]
-      }
-    });
-    return !!existingApply;
   }
 }

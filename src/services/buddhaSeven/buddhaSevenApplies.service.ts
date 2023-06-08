@@ -1,154 +1,105 @@
 import moment from "moment";
-import { StatusCodes } from "http-status-codes";
-import { TsoaResponse } from "src/utils/responseTsoaError";
+import { Prisma } from "@prisma/client";
 
 import prisma from "../../configs/prismaClient";
 import {
-  BuddhaSevenCheckInCancelRequest,
-  BuddhaSevenCheckInUpdateRequest,
-  BuddhaSevenGetManyRequest
+  BuddhaSevenApplyCheckDate,
+  BuddhaSevenApplyGetManyRequest
 } from "../../models";
+import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
 import {
   getEndDateFromYearAndMonth,
   getStartDateFromYearAndMonth
 } from "../../utils/useDate";
-import { responseSuccess } from "../../utils/responseSuccess";
-import { BuddhaSevenStatus } from "../../enums/buddhaSevenApplies.enum";
 
 export class BuddhaSevenAppliesService {
   constructor(private readonly prismaClient = prisma) {}
 
-  async findMany(getManyRequest: BuddhaSevenGetManyRequest) {
+  async findMany(findManyArgs: Prisma.buddha_seven_applyFindManyArgs) {
+    const buddhaSevenApplies =
+      await this.prismaClient.buddha_seven_apply.findMany(findManyArgs);
+
+    return buddhaSevenApplies;
+  }
+
+  async findManyByRequests(getManyRequest: BuddhaSevenApplyGetManyRequest) {
     const { year, month, order, take, skip, status } = getManyRequest;
     const parsedYear = year || moment().year();
     const parsedMonth = month || moment().month() + 1;
-    const startDate = getStartDateFromYearAndMonth(parsedYear, parsedMonth);
-    const endDate = getEndDateFromYearAndMonth(parsedYear, parsedMonth);
-
-    const buddhaSevenCheckIns =
-      await this.prismaClient.buddha_seven_apply.findMany({
-        orderBy: { Id: order || "desc" },
-        take: take || 100,
-        skip: skip || 0,
-        where: {
-          CheckInDate: {
-            gte: startDate,
-            lt: endDate
-          },
-          Status: status || BuddhaSevenStatus.CHECKED_IN
-        }
-      });
-
-    return responseSuccess("查詢成功", { buddhaSevenCheckIns });
-  }
-
-  async findOneById(
-    id: number,
-    errorResponse: TsoaResponse<
-      StatusCodes.BAD_REQUEST,
-      { status: false; message?: string }
-    >,
-    status: BuddhaSevenStatus = BuddhaSevenStatus.CHECKED_IN
-  ) {
-    const buddhaSevenCheckIn = await this.findIfExisted(id, status);
-
-    if (!buddhaSevenCheckIn) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "無此報名序號或尚未報到"
-      });
-    }
-
-    return responseSuccess("查詢成功", { buddhaSevenCheckIn });
-  }
-
-  async updateOneById(
-    id: number,
-    updatedCheckInData: BuddhaSevenCheckInUpdateRequest,
-    errorResponse: TsoaResponse<
-      StatusCodes.BAD_REQUEST,
-      { status: false; message?: string }
-    >
-  ) {
-    const targetApplyExist = await this.findIfExisted(
-      id,
-      BuddhaSevenStatus.APPLIED
+    const startCheckInDate = getStartDateFromYearAndMonth(
+      parsedYear,
+      parsedMonth
     );
+    const endCheckInDate = getEndDateFromYearAndMonth(parsedYear, parsedMonth);
+    const Status = status;
 
-    if (!targetApplyExist) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "無此報名序號或已報到完成"
+    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
+      where: {
+        CheckInDate: {
+          gte: startCheckInDate,
+          lt: endCheckInDate
+        },
+        Status
+      },
+      orderBy: { Id: order || "asc" },
+      take: take || 100,
+      skip: skip || 0
+    };
+
+    const buddhaSevenApplies = await this.findMany(findManyArgs);
+
+    return buddhaSevenApplies;
+  }
+
+  async findOneByIdAndStatus(id: number, status?: BuddhaSevenApplyStatus) {
+    const buddhaSevenApply =
+      await this.prismaClient.buddha_seven_apply.findFirst({
+        where: { Id: id, Status: status }
       });
-    }
+    return buddhaSevenApply;
+  }
 
-    const updatedBuddhaSevenCheckInData =
+  async createOne(createInputs: Prisma.buddha_seven_applyCreateInput) {
+    const createdBuddhaSevenApply =
+      await this.prismaClient.buddha_seven_apply.create({
+        data: createInputs
+      });
+    return createdBuddhaSevenApply;
+  }
+
+  async updateOneByIdAndUpdateData(
+    id: number,
+    updateInputs: Prisma.buddha_seven_applyUpdateInput
+  ) {
+    const updatedBuddhaSevenApply =
       await this.prismaClient.buddha_seven_apply.update({
         where: {
           Id: id
         },
         data: {
-          ...updatedCheckInData,
-          Status: BuddhaSevenStatus.CHECKED_IN,
-          CheckInTime: new Date()
+          ...updateInputs
         }
       });
 
-    if (!updatedBuddhaSevenCheckInData) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "報到失敗"
-      });
-    }
-
-    return responseSuccess("報到成功");
+    return updatedBuddhaSevenApply;
   }
 
-  async cancelOneById(
-    id: number,
-    buddhaSevenCheckInCancelRequest: BuddhaSevenCheckInCancelRequest,
-    errorResponse: TsoaResponse<
-      StatusCodes.BAD_REQUEST,
-      { status: false; message?: string }
-    >,
-    status: BuddhaSevenStatus = BuddhaSevenStatus.CHECKED_IN
-  ) {
-    const buddhaSevenCheckIn = await this.findIfExisted(id, status);
+  async checkIfDateOverlap(buddhaApplyCheckDate: BuddhaSevenApplyCheckDate) {
+    const { UserId, CheckInDate, CheckOutDate } = buddhaApplyCheckDate;
 
-    if (!buddhaSevenCheckIn) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "無此報名序號或尚未報到"
-      });
-    }
-
-    const cancelledBuddhaSevenCheckIn =
-      await this.prismaClient.buddha_seven_apply.update({
+    const buddhaApplyIsOverlap =
+      await this.prismaClient.buddha_seven_apply.findFirst({
         where: {
-          Id: id
-        },
-        data: {
-          ...buddhaSevenCheckInCancelRequest,
-          Status: BuddhaSevenStatus.CANCELLED
+          UserId,
+          OR: [
+            {
+              CheckInDate: { lte: CheckOutDate },
+              CheckOutDate: { gte: CheckInDate }
+            }
+          ]
         }
       });
 
-    if (!cancelledBuddhaSevenCheckIn) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "取消失敗"
-      });
-    }
-
-    return responseSuccess("取消成功");
-  }
-
-  private async findIfExisted(
-    id: number,
-    status: BuddhaSevenStatus = BuddhaSevenStatus.APPLIED
-  ) {
-    return this.prismaClient.buddha_seven_apply.findFirst({
-      where: { Id: id, Status: status }
-    });
+    return Boolean(buddhaApplyIsOverlap);
   }
 }
