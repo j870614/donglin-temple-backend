@@ -19,6 +19,7 @@ import moment from "moment";
 import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
+import { BuddhaSevenPeriodCreateRequest } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 
@@ -26,7 +27,7 @@ import prisma from "../configs/prismaClient";
 @Route("/api/buddha-seven/periods/")
 export class BuddhaSevenPeriodsController extends Controller {
   /**
-   * 取得年度佛七
+   * 取得年度佛七期數
    * @param year 查詢該年度之佛七，預設為本年度
    * @param order 正序("asc") / 倒序("desc")，佛七預設為正序排列
    * @param take 顯示數量，預設為 36 期佛七
@@ -78,7 +79,7 @@ export class BuddhaSevenPeriodsController extends Controller {
   }
 
   /**
-   * 取得單期佛七
+   * 取得單期佛七期數
    * @param id 佛七期數
    */
   @Get("{id}")
@@ -121,7 +122,7 @@ export class BuddhaSevenPeriodsController extends Controller {
   }
 
   /**
-   * 新增佛七。現在資料表中的資料已符合佛七的新增規則，前端串接測試時請避免大量新增佛七，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
+   * 新增佛七期數。現在資料表中的資料已符合佛七期數的新增規則，前端串接測試時請避免大量新增佛七期數，並在測試新增佛七時，在 Remarks 備註：前端新增測試。
    */
   @Post()
   @SuccessResponse(StatusCodes.CREATED, "新增佛七期數成功")
@@ -139,12 +140,12 @@ export class BuddhaSevenPeriodsController extends Controller {
     }
   })
   public async createBuddhaSeven(
-    @Body() newBuddhaSeven: Prisma.buddha_seven_periodsCreateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >,
+    @Body() newBuddhaSeven: BuddhaSevenPeriodCreateRequest
   ) {
     const { StartSevenDate, CompleteDate, Remarks } = newBuddhaSeven;
 
@@ -167,7 +168,7 @@ export class BuddhaSevenPeriodsController extends Controller {
   }
 
   /**
-   * 修改佛七
+   * 修改佛七期數
    * @param id 佛七期數
    */
   @Patch("{id}")

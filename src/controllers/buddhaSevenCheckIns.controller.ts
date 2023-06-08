@@ -17,7 +17,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 import { BuddhaSevenApplyStatus } from "../enums/buddhaSevenApplies.enum";
 import { responseSuccess } from "../utils/responseSuccess";
 import { BuddhaSevenCheckInService } from "../services/buddhaSeven/buddhaSevenCheckIn.service";
-import { BuddhaSevenApplyCheckInUpdateRequest } from "../models";
+import { BuddhaSevenApplyCheckInRequest } from "../models";
 
 @Tags("Buddha seven check-in - 佛七報到")
 @Route("/api/buddha-seven/check-ins")
@@ -58,7 +58,7 @@ export class BuddhaSevenCheckInController extends Controller {
       ]
     }
   })
-  public async getAllBuddhaSevenCheckIns() {
+  public async getAllBuddhaSevenAppliesOfToday() {
     const buddhaSevenApplies =
       await this._buddhaSevenCheckIn.findManyOfTodayApplies();
     return responseSuccess("查詢成功", { buddhaSevenApplies });
@@ -111,7 +111,7 @@ export class BuddhaSevenCheckInController extends Controller {
       }
     }
   })
-  public async getBuddhaSevenCheckInById(
+  public async getBuddhaSevenApplyByMobileOrPhoneOfToday(
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -126,7 +126,7 @@ export class BuddhaSevenCheckInController extends Controller {
     if (!buddhaSevenApplyView) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "查無此手機，請確認"
+        message: "查無此手機，請確認是否報名成功。"
       });
     }
     return responseSuccess("查詢成功", { buddhaSevenApplyView });
@@ -143,10 +143,10 @@ export class BuddhaSevenCheckInController extends Controller {
     status: true,
     message: "報到成功"
   })
-  public async patchBuddhaSevenCheckInById(
+  public async checkInBuddhaSevenApplyByIdAndRequest(
     @Path() id: number,
     @Body()
-    buddhaSevenApplyCheckInUpdateRequest: BuddhaSevenApplyCheckInUpdateRequest,
+    buddhaSevenApplyCheckInRequest: BuddhaSevenApplyCheckInRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -166,7 +166,7 @@ export class BuddhaSevenCheckInController extends Controller {
 
     const buddhaSevenApply = this._buddhaSevenCheckIn.checkInOneById(
       id,
-      buddhaSevenApplyCheckInUpdateRequest
+      buddhaSevenApplyCheckInRequest
     );
     if (!buddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {

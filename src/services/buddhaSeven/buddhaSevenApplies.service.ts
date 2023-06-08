@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 
 import prisma from "../../configs/prismaClient";
 import {
+  BuddhaSevenApplyCancelRequest,
   BuddhaSevenApplyCheckDate,
   BuddhaSevenApplyGetManyRequest
 } from "../../models";
@@ -75,6 +76,20 @@ export class BuddhaSevenAppliesService {
       });
 
     return updatedBuddhaSevenApply;
+  }
+
+  async cancelOneByIdAndCancelRequest(
+    id: number,
+    buddhaSevenApplyCancelRequest: BuddhaSevenApplyCancelRequest
+  ) {
+    const cancelledBuddhaSevenApply = await this.updateOneByIdAndUpdateData(
+      id,
+      {
+        ...buddhaSevenApplyCancelRequest,
+        Status: BuddhaSevenApplyStatus.CANCELLED
+      }
+    );
+    return cancelledBuddhaSevenApply;
   }
 
   async checkIfDateOverlap(buddhaApplyCheckDate: BuddhaSevenApplyCheckDate) {

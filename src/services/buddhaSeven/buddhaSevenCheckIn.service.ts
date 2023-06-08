@@ -1,7 +1,8 @@
 import { Prisma } from "@prisma/client";
 
+import moment from "moment";
 import { BuddhaSevenAppliesService } from "./buddhaSevenApplies.service";
-import { BuddhaSevenApplyCheckInUpdateRequest } from "../../models";
+import { BuddhaSevenApplyCheckInRequest } from "../../models";
 import { getStartAndEndOfToday } from "../../utils/useDate";
 import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
 
@@ -28,7 +29,7 @@ export class BuddhaSevenCheckInService extends BuddhaSevenAppliesService {
 
   async findOneByMobileOrPhoneOfTodayApplies(mobileOrPhone: string) {
     const [startOfDay, endOfDay] = getStartAndEndOfToday();
-    const buddhaSevenApplyView =
+    const buddhaSevenApplyView = // TODO create a buddhaSevenApplyView service
       await this.prismaClient.buddha_seven_apply_view.findFirst({
         where: {
           CheckInDate: {
@@ -43,12 +44,12 @@ export class BuddhaSevenCheckInService extends BuddhaSevenAppliesService {
 
   async checkInOneById(
     id: number,
-    buddhaSevenApplyCheckInUpdateRequest: BuddhaSevenApplyCheckInUpdateRequest
+    buddhaSevenApplyCheckInRequest: BuddhaSevenApplyCheckInRequest
   ) {
     const buddhaSevenApply = await this.updateOneByIdAndUpdateData(id, {
-      ...buddhaSevenApplyCheckInUpdateRequest,
+      ...buddhaSevenApplyCheckInRequest,
       Status: BuddhaSevenApplyStatus.CHECKED_IN,
-      CheckInTime: new Date()
+      CheckInTime: moment().toDate()
     });
     return buddhaSevenApply;
   }

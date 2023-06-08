@@ -1,11 +1,18 @@
-export interface BuddhaSevenApplyCheckInUpdateRequest {
+export interface BuddhaSevenApplyCheckInRequest {
+  /**
+   * 修改者 Id
+   */
   UpdateUserId: number;
+  /**
+   * Check-in 者 Id (同修改者)
+   */
   CheckInUserId: number;
+  /**
+   * Check-in 時間 (選填)
+   */
   CheckInTime?: Date;
-  Remarks?: string;
-}
-
-export interface BuddhaSevenApplyCheckInCancelRequest {
-  UpdateUserId: number;
+  /**
+   * 註解
+   */
   Remarks?: string;
 }

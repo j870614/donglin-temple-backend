@@ -38,7 +38,13 @@ export interface BuddhaSevenApplyCreateRequest {
 }
 
 export interface BuddhaSevenApplyCancelRequest {
+  /**
+   * 修改者 Id
+   */
   UpdateUserId: number;
+  /**
+   * 註解
+   */
   Remarks?: string;
 }
 

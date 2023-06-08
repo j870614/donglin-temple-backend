@@ -20,7 +20,6 @@ import { Prisma } from "@prisma/client";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { BuddhaSevenAppliesService } from "../services/buddhaSeven/buddhaSevenApplies.service";
 import { responseSuccess } from "../utils/responseSuccess";
-import prisma from "../configs/prismaClient";
 
 import {
   BuddhaSevenApplyStatus,
@@ -96,6 +95,7 @@ export class BuddhaSevenAppliesController extends Controller {
   /**
    * 取得單筆佛七報名資料
    * @param id 報名序號
+   * @param status 報名狀態 (選填)
    */
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -304,17 +304,13 @@ export class BuddhaSevenAppliesController extends Controller {
     }
 
     // 取消目標佛七報名資料
-    const canceledBuddhaSevenApply = await prisma.buddha_seven_apply.update({
-      where: {
-        Id: id
-      },
-      data: {
-        ...buddhaSevenApplyCancelRequest,
-        Status: BuddhaSevenApplyStatus.CANCELLED
-      }
-    });
+    const cancelledBuddhaSevenApply =
+      await this._buddhaSevenApplies.cancelOneByIdAndCancelRequest(
+        id,
+        buddhaSevenApplyCancelRequest
+      );
 
-    if (!canceledBuddhaSevenApply) {
+    if (!cancelledBuddhaSevenApply) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "取消失敗"
