@@ -359,15 +359,15 @@ view buddha_seven_apply_view {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 view user_auth_qr_codes_view {
-  Id                Int     @unique @default(0)
-  UserId            Int     @db.UnsignedInt
-  Name              String? @db.VarChar(50)
-  DharmaName        String? @db.VarChar(50)
-  MageNickname      String? @db.VarChar(50)
-  DeaconId          Int?    @db.SmallInt
-  DeaconName        String? @db.VarChar(20)
-  AuthorizeUserId   Int     @db.UnsignedInt
-  AuthorizeUserName String? @db.VarChar(50)
-  AuthorizeDate     String? @db.VarChar(10)
-  Status            String  @default("") @db.VarChar(7)
+  Id                  Int     @unique @default(0)
+  UserId              Int     @db.UnsignedInt
+  Gender              String  @default("") @db.VarChar(1)
+  DharmaName          String? @db.VarChar(50)
+  Name                String? @db.VarChar(50)
+  DeaconId            Int?    @db.SmallInt
+  DeaconName          String? @db.VarChar(20)
+  AuthorizeUserId     Int     @db.UnsignedInt
+  AuthorizeDharmaName String? @db.VarChar(50)
+  AuthorizeDate       String? @db.VarChar(10)
+  Status              String  @default("") @db.VarChar(7)
 }

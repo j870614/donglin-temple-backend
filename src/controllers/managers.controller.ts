@@ -208,13 +208,13 @@ export class ManagersController extends Controller {
       {
         "Id": 19,
         "UserId": 45,
-        "Name": "黃某甲",
+        "Gender":"男",        
         "DharmaName": null,
-        "MageNickname": null,
+        "Name": "黃某甲",
         "DeaconId": 3,
         "DeaconName": "知客志工",
         "AuthorizeUserId": 4,
-        "AuthorizeUserName": "王曉明",
+        "AuthorizeDharmaName": "王曉明",
         "AuthorizeDate": "2023/6/5",
         "Status": "註冊連結失效"
       }
