@@ -136,12 +136,12 @@ export class BuddhaSevenAppliesController extends Controller {
     }
   })
   public async getBuddhaSevenApplyByIdAndStatus(
-    @Path() id: number,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
+    @Path() id: number,
     @Query() status?: BuddhaSevenApplyStatusValues
   ) {
     const buddhaSevenApply =
@@ -187,16 +187,19 @@ export class BuddhaSevenAppliesController extends Controller {
     }
   })
   public async createBuddhaSevenApply(
-    @Body() buddhaSevenApplyCreateRequest: BuddhaSevenApplyCreateRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >,
+    @Body() buddhaSevenApplyCreateRequest: BuddhaSevenApplyCreateRequest
   ) {
     const { UserId } = buddhaSevenApplyCreateRequest;
     // 驗證此 UserId 是否存在
-    const user = await this._buddhaSevenApplies.findOneByIdAndStatus(UserId);
+    const user = await this._buddhaSevenApplies.prismaClient.users.findUnique({
+      where: { Id: UserId }
+    });
+
     if (!user) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
@@ -236,13 +239,13 @@ export class BuddhaSevenAppliesController extends Controller {
     message: "修改成功"
   })
   public async updateBuddhaSevenApply(
-    @Path() id: number,
-    @Body() buddhaSevenApplyUpdateRequest: Prisma.buddha_seven_applyUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >,
+    @Path() id: number,
+    @Body() buddhaSevenApplyUpdateRequest: Prisma.buddha_seven_applyUpdateInput
   ) {
     // 查詢要更新之佛七報名資料是否存在
     const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(id);
@@ -282,19 +285,16 @@ export class BuddhaSevenAppliesController extends Controller {
     message: "取消成功"
   })
   public async cancelBuddhaSevenApply(
-    @Path() id: number,
-    @Queries() buddhaSevenApplyCancelRequest: BuddhaSevenApplyCancelRequest,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >
+    >,
+    @Path() id: number,
+    @Queries() buddhaSevenApplyCancelRequest: BuddhaSevenApplyCancelRequest
   ) {
     // 查詢目標佛七報名資料是否存在
-    const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(
-      id,
-      BuddhaSevenApplyStatus.APPLIED
-    );
+    const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(id);
 
     if (!isExisted) {
       return errorResponse(StatusCodes.BAD_REQUEST, {

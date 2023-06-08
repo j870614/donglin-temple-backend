@@ -1,9 +1,12 @@
 import moment from "moment";
 
-export const getStartAndEndCheckInDateByYearAndMonth = (
-  year?: number,
-  month?: number
-) => {
+export const getStartAndEndOfToday = () => {
+  const startOfDay = moment().startOf("day").toDate();
+  const endOfDay = moment().endOf("day").toDate();
+  return [startOfDay, endOfDay];
+};
+
+export const getStartAndEndOfMonth = (year?: number, month?: number) => {
   const currentYear = year ?? moment().year();
   const currentMonth = month ?? moment().month() + 1;
 

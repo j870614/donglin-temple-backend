@@ -1,4 +1,3 @@
-import moment from "moment";
 import { Prisma } from "@prisma/client";
 
 import prisma from "../../configs/prismaClient";
@@ -7,14 +6,10 @@ import {
   BuddhaSevenApplyGetManyRequest
 } from "../../models";
 import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
-import {
-  getEndDateFromYearAndMonth,
-  getStartAndEndCheckInDateByYearAndMonth,
-  getStartDateFromYearAndMonth
-} from "../../utils/useDate";
+import { getStartAndEndOfMonth } from "../../utils/useDate";
 
 export class BuddhaSevenAppliesService {
-  constructor(private readonly prismaClient = prisma) {}
+  constructor(public readonly prismaClient = prisma) {}
 
   async findMany(findManyArgs: Prisma.buddha_seven_applyFindManyArgs) {
     const buddhaSevenApplies =
@@ -25,8 +20,10 @@ export class BuddhaSevenAppliesService {
 
   async findManyByRequests(getManyRequest: BuddhaSevenApplyGetManyRequest) {
     const { year, month, order, take, skip, status } = getManyRequest;
-    const [startCheckInDate, endCheckInDate] =
-      getStartAndEndCheckInDateByYearAndMonth(year, month);
+    const [startCheckInDate, endCheckInDate] = getStartAndEndOfMonth(
+      year,
+      month
+    );
     const Status = status;
 
     const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {

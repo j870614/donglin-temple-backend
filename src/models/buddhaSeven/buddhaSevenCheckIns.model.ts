@@ -1,11 +1,11 @@
-export interface BuddhaSevenCheckInUpdateRequest {
+export interface BuddhaSevenApplyCheckInUpdateRequest {
   UpdateUserId: number;
   CheckInUserId: number;
   CheckInTime?: Date;
   Remarks?: string;
 }
 
-export interface BuddhaSevenCheckInCancelRequest {
+export interface BuddhaSevenApplyCheckInCancelRequest {
   UpdateUserId: number;
   Remarks?: string;
 }
