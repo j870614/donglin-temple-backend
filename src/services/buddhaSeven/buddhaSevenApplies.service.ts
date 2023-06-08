@@ -9,6 +9,7 @@ import {
 import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
 import {
   getEndDateFromYearAndMonth,
+  getStartAndEndCheckInDateByYearAndMonth,
   getStartDateFromYearAndMonth
 } from "../../utils/useDate";
 
@@ -24,13 +25,8 @@ export class BuddhaSevenAppliesService {
 
   async findManyByRequests(getManyRequest: BuddhaSevenApplyGetManyRequest) {
     const { year, month, order, take, skip, status } = getManyRequest;
-    const parsedYear = year || moment().year();
-    const parsedMonth = month || moment().month() + 1;
-    const startCheckInDate = getStartDateFromYearAndMonth(
-      parsedYear,
-      parsedMonth
-    );
-    const endCheckInDate = getEndDateFromYearAndMonth(parsedYear, parsedMonth);
+    const [startCheckInDate, endCheckInDate] =
+      getStartAndEndCheckInDateByYearAndMonth(year, month);
     const Status = status;
 
     const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {

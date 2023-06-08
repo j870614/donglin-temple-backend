@@ -1,154 +1,130 @@
-// import moment from "moment";
-// import { StatusCodes } from "http-status-codes";
-// import { TsoaResponse } from "src/utils/responseTsoaError";
+import moment from "moment";
+import { Prisma } from "@prisma/client";
 
-// import prisma from "../../configs/prismaClient";
-// import {
-//   BuddhaSevenCheckInCancelRequest,
-//   BuddhaSevenCheckInUpdateRequest,
-//   BuddhaSevenApplyGetManyRequest
-// } from "../../models";
-// import {
-//   getEndDateFromYearAndMonth,
-//   getStartDateFromYearAndMonth
-// } from "../../utils/useDate";
-// import { responseSuccess } from "../../utils/responseSuccess";
-// import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
+import { BuddhaSevenAppliesService } from "./buddhaSevenApplies.service";
+import {
+  BuddhaSevenCheckInCancelRequest,
+  BuddhaSevenCheckInUpdateRequest,
+  BuddhaSevenApplyGetManyRequest
+} from "../../models";
+import { BuddhaSevenApplyStatus } from "../../enums/buddhaSevenApplies.enum";
 
-// export class BuddhaSevenCheckInService {
-//   constructor(private readonly prismaClient = prisma) {}
+export class BuddhaSevenCheckInService extends BuddhaSevenAppliesService {
+  async findManyOfTodayApplies() {
+    const startOfDay = moment().startOf("day").toDate();
+    const endOfDay = moment().endOf("day").toDate();
 
-//   async findMany(getManyRequest: BuddhaSevenApplyGetManyRequest) {
-//     const { year, month, order, take, skip, status } = getManyRequest;
-//     const parsedYear = year || moment().year();
-//     const parsedMonth = month || moment().month() + 1;
-//     const startDate = getStartDateFromYearAndMonth(parsedYear, parsedMonth);
-//     const endDate = getEndDateFromYearAndMonth(parsedYear, parsedMonth);
+    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
+      where: {
+        CheckInDate: {
+          gte: startOfDay,
+          lt: endOfDay
+        }
+      },
+      orderBy: { Id: "asc" },
+      take: 100,
+      skip: 0
+    };
 
-//     const buddhaSevenCheckIns =
-//       await this.prismaClient.buddha_seven_apply.findMany({
-//         orderBy: { Id: order || "desc" },
-//         take: take || 100,
-//         skip: skip || 0,
-//         where: {
-//           CheckInDate: {
-//             gte: startDate,
-//             lt: endDate
-//           },
-//           Status: status || BuddhaSevenApplyStatus.CHECKED_IN
-//         }
-//       });
+    const buddhaSevenApplies = await this.findMany(findManyArgs);
 
-//     return responseSuccess("查詢成功", { buddhaSevenCheckIns });
-//   }
+    return buddhaSevenApplies;
+  }
 
-//   async findOneById(
-//     id: number,
-//     errorResponse: TsoaResponse<
-//       StatusCodes.BAD_REQUEST,
-//       { status: false; message?: string }
-//     >,
-//     status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.CHECKED_IN
-//   ) {
-//     const buddhaSevenCheckIn = await this.findIfExisted(id, status);
-
-//     if (!buddhaSevenCheckIn) {
-//       return errorResponse(StatusCodes.BAD_REQUEST, {
-//         status: false,
-//         message: "無此報名序號或尚未報到"
-//       });
-//     }
-
-//     return responseSuccess("查詢成功", { buddhaSevenCheckIn });
-//   }
-
-//   async updateOneById(
-//     id: number,
-//     updatedCheckInData: BuddhaSevenCheckInUpdateRequest,
-//     errorResponse: TsoaResponse<
-//       StatusCodes.BAD_REQUEST,
-//       { status: false; message?: string }
-//     >
-//   ) {
-//     const targetApplyExist = await this.findIfExisted(
-//       id,
-//       BuddhaSevenApplyStatus.APPLIED
-//     );
-
-//     if (!targetApplyExist) {
-//       return errorResponse(StatusCodes.BAD_REQUEST, {
-//         status: false,
-//         message: "無此報名序號或已報到完成"
-//       });
-//     }
-
-//     const updatedBuddhaSevenCheckInData =
-//       await this.prismaClient.buddha_seven_apply.update({
-//         where: {
-//           Id: id
-//         },
-//         data: {
-//           ...updatedCheckInData,
-//           Status: BuddhaSevenApplyStatus.CHECKED_IN,
-//           CheckInTime: new Date()
-//         }
-//       });
-
-//     if (!updatedBuddhaSevenCheckInData) {
-//       return errorResponse(StatusCodes.BAD_REQUEST, {
-//         status: false,
-//         message: "報到失敗"
-//       });
-//     }
-
-//     return responseSuccess("報到成功");
-//   }
-
-//   async cancelOneById(
-//     id: number,
-//     buddhaSevenCheckInCancelRequest: BuddhaSevenCheckInCancelRequest,
-//     errorResponse: TsoaResponse<
-//       StatusCodes.BAD_REQUEST,
-//       { status: false; message?: string }
-//     >,
-//     status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.CHECKED_IN
-//   ) {
-//     const buddhaSevenCheckIn = await this.findIfExisted(id, status);
-
-//     if (!buddhaSevenCheckIn) {
-//       return errorResponse(StatusCodes.BAD_REQUEST, {
-//         status: false,
-//         message: "無此報名序號或尚未報到"
-//       });
-//     }
-
-//     const cancelledBuddhaSevenCheckIn =
-//       await this.prismaClient.buddha_seven_apply.update({
-//         where: {
-//           Id: id
-//         },
-//         data: {
-//           ...buddhaSevenCheckInCancelRequest,
-//           Status: BuddhaSevenApplyStatus.CANCELLED
-//         }
-//       });
-
-//     if (!cancelledBuddhaSevenCheckIn) {
-//       return errorResponse(StatusCodes.BAD_REQUEST, {
-//         status: false,
-//         message: "取消失敗"
-//       });
-//     }
-
-//     return responseSuccess("取消成功");
-//   }
-
-//   private async findIfExisted(
-//     id: number,
-//     status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.APPLIED
-//   ) {
-//     return this.prismaClient.buddha_seven_apply.findFirst({
-//       where: { Id: id, Status: status }
-//     });
-//   }
-// }
+  // async findOneById(
+  //   id: number,
+  //   errorResponse: TsoaResponse<
+  //     StatusCodes.BAD_REQUEST,
+  //     { status: false; message?: string }
+  //   >,
+  //   status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.CHECKED_IN
+  // ) {
+  //   const buddhaSevenCheckIn = await this.findIfExisted(id, status);
+  //   if (!buddhaSevenCheckIn) {
+  //     return errorResponse(StatusCodes.BAD_REQUEST, {
+  //       status: false,
+  //       message: "無此報名序號或尚未報到"
+  //     });
+  //   }
+  //   return responseSuccess("查詢成功", { buddhaSevenCheckIn });
+  // }
+  // async updateOneById(
+  //   id: number,
+  //   updatedCheckInData: BuddhaSevenCheckInUpdateRequest,
+  //   errorResponse: TsoaResponse<
+  //     StatusCodes.BAD_REQUEST,
+  //     { status: false; message?: string }
+  //   >
+  // ) {
+  //   const targetApplyExist = await this.findIfExisted(
+  //     id,
+  //     BuddhaSevenApplyStatus.APPLIED
+  //   );
+  //   if (!targetApplyExist) {
+  //     return errorResponse(StatusCodes.BAD_REQUEST, {
+  //       status: false,
+  //       message: "無此報名序號或已報到完成"
+  //     });
+  //   }
+  //   const updatedBuddhaSevenCheckInData =
+  //     await this.prismaClient.buddha_seven_apply.update({
+  //       where: {
+  //         Id: id
+  //       },
+  //       data: {
+  //         ...updatedCheckInData,
+  //         Status: BuddhaSevenApplyStatus.CHECKED_IN,
+  //         CheckInTime: new Date()
+  //       }
+  //     });
+  //   if (!updatedBuddhaSevenCheckInData) {
+  //     return errorResponse(StatusCodes.BAD_REQUEST, {
+  //       status: false,
+  //       message: "報到失敗"
+  //     });
+  //   }
+  //   return responseSuccess("報到成功");
+  // }
+  // async cancelOneById(
+  //   id: number,
+  //   buddhaSevenCheckInCancelRequest: BuddhaSevenCheckInCancelRequest,
+  //   errorResponse: TsoaResponse<
+  //     StatusCodes.BAD_REQUEST,
+  //     { status: false; message?: string }
+  //   >,
+  //   status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.CHECKED_IN
+  // ) {
+  //   const buddhaSevenCheckIn = await this.findIfExisted(id, status);
+  //   if (!buddhaSevenCheckIn) {
+  //     return errorResponse(StatusCodes.BAD_REQUEST, {
+  //       status: false,
+  //       message: "無此報名序號或尚未報到"
+  //     });
+  //   }
+  //   const cancelledBuddhaSevenCheckIn =
+  //     await this.prismaClient.buddha_seven_apply.update({
+  //       where: {
+  //         Id: id
+  //       },
+  //       data: {
+  //         ...buddhaSevenCheckInCancelRequest,
+  //         Status: BuddhaSevenApplyStatus.CANCELLED
+  //       }
+  //     });
+  //   if (!cancelledBuddhaSevenCheckIn) {
+  //     return errorResponse(StatusCodes.BAD_REQUEST, {
+  //       status: false,
+  //       message: "取消失敗"
+  //     });
+  //   }
+  //   return responseSuccess("取消成功");
+  // }
+  // private async findIfExisted(
+  //   id: number,
+  //   status: BuddhaSevenApplyStatus = BuddhaSevenApplyStatus.APPLIED
+  // ) {
+  //   return this.prismaClient.buddha_seven_apply.findFirst({
+  //     where: { Id: id, Status: status }
+  //   });
+  // }
+}
