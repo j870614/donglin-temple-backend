@@ -459,7 +459,7 @@ export class ManagersController extends Controller {
    * @param errorResponse
    * @returns
    */
-  @Post("qrcodetest")
+  @Post("qrcode-test")
   @SuccessResponse(StatusCodes.OK, "註冊碼取得成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊碼取得失敗")
   @Example({
