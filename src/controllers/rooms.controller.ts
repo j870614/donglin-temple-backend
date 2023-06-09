@@ -291,6 +291,125 @@ export class RoomsController extends Controller {
   @Patch("/room-change")
   @SuccessResponse(StatusCodes.OK, "更改寮房成功")
   @Response(StatusCodes.BAD_REQUEST, "查無佛七報名資料或寮房資料不符合條件")
+  @Example({
+    status: true,
+    message: "更改寮房成功",
+    data: {
+      oldRoom: {
+        Id: 50702,
+        DormitoryAreaId: 5,
+        BuildingId: 7,
+        ShareId: 2,
+        RoomType: 1,
+        IsMale: true,
+        TotalBeds: 2,
+        ReservedBeds: 1,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:32.000Z"
+      },
+      newRoom: {
+        Id: 50701,
+        DormitoryAreaId: 5,
+        BuildingId: 7,
+        ShareId: 1,
+        RoomType: 1,
+        IsMale: true,
+        TotalBeds: 2,
+        ReservedBeds: 2,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:32.000Z"
+      },
+      oldBuddhaSevenApply: {
+        Id: 15,
+        UserId: 13,
+        Name: "王某某",
+        DharmaName: "普某",
+        IsMonk: false,
+        IsMale: true,
+        StayIdentity: 3,
+        StayIdentityName: "佛七蓮友",
+        Mobile: "0911123123",
+        Phone: "039590000",
+        EatBreakfast: false,
+        EatLunch: false,
+        EatDinner: true,
+        RoomId: 50702,
+        BedStayOrderNumber: 1,
+        CheckInDate: "2023-06-21T00:00:00.000Z",
+        CheckOutDate: "2023-06-27T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
+        CheckInUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "已報名佛七",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普某",
+        UpdateUserIsMale: true,
+        UpdateAt: "2023-06-08T12:34:11.000Z"
+      },
+      newBuddhaSevenApply: {
+        Id: 15,
+        UserId: 13,
+        RoomId: 50701,
+        BedStayOrderNumber: 2,
+        CheckInDate: "2023-06-21T00:00:00.000Z",
+        CheckOutDate: "2023-06-27T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        Status: "已報名佛七",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateAt: "2023-06-08T12:35:04.000Z"
+      },
+      changeOldBedStayOrderNumber: [
+        {
+          Id: 20,
+          UserId: 13,
+          RoomId: 50702,
+          BedStayOrderNumber: 2,
+          CheckInDate: "2023-07-01T00:00:00.000Z",
+          CheckOutDate: "2023-07-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          Status: "已報名佛七",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateAt: "2023-06-08T12:34:40.000Z"
+        }
+      ],
+      changeNewBedStayOrderNumber: [
+        {
+          Id: 20,
+          UserId: 13,
+          RoomId: 50702,
+          BedStayOrderNumber: 1,
+          CheckInDate: "2023-07-01T00:00:00.000Z",
+          CheckOutDate: "2023-07-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          Status: "已報名佛七",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateAt: "2023-06-08T12:35:05.000Z"
+        }
+      ]
+    }
+  })
   public async changeBuddhaSevenRoom(
     @Body() request: { id: number; newRoomId: number },
     @Res()
@@ -440,6 +559,224 @@ export class RoomsController extends Controller {
             ? changeNewBedStayOrderNumber
             : null
       }
+    };
+  }
+
+  /**
+ * 取消佛七報名寮房
+ * @param id 報名序號
+ */
+  @Patch("/room-cancel")
+  @SuccessResponse(StatusCodes.OK, "取消寮房成功")
+  @Response(StatusCodes.BAD_REQUEST, "查無佛七報名資料或寮房資料不符合條件")
+  @Example({
+    status: true,
+    message: "取消寮房成功",
+    data: {
+      oldRoom: {
+        RoomId: 50702,
+        DormitoryAreaId: 5,
+        DormitoryAreaName: "其他",
+        BuildingId: 7,
+        BuildingName: "G",
+        ShareId: 2,
+        RoomType: 1,
+        RoomTypeName: "一般寮房",
+        IsMale: true,
+        GenderName: "男",
+        TotalBeds: 2,
+        ReservedBeds: 2,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:32.000Z"
+      },
+      newRoom: {
+        Id: 50702,
+        DormitoryAreaId: 5,
+        BuildingId: 7,
+        ShareId: 2,
+        RoomType: 1,
+        IsMale: true,
+        TotalBeds: 2,
+        ReservedBeds: 1,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:32.000Z"
+      },
+      oldBuddhaSevenApply: {
+        Id: 15,
+        UserId: 13,
+        RoomId: 50702,
+        BedStayOrderNumber: 1,
+        CheckInDate: "2023-06-21T00:00:00.000Z",
+        CheckOutDate: "2023-06-27T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        Status: "已報名佛七",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateAt: "2023-06-06T12:25:02.000Z"
+      },
+      newBuddhaSevenApply: {
+        Id: 15,
+        UserId: 13,
+        RoomId: null,
+        BedStayOrderNumber: 1,
+        CheckInDate: "2023-06-21T00:00:00.000Z",
+        CheckOutDate: "2023-06-27T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        Status: "已報名佛七",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateAt: "2023-06-08T12:19:12.000Z"
+      },
+      changeOldBedStayOrderNumber: [
+        {
+          Id: 20,
+          UserId: 13,
+          RoomId: 50702,
+          BedStayOrderNumber: 2,
+          CheckInDate: "2023-07-01T00:00:00.000Z",
+          CheckOutDate: "2023-07-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          Status: "已報名佛七",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateAt: "2023-06-06T12:26:21.000Z"
+        }
+      ],
+      changeNewBedStayOrderNumber: [
+        {
+          Id: 20,
+          UserId: 13,
+          RoomId: 50702,
+          BedStayOrderNumber: 1,
+          CheckInDate: "2023-07-01T00:00:00.000Z",
+          CheckOutDate: "2023-07-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          Status: "已報名佛七",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateAt: "2023-06-08T12:19:15.000Z"
+        }
+      ]
+    }
+  })
+  public async cancelBuddhaSevenRoom(
+    @Body() request: { id: number },
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const { id } = request;
+
+    // 取得佛七報名資料和關聯的寮房資料
+    const buddhaSevenApply = await prisma.buddha_seven_apply.findUnique({
+      where: { Id: id },
+    });
+
+    if (!buddhaSevenApply) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此報名序號",
+      });
+    }
+
+    if (buddhaSevenApply.RoomId === null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "佛七報名資料的寮房資料不存在"
+      });
+    }
+
+    const oldRoom = await prisma.rooms_view.findUnique({
+      where: { RoomId: buddhaSevenApply.RoomId }
+    });
+
+    if (!oldRoom) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無寮房資料"
+      });
+    }
+
+    // 更新佛七報名資料，將房間 ID 設為 null，表示取消寮房，同時 BedStayOrderNumber 也設為 0
+    const newBuddhaSeven = await prisma.buddha_seven_apply.update({
+      where: { Id: id },
+      data: { RoomId: null, BedStayOrderNumber: null },
+    });
+
+    // 更新舊寮房的 ReservedBeds
+    const newRoom = await prisma.rooms.update({
+      where: { Id: oldRoom.RoomId },
+      data: { ReservedBeds: oldRoom.ReservedBeds - 1 },
+    });
+
+    let changeOldBedStayOrderNumber = null;
+    let changeNewBedStayOrderNumber = null;
+
+    // 檢查取消的佛七報名資料的 BedStayOrderNumber 是否為 1
+    if (buddhaSevenApply.BedStayOrderNumber === 1) {
+      // 尋找舊寮房的 BedStayOrderNumber 為 2 的佛七報名資料
+      changeOldBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 2,
+        },
+      });
+
+      // 更新舊寮房的 BedStayOrderNumber 為 1
+      await prisma.buddha_seven_apply.updateMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 2,
+        },
+        data: {
+          BedStayOrderNumber: 1,
+        },
+      });
+
+      // 尋找舊寮房的 BedStayOrderNumber 為 1 的佛七報名資料
+      changeNewBedStayOrderNumber = await prisma.buddha_seven_apply.findMany({
+        where: {
+          RoomId: oldRoom.RoomId,
+          BedStayOrderNumber: 1,
+        },
+      });
+    }
+
+    return {
+      status: true,
+      message: "取消寮房成功",
+      data: {
+        oldRoom,
+        newRoom,
+        oldBuddhaSevenApply: buddhaSevenApply,
+        newBuddhaSevenApply: newBuddhaSeven,
+        changeOldBedStayOrderNumber:
+          buddhaSevenApply.BedStayOrderNumber === 1
+            ? changeOldBedStayOrderNumber
+            : null,
+        changeNewBedStayOrderNumber:
+          buddhaSevenApply.BedStayOrderNumber === 1
+            ? changeNewBedStayOrderNumber
+            : null
+      },
     };
   }
 }
