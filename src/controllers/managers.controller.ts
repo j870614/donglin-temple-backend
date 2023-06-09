@@ -228,37 +228,12 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    // 授權人身分驗證
-    if (!Authorization || !Authorization.startsWith("Bearer")) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "Authorization header 丟失"
-      });
-    }
+    const authObj = await this.checkAuth(Authorization);
 
-    const [, token] = Authorization.split(" ");
-    if (!token) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "Token 丟失"
-      });
-    }
-
-    // 檢查查詢人的權限
-    const { UserId } = jwt.decode(token) as JwtPayload;  
-
-    const manager = await prisma.managers.findFirst({
-      where: { 
-        UserId: Number(UserId),
-        IsActive: true
-      }
-    });
-
-    if (manager == null) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "此帳號無查詢權限"
-      });
+    if(!authObj.data.status){
+      return errorResponse(
+        StatusCodes.BAD_REQUEST, 
+        authObj.data as { status: false; message?: string | undefined; });
     }
     
     // 查詢 qrcode 使用狀態
@@ -276,6 +251,49 @@ export class ManagersController extends Controller {
     return responseSuccess("查詢成功", { data: qrcodeStatus });
   }
   
+  private async checkAuth(authorization: string){
+    const result = {
+      userId: Number(-1),
+      data:{
+        status: false,
+        message: ""
+      }
+    };
+
+    // 授權人身分驗證
+    if (!authorization || !authorization.startsWith("Bearer")) {
+      result.data.message = "Authorization header 丟失";
+      return result;
+    }
+
+    const [, token] = authorization.split(" ");
+    if (!token) {
+      result.data.message = "Token 丟失";
+      return result;
+    }
+
+    // 檢查查詢人的權限
+    const { UserId } = jwt.decode(token) as JwtPayload;  
+    
+    result.userId = Number(UserId);
+
+    const manager = await prisma.managers.findFirst({
+      where: { 
+        UserId: result.userId,
+        IsActive: true
+      }
+    });
+
+    if (manager == null) {
+      result.data.message = "此帳號無查詢權限";
+      return result;
+    }
+    
+    result.data.status = true;
+    return result;
+  }
+
+
   /**
    * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
    * @param errorResponse 
