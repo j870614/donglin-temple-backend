@@ -20,6 +20,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
+import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
 import {
   GetManyRequest,
@@ -189,6 +190,142 @@ export class ManagersController extends Controller {
   }
 
   /**
+     * 查詢使用者權限核發 API
+     * 
+     * 查看管理者註冊碼使用狀況
+     * @param Authorization JWT 檢查該 User 是否有查詢權限
+     * @param errorResponse
+     * @returns
+     */
+  @Security("jwt", ["manager"])
+  @Get("qrcode/status")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: [
+      {
+        "Id": 19,
+        "UserId": 45,
+        "Gender": "女",
+        "DharmaName": null,
+        "Name": "黃某甲",
+        "DeaconId": 3,
+        "DeaconName": "知客志工",
+        "AuthorizeUserId": 4,
+        "AuthorizeDharmaName": null,
+        "AuthorizeDate": "2023/6/5",
+        "Status": "註冊連結失效"
+      }
+    ]
+  })
+  public async getQRCodeStatus(
+    @Header() Authorization: string,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    // 授權人身分驗證
+    if (!Authorization || !Authorization.startsWith("Bearer")) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "Authorization header 丟失"
+      });
+    }
+
+    const [, token] = Authorization.split(" ");
+    if (!token) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "Token 丟失"
+      });
+    }
+
+    // 檢查查詢人的權限
+    const { UserId } = jwt.decode(token) as JwtPayload;  
+
+    const manager = await prisma.managers.findFirst({
+      where: { 
+        UserId: Number(UserId),
+        IsActive: true
+      }
+    });
+
+    if (manager == null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "此帳號無查詢權限"
+      });
+    }
+    
+    // 查詢 qrcode 使用狀態
+    const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
+      orderBy: { AuthorizeDate: 'desc' }
+    }) as user_auth_qr_codes_view[];
+    
+    if (qrcodeStatus == null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查詢失敗"
+      });
+    }
+
+    return responseSuccess("查詢成功", { data: qrcodeStatus });
+  }
+  
+  /**
+   * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
+   * @param errorResponse 
+   * @returns 
+   */
+  @Get("qrcode/status-test")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: [
+      {
+        "Id": 19,
+        "UserId": 45,
+        "Gender": "女",
+        "DharmaName": null,
+        "Name": "黃某甲",
+        "DeaconId": 3,
+        "DeaconName": "知客志工",
+        "AuthorizeUserId": 4,
+        "AuthorizeDharmaName": null,
+        "AuthorizeDate": "2023/6/5",
+        "Status": "註冊連結失效"
+      }
+    ]
+  })
+  public async getQRCodeStatus2(
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    // 查詢 qrcode 使用狀態
+    const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
+      orderBy: { AuthorizeDate: 'desc' }
+    }) as user_auth_qr_codes_view[];
+    
+    if (qrcodeStatus == null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查詢失敗"
+      });
+    }
+
+    return responseSuccess("查詢成功", { data: qrcodeStatus });
+  }
+
+  /**
    * 取得註冊碼 or 更新 managers 授權
    * @param Authorization JWT
    * @param qrCodeRequest
@@ -317,12 +454,12 @@ export class ManagersController extends Controller {
   }
 
   /**
-   * 測試用，不做權限驗證
+   * 測試用，不做身分驗證檢查
    * @param qrCodeRequest
    * @param errorResponse
    * @returns
    */
-  @Post("qrcodetest")
+  @Post("qrcode-test")
   @SuccessResponse(StatusCodes.OK, "註冊碼取得成功")
   @Response(StatusCodes.BAD_REQUEST, "註冊碼取得失敗")
   @Example({
