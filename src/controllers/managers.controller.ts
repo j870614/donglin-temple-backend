@@ -208,13 +208,13 @@ export class ManagersController extends Controller {
       {
         "Id": 19,
         "UserId": 45,
-        "Gender":"男",        
+        "Gender": "女",
         "DharmaName": null,
         "Name": "黃某甲",
         "DeaconId": 3,
         "DeaconName": "知客志工",
         "AuthorizeUserId": 4,
-        "AuthorizeDharmaName": "王曉明",
+        "AuthorizeDharmaName": null,
         "AuthorizeDate": "2023/6/5",
         "Status": "註冊連結失效"
       }
@@ -261,6 +261,55 @@ export class ManagersController extends Controller {
       });
     }
     
+    // 查詢 qrcode 使用狀態
+    const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
+      orderBy: { AuthorizeDate: 'desc' }
+    }) as user_auth_qr_codes_view[];
+    
+    if (qrcodeStatus == null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查詢失敗"
+      });
+    }
+
+    return responseSuccess("查詢成功", { data: qrcodeStatus });
+  }
+  
+  /**
+   * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
+   * @param errorResponse 
+   * @returns 
+   */
+  @Get("qrcode/status-test")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: [
+      {
+        "Id": 19,
+        "UserId": 45,
+        "Gender": "女",
+        "DharmaName": null,
+        "Name": "黃某甲",
+        "DeaconId": 3,
+        "DeaconName": "知客志工",
+        "AuthorizeUserId": 4,
+        "AuthorizeDharmaName": null,
+        "AuthorizeDate": "2023/6/5",
+        "Status": "註冊連結失效"
+      }
+    ]
+  })
+  public async getQRCodeStatus2(
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
     // 查詢 qrcode 使用狀態
     const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
       orderBy: { AuthorizeDate: 'desc' }
@@ -405,7 +454,7 @@ export class ManagersController extends Controller {
   }
 
   /**
-   * 測試用，不做權限驗證
+   * 測試用，不做身分驗證檢查
    * @param qrCodeRequest
    * @param errorResponse
    * @returns
