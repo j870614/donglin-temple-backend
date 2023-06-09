@@ -27,7 +27,27 @@ export class BuddhaSevenCheckInService extends BuddhaSevenAppliesService {
     return buddhaSevenApplies;
   }
 
-  async findOneByMobileOrPhoneOfTodayApplies(mobileOrPhone: string) {
+  async findManyViewsOfTodayApplies() {
+    const [startOfDay, endOfDay] = getStartAndEndOfToday();
+
+    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
+      where: {
+        CheckInDate: {
+          gte: startOfDay,
+          lt: endOfDay
+        }
+      },
+      orderBy: { Id: "asc" },
+      take: 100,
+      skip: 0
+    };
+
+    const buddhaSevenApplies = await this.findManyViews(findManyArgs);
+
+    return buddhaSevenApplies;
+  }
+
+  async findOneViewByMobileOrPhoneOfTodayApplies(mobileOrPhone: string) {
     const [startOfDay, endOfDay] = getStartAndEndOfToday();
     const buddhaSevenApplyView = // TODO create a buddhaSevenApplyView service
       await this.prismaClient.buddha_seven_apply_view.findFirst({

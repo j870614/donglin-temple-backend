@@ -37,6 +37,16 @@ export interface BuddhaSevenApplyCreateRequest {
   UpdateUserId: number;
 }
 
+export interface BuddhaSevenApplyUpdateRequest {
+  CheckInDate?: Date;
+  CheckOutDate?: Date;
+  CheckInDateBreakfast?: boolean;
+  CheckInDateLunch?: boolean;
+  CheckInDateDinner?: boolean;
+  Remarks?: string;
+  UpdateUserId: number;
+}
+
 export interface BuddhaSevenApplyCancelRequest {
   /**
    * 修改者 Id

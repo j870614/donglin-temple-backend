@@ -29,7 +29,7 @@ export class BuddhaSevenCheckInController extends Controller {
   }
 
   /**
-   * 取得今日佛七預約報名表
+   * 取得今日佛七預約報名表(不含四眾個資)
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -65,10 +65,63 @@ export class BuddhaSevenCheckInController extends Controller {
   }
 
   /**
-   * 在今日佛七預約報名表搜尋目標手機或是市話的報名
+   * 取得今日佛七預約報名表(含四眾個資)
+   */
+  @Get("/views")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      buddhaSevenApplyViews: [
+        {
+          Id: 7,
+          UserId: 13,
+          Name: "王某某",
+          DharmaName: "普某",
+          IsMonk: false,
+          IsMale: true,
+          StayIdentity: 3,
+          StayIdentityName: "佛七蓮友",
+          Mobile: "0911123123",
+          Phone: "039590000",
+          EatBreakfast: false,
+          EatLunch: false,
+          EatDinner: true,
+          RoomId: 40501,
+          BedStayOrderNumber: 1,
+          CheckInDate: "2023-06-09T00:00:00.000Z",
+          CheckOutDate: "2023-06-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          CheckInUserName: null,
+          CheckInUserDharmaName: null,
+          CheckInUserIsMale: null,
+          Status: "已取消掛單",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateUserName: null,
+          UpdateUserDharmaName: "普某",
+          UpdateUserIsMale: true,
+          UpdateAt: "2023-06-09T04:52:12.000Z"
+        }
+      ]
+    }
+  })
+  public async getAllBuddhaSevenApplyViewsOfToday() {
+    const buddhaSevenApplyViews =
+      await this._buddhaSevenCheckIn.findManyViewsOfTodayApplies();
+    return responseSuccess("查詢成功", { buddhaSevenApplyViews });
+  }
+
+  /**
+   * 在今日佛七預約報名表搜尋目標手機或是市話的報名(含四眾個資)
    * @param mobileOrPhone 手機或是市話
    */
-  @Get("{mobileOrPhone}")
+  @Get("/views/{mobileOrPhone}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
   @Example({
@@ -76,42 +129,42 @@ export class BuddhaSevenCheckInController extends Controller {
     message: "查詢成功",
     data: {
       buddhaSevenApplyView: {
-        Id: 9,
-        UserId: 17,
-        Name: "林某某",
-        DharmaName: "普乙",
+        Id: 7,
+        UserId: 13,
+        Name: "王某某",
+        DharmaName: "普某",
         IsMonk: false,
-        IsMale: false,
-        StayIdentity: 2,
-        StayIdentityName: "常住法眷",
-        Mobile: "0917123123",
-        Phone: "031234123",
+        IsMale: true,
+        StayIdentity: 3,
+        StayIdentityName: "佛七蓮友",
+        Mobile: "0911123123",
+        Phone: "039590000",
         EatBreakfast: false,
         EatLunch: false,
-        EatDinner: false,
-        RoomId: 10101,
-        BedStayOrderNumber: 2,
-        CheckInDate: "2023-06-08T00:00:00.000Z",
-        CheckOutDate: "2023-06-15T00:00:00.000Z",
+        EatDinner: true,
+        RoomId: 40501,
+        BedStayOrderNumber: 1,
+        CheckInDate: "2023-06-09T00:00:00.000Z",
+        CheckOutDate: "2023-06-07T00:00:00.000Z",
         CheckInDateBreakfast: true,
         CheckInDateLunch: true,
         CheckInDateDinner: true,
-        CheckInTime: "1970-01-01T06:12:44.000Z",
-        CheckInUserId: 4,
-        CheckInUserName: "Hiro4",
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
         CheckInUserDharmaName: null,
-        CheckInUserIsMale: true,
-        Status: "已報到佛七",
-        Remarks: "CheckInTest",
-        UpdateUserId: 4,
-        UpdateUserName: "Hiro4",
-        UpdateUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "已取消掛單",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普某",
         UpdateUserIsMale: true,
-        UpdateAt: "2023-06-08T05:48:26.000Z"
+        UpdateAt: "2023-06-09T04:52:12.000Z"
       }
     }
   })
-  public async getBuddhaSevenApplyByMobileOrPhoneOfToday(
+  public async getBuddhaSevenApplyViewByMobileOrPhoneOfToday(
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -120,7 +173,7 @@ export class BuddhaSevenCheckInController extends Controller {
     @Path() mobileOrPhone: string
   ) {
     const buddhaSevenApplyView =
-      await this._buddhaSevenCheckIn.findOneByMobileOrPhoneOfTodayApplies(
+      await this._buddhaSevenCheckIn.findOneViewByMobileOrPhoneOfTodayApplies(
         mobileOrPhone
       );
     if (!buddhaSevenApplyView) {
