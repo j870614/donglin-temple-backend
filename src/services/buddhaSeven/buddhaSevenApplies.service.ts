@@ -19,7 +19,7 @@ export class BuddhaSevenAppliesService {
     return buddhaSevenApplies;
   }
 
-  async findManyByRequests(getManyRequest: BuddhaSevenApplyGetManyRequest) {
+  async findManyByRequest(getManyRequest: BuddhaSevenApplyGetManyRequest) {
     const { year, month, order, take, skip, status } = getManyRequest;
     const [startCheckInDate, endCheckInDate] = getStartAndEndOfMonth(
       year,
@@ -45,9 +45,52 @@ export class BuddhaSevenAppliesService {
     return buddhaSevenApplies;
   }
 
+  async findManyViews(
+    findManyArgs: Prisma.buddha_seven_apply_viewFindManyArgs
+  ) {
+    const buddhaSevenApplyViews =
+      await this.prismaClient.buddha_seven_apply_view.findMany(findManyArgs);
+
+    return buddhaSevenApplyViews;
+  }
+
+  async findManyViewsByRequest(getManyRequest: BuddhaSevenApplyGetManyRequest) {
+    const { year, month, order, take, skip, status } = getManyRequest;
+    const [startCheckInDate, endCheckInDate] = getStartAndEndOfMonth(
+      year,
+      month
+    );
+    const Status = status;
+
+    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
+      where: {
+        CheckInDate: {
+          gte: startCheckInDate,
+          lt: endCheckInDate
+        },
+        Status
+      },
+      orderBy: { Id: order || "asc" },
+      take: take || 100,
+      skip: skip || 0
+    };
+
+    const buddhaSevenApplies = await this.findManyViews(findManyArgs);
+
+    return buddhaSevenApplies;
+  }
+
   async findOneByIdAndStatus(id: number, status?: BuddhaSevenApplyStatus) {
     const buddhaSevenApply =
       await this.prismaClient.buddha_seven_apply.findFirst({
+        where: { Id: id, Status: status }
+      });
+    return buddhaSevenApply;
+  }
+
+  async findOneViewByIdAndStatus(id: number, status?: BuddhaSevenApplyStatus) {
+    const buddhaSevenApply =
+      await this.prismaClient.buddha_seven_apply_view.findFirst({
         where: { Id: id, Status: status }
       });
     return buddhaSevenApply;

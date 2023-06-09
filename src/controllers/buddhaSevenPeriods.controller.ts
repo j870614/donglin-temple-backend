@@ -55,7 +55,7 @@ export class BuddhaSevenPeriodsController extends Controller {
       ]
     }
   })
-  public async getAllBuddhaSeven(
+  public async getAllBuddhaSevenPeriods(
     @Query() year = Number(moment().year()),
     @Query() order: "asc" | "desc" = "asc",
     @Query() take = 36,
@@ -97,7 +97,7 @@ export class BuddhaSevenPeriodsController extends Controller {
       }
     }
   })
-  public async getBuddhaSeven(
+  public async getBuddhaSevenPeriod(
     @Path() id: number,
     @Res()
     errorResponse: TsoaResponse<
@@ -139,15 +139,16 @@ export class BuddhaSevenPeriodsController extends Controller {
       }
     }
   })
-  public async createBuddhaSeven(
+  public async createBuddhaSevenPeriod(
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
     >,
-    @Body() newBuddhaSeven: BuddhaSevenPeriodCreateRequest
+    @Body() buddhaSevenPeriodCreateRequest: BuddhaSevenPeriodCreateRequest
   ) {
-    const { StartSevenDate, CompleteDate, Remarks } = newBuddhaSeven;
+    const { StartSevenDate, CompleteDate, Remarks } =
+      buddhaSevenPeriodCreateRequest;
 
     if (!StartSevenDate || !CompleteDate) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -178,9 +179,10 @@ export class BuddhaSevenPeriodsController extends Controller {
     status: true,
     message: "修改佛七期數成功"
   })
-  public async updateBuddhaSeven(
+  public async updateBuddhaSevenPeriod(
     @Path() id: number,
-    @Body() updateData: Prisma.buddha_seven_periodsUpdateInput,
+    @Body()
+    buddhaSevenPeriodUpdateRequest: Partial<BuddhaSevenPeriodCreateRequest>,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -201,14 +203,14 @@ export class BuddhaSevenPeriodsController extends Controller {
       });
     }
 
-    const updateBuddhaSevenPeriod = await prisma.buddha_seven_periods.update({
+    const updatedBuddhaSevenPeriod = await prisma.buddha_seven_periods.update({
       where: {
         Id: id
       },
-      data: updateData
+      data: buddhaSevenPeriodUpdateRequest
     });
 
-    if (!updateBuddhaSevenPeriod) {
+    if (!updatedBuddhaSevenPeriod) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "修改佛七期數失敗"

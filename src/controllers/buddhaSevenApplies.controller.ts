@@ -15,7 +15,6 @@ import {
   Queries,
   Query
 } from "tsoa";
-import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { BuddhaSevenAppliesService } from "../services/buddhaSeven/buddhaSevenApplies.service";
@@ -28,7 +27,8 @@ import {
 import {
   BuddhaSevenApplyCancelRequest,
   BuddhaSevenApplyCreateRequest,
-  BuddhaSevenApplyGetManyRequest
+  BuddhaSevenApplyGetManyRequest,
+  BuddhaSevenApplyUpdateRequest
 } from "../models";
 
 @Tags("Buddha seven apply - 佛七報名")
@@ -41,7 +41,7 @@ export class BuddhaSevenAppliesController extends Controller {
   }
 
   /**
-   * 取得佛七預約報名表
+   * 取得佛七預約報名表(不含四眾個資)
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -85,15 +85,71 @@ export class BuddhaSevenAppliesController extends Controller {
   public async getBuddhaSevenAppliesByYearAndMonth(
     @Queries() buddhaSevenApplyGetManyRequest: BuddhaSevenApplyGetManyRequest
   ) {
-    const buddhaSevenApplies =
-      await this._buddhaSevenApplies.findManyByRequests(
-        buddhaSevenApplyGetManyRequest
-      );
+    const buddhaSevenApplies = await this._buddhaSevenApplies.findManyByRequest(
+      buddhaSevenApplyGetManyRequest
+    );
     return responseSuccess("查詢成功", { buddhaSevenApplies });
   }
 
   /**
-   * 取得單筆佛七報名資料
+   * 取得佛七預約報名表(含四眾個資)
+   */
+  @Get("/views")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      buddhaSevenApplyViews: [
+        {
+          Id: 7,
+          UserId: 13,
+          Name: "王某某",
+          DharmaName: "普某",
+          IsMonk: false,
+          IsMale: true,
+          StayIdentity: 3,
+          StayIdentityName: "佛七蓮友",
+          Mobile: "0911123123",
+          Phone: "039590000",
+          EatBreakfast: false,
+          EatLunch: false,
+          EatDinner: true,
+          RoomId: 40501,
+          BedStayOrderNumber: 1,
+          CheckInDate: "2023-06-09T00:00:00.000Z",
+          CheckOutDate: "2023-06-07T00:00:00.000Z",
+          CheckInDateBreakfast: true,
+          CheckInDateLunch: true,
+          CheckInDateDinner: true,
+          CheckInTime: null,
+          CheckInUserId: null,
+          CheckInUserName: null,
+          CheckInUserDharmaName: null,
+          CheckInUserIsMale: null,
+          Status: "已取消掛單",
+          Remarks: null,
+          UpdateUserId: 11,
+          UpdateUserName: null,
+          UpdateUserDharmaName: "普某",
+          UpdateUserIsMale: true,
+          UpdateAt: "2023-06-09T04:52:12.000Z"
+        }
+      ]
+    }
+  })
+  public async getBuddhaSevenApplyViewsByYearAndMonth(
+    @Queries() buddhaSevenApplyGetManyRequest: BuddhaSevenApplyGetManyRequest
+  ) {
+    const buddhaSevenApplyViews =
+      await this._buddhaSevenApplies.findManyViewsByRequest(
+        buddhaSevenApplyGetManyRequest
+      );
+    return responseSuccess("查詢成功", { buddhaSevenApplyViews });
+  }
+
+  /**
+   * 取得單筆佛七報名資料(不含四眾個資)
    * @param id 報名序號
    * @param status 報名狀態 (選填)
    */
@@ -155,6 +211,76 @@ export class BuddhaSevenAppliesController extends Controller {
     }
 
     return responseSuccess("查詢成功", { buddhaSevenApply });
+  }
+
+  /**
+   * 取得單筆佛七報名資料(含四眾個資)
+   * @param id 報名序號
+   * @param status 報名狀態 (選填)
+   */
+  @Get("/views/{id}")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      buddhaSevenApplyView: {
+        Id: 7,
+        UserId: 13,
+        Name: "王某某",
+        DharmaName: "普某",
+        IsMonk: false,
+        IsMale: true,
+        StayIdentity: 3,
+        StayIdentityName: "佛七蓮友",
+        Mobile: "0911123123",
+        Phone: "039590000",
+        EatBreakfast: false,
+        EatLunch: false,
+        EatDinner: true,
+        RoomId: 40501,
+        BedStayOrderNumber: 1,
+        CheckInDate: "2023-06-09T00:00:00.000Z",
+        CheckOutDate: "2023-06-07T00:00:00.000Z",
+        CheckInDateBreakfast: true,
+        CheckInDateLunch: true,
+        CheckInDateDinner: true,
+        CheckInTime: null,
+        CheckInUserId: null,
+        CheckInUserName: null,
+        CheckInUserDharmaName: null,
+        CheckInUserIsMale: null,
+        Status: "已取消掛單",
+        Remarks: null,
+        UpdateUserId: 11,
+        UpdateUserName: null,
+        UpdateUserDharmaName: "普某",
+        UpdateUserIsMale: true,
+        UpdateAt: "2023-06-09T04:52:12.000Z"
+      }
+    }
+  })
+  public async getBuddhaSevenApplyViewByIdAndStatus(
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >,
+    @Path() id: number,
+    @Query() status?: BuddhaSevenApplyStatusValues
+  ) {
+    const buddhaSevenApplyView =
+      await this._buddhaSevenApplies.findOneViewByIdAndStatus(id, status);
+
+    if (!buddhaSevenApplyView) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查無此報名序號"
+      });
+    }
+
+    return responseSuccess("查詢成功", { buddhaSevenApplyView });
   }
 
   /**
@@ -245,7 +371,7 @@ export class BuddhaSevenAppliesController extends Controller {
       { status: false; message?: string }
     >,
     @Path() id: number,
-    @Body() buddhaSevenApplyUpdateRequest: Prisma.buddha_seven_applyUpdateInput
+    @Body() buddhaSevenApplyUpdateRequest: BuddhaSevenApplyUpdateRequest
   ) {
     // 查詢要更新之佛七報名資料是否存在
     const isExisted = await this._buddhaSevenApplies.findOneByIdAndStatus(id);
