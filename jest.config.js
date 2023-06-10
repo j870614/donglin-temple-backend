@@ -12,6 +12,7 @@
   //   prefix: "<rootDir>/",
   // }),
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
+  modulePathIgnorePatterns: ["<rootDir>/dist/"]
   // globals: {
   //   "ts-jest": {
   //     tsconfig: "<rootDir>/tsconfig.json"}

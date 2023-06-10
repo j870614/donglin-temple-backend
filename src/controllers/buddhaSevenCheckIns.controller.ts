@@ -176,12 +176,14 @@ export class BuddhaSevenCheckInController extends Controller {
       await this._buddhaSevenCheckIn.findOneViewByMobileOrPhoneOfTodayApplies(
         mobileOrPhone
       );
+
     if (!buddhaSevenApplyView) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "查無此手機，請確認是否報名成功。"
       });
     }
+
     return responseSuccess("查詢成功", { buddhaSevenApplyView });
   }
 
