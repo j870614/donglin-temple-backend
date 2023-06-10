@@ -12,13 +12,6 @@ import { getStartAndEndOfMonth } from "../../utils/useDate";
 export class BuddhaSevenAppliesService {
   constructor(public readonly prismaClient = prisma) {}
 
-  async findMany(findManyArgs: Prisma.buddha_seven_applyFindManyArgs) {
-    const buddhaSevenApplies =
-      await this.prismaClient.buddha_seven_apply.findMany(findManyArgs);
-
-    return buddhaSevenApplies;
-  }
-
   async findManyByRequest(getManyRequest: BuddhaSevenApplyGetManyRequest) {
     const { year, month, order, take, skip, status } = getManyRequest;
     const [startCheckInDate, endCheckInDate] = getStartAndEndOfMonth(
@@ -27,31 +20,21 @@ export class BuddhaSevenAppliesService {
     );
     const Status = status;
 
-    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
-      where: {
-        CheckInDate: {
-          gte: startCheckInDate,
-          lt: endCheckInDate
+    const buddhaSevenApplies =
+      await this.prismaClient.buddha_seven_apply.findMany({
+        where: {
+          CheckInDate: {
+            gte: startCheckInDate,
+            lt: endCheckInDate
+          },
+          Status
         },
-        Status
-      },
-      orderBy: { Id: order || "asc" },
-      take: take || 100,
-      skip: skip || 0
-    };
-
-    const buddhaSevenApplies = await this.findMany(findManyArgs);
+        orderBy: { Id: order || "asc" },
+        take: take || 100,
+        skip: skip || 0
+      });
 
     return buddhaSevenApplies;
-  }
-
-  async findManyViews(
-    findManyArgs: Prisma.buddha_seven_apply_viewFindManyArgs
-  ) {
-    const buddhaSevenApplyViews =
-      await this.prismaClient.buddha_seven_apply_view.findMany(findManyArgs);
-
-    return buddhaSevenApplyViews;
   }
 
   async findManyViewsByRequest(getManyRequest: BuddhaSevenApplyGetManyRequest) {
@@ -62,20 +45,19 @@ export class BuddhaSevenAppliesService {
     );
     const Status = status;
 
-    const findManyArgs: Prisma.buddha_seven_applyFindManyArgs = {
-      where: {
-        CheckInDate: {
-          gte: startCheckInDate,
-          lt: endCheckInDate
+    const buddhaSevenApplies =
+      await this.prismaClient.buddha_seven_apply_view.findMany({
+        where: {
+          CheckInDate: {
+            gte: startCheckInDate,
+            lt: endCheckInDate
+          },
+          Status
         },
-        Status
-      },
-      orderBy: { Id: order || "asc" },
-      take: take || 100,
-      skip: skip || 0
-    };
-
-    const buddhaSevenApplies = await this.findManyViews(findManyArgs);
+        orderBy: { Id: order || "asc" },
+        take: take || 100,
+        skip: skip || 0
+      });
 
     return buddhaSevenApplies;
   }
@@ -125,13 +107,16 @@ export class BuddhaSevenAppliesService {
     id: number,
     buddhaSevenApplyCancelRequest: BuddhaSevenApplyCancelRequest
   ) {
-    const cancelledBuddhaSevenApply = await this.updateOneByIdAndUpdateData(
-      id,
-      {
-        ...buddhaSevenApplyCancelRequest,
-        Status: BuddhaSevenApplyStatus.CANCELLED
-      }
-    );
+    const cancelledBuddhaSevenApply =
+      await this.prismaClient.buddha_seven_apply.update({
+        where: {
+          Id: id
+        },
+        data: {
+          ...buddhaSevenApplyCancelRequest,
+          Status: BuddhaSevenApplyStatus.CANCELLED
+        }
+      });
     return cancelledBuddhaSevenApply;
   }
 
