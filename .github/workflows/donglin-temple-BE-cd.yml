@@ -10,11 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download a Build Artifact
-        uses: actions/download-artifact@v2.1.1
+        uses: dawidd6/action-download-artifact@v2
         with:
           workflow: donglin-temple-BE-ci.yaml
           workflow_conclusion: success
-    
       - name: Deploy to Render
         run: |
           curl -X POST -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
