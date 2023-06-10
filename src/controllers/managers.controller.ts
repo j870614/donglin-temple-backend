@@ -387,7 +387,14 @@ export class ManagersController extends Controller {
     }
 
     const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.changeToItemId("執事名稱", DeaconName);
+    const deaconId = await this.getDeaconIdByName(DeaconName);
+
+    if(deaconId === -1){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "找不到執事Id"
+      });
+    }
 
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
@@ -496,7 +503,14 @@ export class ManagersController extends Controller {
     >
   ) {
     const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.changeToItemId("執事名稱", DeaconName);
+    const deaconId = await this.getDeaconIdByName(DeaconName);
+
+    if(deaconId === -1){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "找不到執事Id"
+      });
+    }
 
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
@@ -601,10 +615,21 @@ export class ManagersController extends Controller {
         ItemId: true
       }
     });
-    const id = item?.ItemId;
-    const resultId = Number(id);
 
-    return resultId;
+    if(item){
+      return Number(item.ItemId);
+    }
+    
+    return -1;       
+  }
+
+  /**
+   * 取得執事Id
+   * @param deaconName 執事名稱
+   * @returns 
+   */
+  private async getDeaconIdByName(deaconName: string){
+    return this.changeToItemId("執事名稱", deaconName);
   }
 
   /**
