@@ -194,7 +194,7 @@ model buddha_seven_apply {
   CheckInDateBreakfast Boolean?  @default(false)
   CheckInDateLunch     Boolean?  @default(false)
   CheckInDateDinner    Boolean?  @default(false)
-  CheckInTime          DateTime? @db.Time(0)
+  CheckInTime          DateTime? @db.DateTime(0)
   CheckInUserId        Int?      @db.UnsignedInt
   Status               String?   @db.VarChar(20)
   Remarks              String?   @db.VarChar(255)
@@ -243,7 +243,7 @@ view room_type_list {
 }
 
 view rooms_dormitory_area_building_list {
-  Id                Int     @unique @default(0)
+  Id                BigInt  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -330,7 +330,7 @@ view buddha_seven_apply_view {
   CheckInDateBreakfast  Boolean?  @default(false)
   CheckInDateLunch      Boolean?  @default(false)
   CheckInDateDinner     Boolean?  @default(false)
-  CheckInTime           DateTime? @db.Time(0)
+  CheckInTime           DateTime? @db.DateTime(0)
   CheckInUserId         Int?      @db.UnsignedInt
   CheckInUserName       String?   @db.VarChar(50)
   CheckInUserDharmaName String?   @db.VarChar(50)
