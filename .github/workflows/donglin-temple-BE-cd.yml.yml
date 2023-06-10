@@ -1,0 +1,23 @@
+name: Donglin temple BE CD
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, dev]
+
+jobs:
+  cd-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v2.1.1
+        with:
+          workflow: donglin-temple-BE-ci.yaml
+          workflow_conclusion: success
+    
+      - name: Deploy to Render
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{}' \
+          ${{ secrets.RENDER_DEPLOY_HOOK }}
