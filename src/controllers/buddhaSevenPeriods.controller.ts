@@ -16,7 +16,6 @@ import {
   Example
 } from "tsoa";
 import moment from "moment";
-import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { BuddhaSevenPeriodCreateRequest } from "../models";
