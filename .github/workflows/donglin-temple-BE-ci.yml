@@ -51,7 +51,3 @@ jobs:
           path: |
             .
             !node_modules
-  cd-stage:
-    needs: ci-stage
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/donglin-temple-BE-cd.yml
