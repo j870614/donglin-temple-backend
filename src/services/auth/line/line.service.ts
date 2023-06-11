@@ -1,6 +1,6 @@
 import { StatusCodes } from "http-status-codes";
-import * as axios from 'axios';
-import * as querystring  from "querystring";
+import  axios from 'axios';
+import  querystring  from "querystring";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
 export async function lineCallback (
