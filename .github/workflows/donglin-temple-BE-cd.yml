@@ -5,6 +5,8 @@ on:
   push:
     branches: [main, dev]
 
+concurrency: donglin-temple-BE-ci
+
 jobs:
   cd-stage:
     runs-on: ubuntu-latest
