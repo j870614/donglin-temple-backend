@@ -21,6 +21,7 @@
   "dependencies": {
     "@prisma/client": "^4.15.0",
     "@tsoa/runtime": "^5.0.0",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
@@ -35,6 +36,7 @@
     "mysql": "^2.18.1",
     "onchange": "^7.1.0",
     "passport": "^0.6.0",
+    "querystring": "^0.2.1",
     "rxjs": "^7.8.1",
     "swagger-autogen": "^2.23.1",
     "swagger-ui-express": "^4.6.3",
