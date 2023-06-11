@@ -1,6 +1,10 @@
 name: Donglin temple BE CD
 
-on: workflow_call
+on:
+  workflow_dispatch:
+  schedule:
+    # trigger everyday 06:00 am UTC+8
+    - cron: "0 22 * * *"
 
 jobs:
   cd-stage:
@@ -10,6 +14,9 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           name: donglin-temple-api-artifact
+          workflow: donglin-temple-BE-ci.yml
+          workflow_conclusion: success
+
       - name: Deploy to Render
         run: |
           curl -X POST -H "Authorization: Bearer ${{ secrets.RENDER_TOKEN }}" \
