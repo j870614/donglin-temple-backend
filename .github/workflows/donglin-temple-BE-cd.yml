@@ -1,15 +1,11 @@
 name: Donglin temple BE CD
 
-on:
-  workflow_run:
-    workflows: [Donglin temple BE CI]
-    types:
-      - completed
+on: workflow_call
 
 jobs:
   cd-stage:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download a Build Artifact
         uses: dawidd6/action-download-artifact@v2
