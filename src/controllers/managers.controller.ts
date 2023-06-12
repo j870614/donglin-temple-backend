@@ -21,7 +21,6 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
-import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
 import {
   ErrorData,
@@ -55,41 +54,41 @@ export class ManagersController extends Controller {
     return this._manager.getMany(getManyRequest);
   }
 
- /**
+  /**
    * 使用四眾使用者 ID 來註冊管理員身分
    * @param Email 信箱
    * @param Password 密碼
    * @param ConfirmPassword 再次確認密碼
    * @param UserId 使用者 ID
    */
- @Post("signup")
- @SuccessResponse(StatusCodes.CREATED, "註冊成功")
- @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
- @Example({
-   Id: 1,
-   UserId: 1,
-   Email: "a123456789@abc.com",
-   Google: "GoogleAccount",
-   Line: "LineId",
-   Password: "password123"
- })
- public async signUp(    
-   @Body() signUpByEmailRequest: SignUpByEmailRequest,
-   @Res()    
-   errorResponse: TsoaResponse<
-     StatusCodes.BAD_REQUEST,
-     { status: false; message?: string }
-   >    
- ) {
-   return this._manager.signUp(signUpByEmailRequest, undefined, errorResponse);
- }
+  @Post("signup")
+  @SuccessResponse(StatusCodes.CREATED, "註冊成功")
+  @Response(StatusCodes.BAD_REQUEST, "註冊失敗")
+  @Example({
+    Id: 1,
+    UserId: 1,
+    Email: "a123456789@abc.com",
+    Google: "GoogleAccount",
+    Line: "LineId",
+    Password: "password123"
+  })
+  public async signUp(
+    @Body() signUpByEmailRequest: SignUpByEmailRequest,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    return this._manager.signUp(signUpByEmailRequest, undefined, errorResponse);
+  }
 
   /**
    * 用 QRCode 信箱註冊管理員身分
-   * @param qrcode 
-   * @param signUpByEmailRequest 
-   * @param errorResponse 
-   * @returns 
+   * @param qrcode
+   * @param signUpByEmailRequest
+   * @param errorResponse
+   * @returns
    */
   @Post("signup/{qrcode}")
   @SuccessResponse(StatusCodes.CREATED, "註冊成功")
@@ -102,18 +101,18 @@ export class ManagersController extends Controller {
     Line: "LineId",
     Password: "password123"
   })
-  public async signUpByQRCode(    
+  public async signUpByQRCode(
     @Path() qrcode: string,
     @Body() signUpByEmailRequest: SignUpByEmailRequest,
-    @Res()    
+    @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
       { status: false; message?: string }
-    >    
+    >
   ) {
     return this._manager.signUp(signUpByEmailRequest, qrcode, errorResponse);
   }
-   
+
   /**
    * 使用信箱、密碼登入管理員帳號，成功會返回 JWT token
    * @param Email 信箱
@@ -194,13 +193,13 @@ export class ManagersController extends Controller {
   }
 
   /**
-     * 查詢使用者權限核發 API
-     * 
-     * 查看管理者註冊碼使用狀況
-     * @param Authorization JWT 檢查該 User 是否有查詢權限
-     * @param errorResponse
-     * @returns
-     */
+   * 查詢使用者權限核發 API
+   *
+   * 查看管理者註冊碼使用狀況
+   * @param Authorization JWT 檢查該 User 是否有查詢權限
+   * @param errorResponse
+   * @returns
+   */
   @Security("jwt", ["manager"])
   @Get("qrcode/status")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -210,17 +209,17 @@ export class ManagersController extends Controller {
     message: "查詢成功",
     data: [
       {
-        "Id": 19,
-        "UserId": 45,
-        "Gender": "女",
-        "DharmaName": null,
-        "Name": "黃某甲",
-        "DeaconId": 3,
-        "DeaconName": "知客志工",
-        "AuthorizeUserId": 4,
-        "AuthorizeDharmaName": null,
-        "AuthorizeDate": "2023/6/5",
-        "Status": "註冊連結失效"
+        Id: 19,
+        UserId: 45,
+        Gender: "女",
+        DharmaName: null,
+        Name: "黃某甲",
+        DeaconId: 3,
+        DeaconName: "知客志工",
+        AuthorizeUserId: 4,
+        AuthorizeDharmaName: null,
+        AuthorizeDate: "2023/6/5",
+        Status: "註冊連結失效"
       }
     ]
   })
@@ -239,12 +238,12 @@ export class ManagersController extends Controller {
         StatusCodes.BAD_REQUEST, 
         authObj.data as { status: false; message?: string | undefined; });
     }
-    
+
     // 查詢 qrcode 使用狀態
     const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
-      orderBy: { AuthorizeDate: 'desc' }
-    }) as user_auth_qr_codes_view[];
-    
+      orderBy: { AuthorizeDate: "desc" }
+    });
+
     if (qrcodeStatus == null) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
@@ -448,8 +447,8 @@ export class ManagersController extends Controller {
 
   /**
    * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
-   * @param errorResponse 
-   * @returns 
+   * @param errorResponse
+   * @returns
    */
   @Get("qrcode/status-test")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
@@ -459,17 +458,17 @@ export class ManagersController extends Controller {
     message: "查詢成功",
     data: [
       {
-        "Id": 19,
-        "UserId": 45,
-        "Gender": "女",
-        "DharmaName": null,
-        "Name": "黃某甲",
-        "DeaconId": 3,
-        "DeaconName": "知客志工",
-        "AuthorizeUserId": 4,
-        "AuthorizeDharmaName": null,
-        "AuthorizeDate": "2023/6/5",
-        "Status": "註冊連結失效"
+        Id: 19,
+        UserId: 45,
+        Gender: "女",
+        DharmaName: null,
+        Name: "黃某甲",
+        DeaconId: 3,
+        DeaconName: "知客志工",
+        AuthorizeUserId: 4,
+        AuthorizeDharmaName: null,
+        AuthorizeDate: "2023/6/5",
+        Status: "註冊連結失效"
       }
     ]
   })
@@ -482,9 +481,9 @@ export class ManagersController extends Controller {
   ) {
     // 查詢 qrcode 使用狀態
     const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
-      orderBy: { AuthorizeDate: 'desc' }
-    }) as user_auth_qr_codes_view[];
-    
+      orderBy: { AuthorizeDate: "desc" }
+    });
+
     if (qrcodeStatus == null) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
@@ -794,5 +793,3 @@ export class ManagersController extends Controller {
     return date;
   }
 }
-
-
