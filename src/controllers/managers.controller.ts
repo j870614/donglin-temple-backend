@@ -21,6 +21,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
+import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
 import {
   ErrorData,
@@ -192,116 +193,7 @@ export class ManagersController extends Controller {
     return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
 
-  /**
-   * 查詢使用者權限核發 API
-   *
-   * 查看管理者註冊碼使用狀況
-   * @param Authorization JWT 檢查該 User 是否有查詢權限
-   * @param errorResponse
-   * @returns
-   */
-  @Security("jwt", ["manager"])
-  @Get("qrcode/status")
-  @SuccessResponse(StatusCodes.OK, "查詢成功")
-  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
-  @Example({
-    status: true,
-    message: "查詢成功",
-    data: [
-      {
-        Id: 19,
-        UserId: 45,
-        Gender: "女",
-        DharmaName: null,
-        Name: "黃某甲",
-        DeaconId: 3,
-        DeaconName: "知客志工",
-        AuthorizeUserId: 4,
-        AuthorizeDharmaName: null,
-        AuthorizeDate: "2023/6/5",
-        Status: "註冊連結失效"
-      }
-    ]
-  })
-  public async getQRCodeStatus(
-    @Header() Authorization: string,
-    @Res()
-    errorResponse: TsoaResponse<
-      StatusCodes.BAD_REQUEST,
-      { status: false; message?: string }
-    >
-  ) {
-    const authObj = await this.checkLoginAndManagerActive(Authorization);
-
-    if(!authObj.data.status){
-      return errorResponse(
-        StatusCodes.BAD_REQUEST, 
-        authObj.data as { status: false; message?: string | undefined; });
-    }
-
-    // 查詢 qrcode 使用狀態
-    const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
-      orderBy: { AuthorizeDate: "desc" }
-    });
-
-    if (qrcodeStatus == null) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "查詢失敗"
-      });
-    }
-
-    return responseSuccess("查詢成功", { data: qrcodeStatus });
-  }
   
-  /**
-   * 檢查有無登入 & 是否有管理員身分
-   * @param authorization 
-   * @returns 
-   */
-  private async checkLoginAndManagerActive(authorization: string){
-    const result = {
-      userId: Number(-1),
-      data:{
-        status: false,
-        message: ""
-      }
-    };
-
-    // 授權人身分驗證
-    if (!authorization || !authorization.startsWith("Bearer")) {
-      result.data.message = "Authorization header 丟失";
-      return result;
-    }
-
-    const [, token] = authorization.split(" ");
-    if (!token) {
-      result.data.message = "Token 丟失";
-      return result;
-    }
-
-    // 檢查查詢人的權限
-    const { UserId } = jwt.decode(token) as JwtPayload;  
-    
-    result.userId = Number(UserId);
-
-    const manager = await prisma.managers.findFirst({
-      where: { 
-        UserId: result.userId,
-        IsActive: true
-      }
-    });
-
-    if (manager == null) {
-      result.data.message = "此帳號無查詢權限";
-      return result;
-    }
-    
-    result.data.status = true;
-    return result;
-  }
-
-
   /**
    * 修改 manager 權限，指定 UserId 的權限變更角色 or 是否啟用
    * @param authorization JWT 登入
@@ -348,7 +240,7 @@ export class ManagersController extends Controller {
     })
     : SuccessResponse(StatusCodes.OK, "修改成功");
   }
-
+  
   /**
    * 檢查資料 & 取得要更新物件（改角色or是否啟用）or 錯誤訊息
    * @param authorizeUserId 授權人 UserId
@@ -444,6 +336,116 @@ export class ManagersController extends Controller {
       }
     };
   }
+
+  /**
+   * 查詢使用者權限核發 API
+   *
+   * 查看管理者註冊碼使用狀況
+   * @param Authorization JWT 檢查該 User 是否有查詢權限
+   * @param errorResponse
+   * @returns
+   */
+  @Security("jwt", ["manager"])
+  @Get("qrcode/status")
+  @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Response(StatusCodes.BAD_REQUEST, "查詢失敗")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: [
+      {
+        Id: 19,
+        UserId: 45,
+        Gender: "女",
+        DharmaName: null,
+        Name: "黃某甲",
+        DeaconId: 3,
+        DeaconName: "知客志工",
+        AuthorizeUserId: 4,
+        AuthorizeDharmaName: null,
+        AuthorizeDate: "2023/6/5",
+        Status: "註冊連結失效"
+      }
+    ]
+  })
+  public async getQRCodeStatus(
+    @Header() Authorization: string,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    const authObj = await this.checkLoginAndManagerActive(Authorization);
+
+    if(!authObj.data.status){
+      return errorResponse(
+        StatusCodes.BAD_REQUEST, 
+        authObj.data as { status: false; message?: string | undefined; });
+    }
+
+    // 查詢 qrcode 使用狀態
+    const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
+      orderBy: { AuthorizeDate: "desc" }
+    }) as user_auth_qr_codes_view[];
+
+    if (qrcodeStatus == null) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "查詢失敗"
+      });
+    }
+
+    return responseSuccess("查詢成功", { data: qrcodeStatus });
+  }
+  
+  /**
+   * 檢查有無登入 & 是否有管理員身分
+   * @param authorization 
+   * @returns 
+   */
+  private async checkLoginAndManagerActive(authorization: string){
+    const result = {
+      userId: Number(-1),
+      data:{
+        status: false,
+        message: ""
+      }
+    };
+
+    // 授權人身分驗證
+    if (!authorization || !authorization.startsWith("Bearer")) {
+      result.data.message = "Authorization header 丟失";
+      return result;
+    }
+
+    const [, token] = authorization.split(" ");
+    if (!token) {
+      result.data.message = "Token 丟失";
+      return result;
+    }
+
+    // 檢查查詢人的權限
+    const { UserId } = jwt.decode(token) as JwtPayload;  
+    
+    result.userId = Number(UserId);
+
+    const manager = await prisma.managers.findFirst({
+      where: { 
+        UserId: result.userId,
+        IsActive: true
+      }
+    });
+
+    if (manager == null) {
+      result.data.message = "此帳號無查詢權限";
+      return result;
+    }
+    
+    result.data.status = true;
+    return result;
+  }
+
 
   /**
    * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
