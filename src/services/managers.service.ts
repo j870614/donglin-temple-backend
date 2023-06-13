@@ -224,9 +224,9 @@ export class ManagersService {
   }
 
   /**
-   * Line 登入 callback
+   * Line 登入驗證，成功將回傳 Line user ID
    */
-  async lineCallback (
+  private  async verifyLineLogin (
     code:string, 
     state:string, 
     errorResponse: TsoaResponse<
@@ -234,6 +234,7 @@ export class ManagersService {
     { status: false; message?: string }
   >
   ) {
+    
     const lineState = String(process.env.LINE_STATE);
     if(state !== lineState) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -265,10 +266,27 @@ export class ManagersService {
     });
     
     const { userId } = userInfoResponse.data;
+
+    return userId; // 此 userId 為 Line user ID
+  }
+
+  /**
+   * Line 登入 callback
+   */
+  async lineCallback (
+    code:string, 
+    state:string, 
+    errorResponse: TsoaResponse<
+    StatusCodes.BAD_REQUEST,
+    { status: false; message?: string }
+  >
+  ) {
+
+    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse);
   
     const manager = await prisma.managers.findUnique({
       where: { 
-        Line: userId,
+        Line: String(lineUserId),
       }
     });
   
