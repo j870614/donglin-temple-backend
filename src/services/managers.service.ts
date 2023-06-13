@@ -238,7 +238,7 @@ export class ManagersService {
     if(state !== lineState) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "Line 登入錯誤"
+        message: "Line 登入驗證錯誤"
       });
     } 
   
