@@ -63,6 +63,9 @@ model users {
   EatDinner         Boolean   @default(false)
   Address           Json?
   Area              String?   @db.VarChar(10)
+  Height            Int?      @db.UnsignedSmallInt
+  Weight            Int?      @db.UnsignedSmallInt
+  BloodType         String?   @db.VarChar(2)
   Remarks           String?   @db.VarChar(255)
   UpdateAt          DateTime  @default(now()) @db.DateTime(0)
 
@@ -243,7 +246,7 @@ view room_type_list {
 }
 
 view rooms_dormitory_area_building_list {
-  Id                Int     @unique @default(0)
+  Id                BigInt  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -324,6 +327,9 @@ view buddha_seven_apply_view {
   EatLunch              Boolean?  @default(false)
   EatDinner             Boolean?  @default(false)
   RoomId                Int?
+  DormitoryAreaName     String?   @db.VarChar(20)
+  BuildingName          String?   @db.VarChar(20)
+  ShareId               Int?      @db.TinyInt
   BedStayOrderNumber    Int?
   CheckInDate           DateTime? @db.Date
   CheckOutDate          DateTime? @db.Date
@@ -359,7 +365,7 @@ view user_auth_qr_codes_view {
 }
 
 view user_permissions_view {
-  UserId              Int      @unique @db.UnsignedInt
+  UserId              Int     @unique @db.UnsignedInt
   IsSystemAdmin       Boolean? @default(false)
   HasBuddhaSevenApply Boolean? @default(false)
   HasRefugeApply      Boolean? @default(false)
