@@ -8,32 +8,14 @@ import  querystring  from "querystring";
 import {
   GetManyRequest,
   SignInByEmailRequest,
-  SignUpByEmailRequest
+  SignUpByEmailRequest,
+  LineResponse,
+  LineUserInfoResponse,
+  AxiosResponse
 } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 import { generateAndSendJWT } from "./auth/jwtToken.service";
-
-interface LineResponse {
-  access_token: string;
-  expires_in: number;
-  id_token: string;
-  refresh_token: string;
-  scope: string;
-  token_type: string;
-}
-
-interface LineUserInfoResponse {
-  userId: string;
-  displayName: string;
-  pictureUrl?: string;
-  statusMessage?: string; 
-}
-
-interface AxiosResponse<T> {
-  data: T;
-  status: number;
-}
 
 /* eslint-disable class-methods-use-this */
 export class ManagersService {
@@ -240,12 +222,9 @@ export class ManagersService {
       data: { HasUsed: true }
     });
   }
-  // getProfile() {
-
-  // }
 
   /**
-   * Line callback
+   * Line 登入 callback
    */
   async lineCallback (
     code:string, 
@@ -293,13 +272,10 @@ export class ManagersService {
       }
     });
   
-    console.log(manager);
-    console.log(userInfoResponse.data);
-  
     if (!manager) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "尚未註冊或綁定 Line 帳號登入，請洽系統管理員"
+        message: "尚未邀請系統權限，或帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
     }
   

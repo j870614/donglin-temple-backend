@@ -797,6 +797,9 @@ export class ManagersController extends Controller {
     return date;
   }
 
+  /**
+   * Line  登入
+   */
   @Get('line')
   @SuccessResponse(StatusCodes.MOVED_TEMPORARILY, "轉址到 Line 登入頁面")
   @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
@@ -824,10 +827,12 @@ export class ManagersController extends Controller {
     this.setHeader('Location', lineLoginURL);
   }
 
+  /**
+   * Line 登入 callback API
+   */
   @Get('line/callback')
   @SuccessResponse(StatusCodes.OK, "Line 登入成功")
   @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
-  
   public lineCallback (
     @Query() code: string,
     @Query() state: string,
