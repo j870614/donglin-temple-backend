@@ -240,6 +240,9 @@ export class UsersController extends Controller {
         EatLunch: false,
         EatDinner: false,
         Address: null,
+        Height: null,
+        Weight: null,
+        BloodType: null,
         Remarks: "測試",
         UpdateAt: "2023-05-22T15:08:35.000Z"
       }
