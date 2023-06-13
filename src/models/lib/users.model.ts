@@ -35,6 +35,9 @@ export interface UserCreateRequest {
   Education?: string;
   ComeTempleReason?: string;
   HealthStatus?: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
+  Height?: number;
+  Weight?: number;
+  BloodType?: string;
   EatBreakfast?: boolean;
   EatLunch?: boolean;
   EatDinner?: boolean;

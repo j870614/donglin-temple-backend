@@ -15,19 +15,24 @@ import {
   Security,
   SuccessResponse,
   Tags,
+  Patch,
   Query
 } from "tsoa";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
+import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
 import { lineCallback } from "../services/auth/line/line.service";
 import {
+  ErrorData,
   GetManyRequest,
+  ManagerRoleRequest,
   QRCodeRequest,
   SignInByEmailRequest,
-  SignUpByEmailRequest
+  SignUpByEmailRequest,
+  UpdateDBManagersRole
 } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
@@ -190,6 +195,150 @@ export class ManagersController extends Controller {
     return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
 
+  
+  /**
+   * 修改 manager 權限，指定 UserId 的權限變更角色 or 是否啟用
+   * @param authorization JWT 登入
+   * @param managerRoleRequest 管理者角色請求物件
+   * @param errorResponse 
+   * @returns 
+   */
+  @Security("jwt", ["manager"])
+  @Patch("auth")
+  @SuccessResponse(StatusCodes.OK, "修改成功")
+  @Response(StatusCodes.BAD_REQUEST, "修改失敗")
+  public async updateManagerAuth(
+    @Header() authorization: string,
+    @Body() managerRoleRequest: ManagerRoleRequest,
+    @Res()
+    errorResponse: TsoaResponse<StatusCodes.BAD_REQUEST,ErrorData>
+  ) 
+  {
+    // 檢查有無登入 & 是否有管理員身分
+    const authObj = await this.checkLoginAndManagerActive(authorization);
+
+    if(!authObj.data.status){
+      return errorResponse(StatusCodes.BAD_REQUEST, authObj.data as ErrorData);
+    }
+
+    const { UserId, DeaconName, IsActive } = managerRoleRequest;
+    
+    // 檢查資料 & 取得更新物件 or 錯誤訊息
+    const updateObj = await this.getUpdateManagerAuthObj(authObj.userId, UserId, DeaconName, IsActive); // 更新用物件
+
+    if(!updateObj.canUpdate){
+      return errorResponse(StatusCodes.BAD_REQUEST, updateObj.errorObj as ErrorData);
+    }
+    
+    const result = await prisma.managers.update({
+      where: { UserId },
+      data: updateObj.data as UpdateDBManagersRole
+    });
+
+    return result === null
+    ? errorResponse(StatusCodes.BAD_REQUEST, {
+      status: false,
+      message: "修改失敗"
+    })
+    : SuccessResponse(StatusCodes.OK, "修改成功");
+  }
+  
+  /**
+   * 檢查資料 & 取得要更新物件（改角色or是否啟用）or 錯誤訊息
+   * @param authorizeUserId 授權人 UserId
+   * @param userId 要修改的 UserId
+   * @param deaconName 要修改的執事名稱
+   * @param isActive 是否啟用管理者
+   * @returns 
+   */
+  private async getUpdateManagerAuthObj(
+    authorizeUserId: number, 
+    userId: number,
+    deaconName: string | undefined, 
+    isActive: boolean | undefined) {
+    
+    const manager = await prisma.managers.findFirst({where:{ UserId:userId }});
+
+    if(!manager){
+      return {
+        canUpdate: false,
+        errorObj: {
+          status: false,
+          message: "找不到 UserId"
+        }
+      };  
+    }
+
+    // 檢查被授權角色
+    if(deaconName){
+      const deaconId = await this.getDeaconIdByName(deaconName);
+
+      if(deaconId === -1){
+        return {
+          canUpdate: false,
+          errorObj: {
+            status: false,
+            message: "找不到執事Id"
+          }
+        };          
+      }
+
+      // 修改管理權限
+      return {
+        canUpdate: true,
+        data: {
+          DeaconId: deaconId,
+          AuthorizeUserId: authorizeUserId,
+          IsActive: true,
+          UpdateAt: this.getDate()
+        }
+      };
+    }
+
+    // 修改成帳號啟用    
+    if(isActive){      
+      if(manager.IsActive === isActive){
+        // 啟用沒異動，也沒輸入執事名稱
+        return {
+          canUpdate: false,
+          errorObj: {
+          status: false,
+          message: "修改失敗，執事名稱及啟用狀態皆無異動"
+        }};
+      }
+
+      if(manager.DeaconId > -1){
+        // 執事Id 有效才給啟用
+        return {
+          canUpdate: true,
+          data: {
+            AuthorizeUserId: authorizeUserId,
+            IsActive: true,
+            UpdateAt: this.getDate()
+          }
+        };
+      }
+
+      return {
+        canUpdate: false,
+        errorObj: {
+          status: false,
+          message: "未提供有效的執事名稱"
+        }
+      };      
+    }
+
+    //  修改成停用帳號
+    return {
+      canUpdate: true,
+      data: {
+        AuthorizeUserId: authorizeUserId,
+        IsActive: false,
+        UpdateAt: this.getDate()
+      }
+    };
+  }
+
   /**
    * 查詢使用者權限核發 API
    *
@@ -229,43 +378,18 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    // 授權人身分驗證
-    if (!Authorization || !Authorization.startsWith("Bearer")) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "Authorization header 丟失"
-      });
-    }
+    const authObj = await this.checkLoginAndManagerActive(Authorization);
 
-    const [, token] = Authorization.split(" ");
-    if (!token) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "Token 丟失"
-      });
-    }
-
-    // 檢查查詢人的權限
-    const { UserId } = jwt.decode(token) as JwtPayload;
-
-    const manager = await prisma.managers.findFirst({
-      where: {
-        UserId: Number(UserId),
-        IsActive: true
-      }
-    });
-
-    if (manager == null) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "此帳號無查詢權限"
-      });
+    if(!authObj.data.status){
+      return errorResponse(
+        StatusCodes.BAD_REQUEST, 
+        authObj.data as { status: false; message?: string | undefined; });
     }
 
     // 查詢 qrcode 使用狀態
     const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
       orderBy: { AuthorizeDate: "desc" }
-    });
+    }) as user_auth_qr_codes_view[];
 
     if (qrcodeStatus == null) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -276,6 +400,54 @@ export class ManagersController extends Controller {
 
     return responseSuccess("查詢成功", { data: qrcodeStatus });
   }
+  
+  /**
+   * 檢查有無登入 & 是否有管理員身分
+   * @param authorization 
+   * @returns 
+   */
+  private async checkLoginAndManagerActive(authorization: string){
+    const result = {
+      userId: Number(-1),
+      data:{
+        status: false,
+        message: ""
+      }
+    };
+
+    // 授權人身分驗證
+    if (!authorization || !authorization.startsWith("Bearer")) {
+      result.data.message = "Authorization header 丟失";
+      return result;
+    }
+
+    const [, token] = authorization.split(" ");
+    if (!token) {
+      result.data.message = "Token 丟失";
+      return result;
+    }
+
+    // 檢查查詢人的權限
+    const { UserId } = jwt.decode(token) as JwtPayload;  
+    
+    result.userId = Number(UserId);
+
+    const manager = await prisma.managers.findFirst({
+      where: { 
+        UserId: result.userId,
+        IsActive: true
+      }
+    });
+
+    if (manager == null) {
+      result.data.message = "此帳號無查詢權限";
+      return result;
+    }
+    
+    result.data.status = true;
+    return result;
+  }
+
 
   /**
    * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
@@ -370,7 +542,14 @@ export class ManagersController extends Controller {
     }
 
     const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.changeToItemId("執事名稱", DeaconName);
+    const deaconId = await this.getDeaconIdByName(DeaconName);
+
+    if(deaconId === -1){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "找不到執事Id"
+      });
+    }
 
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
@@ -479,7 +658,14 @@ export class ManagersController extends Controller {
     >
   ) {
     const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.changeToItemId("執事名稱", DeaconName);
+    const deaconId = await this.getDeaconIdByName(DeaconName);
+
+    if(deaconId === -1){
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "找不到執事Id"
+      });
+    }
 
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
@@ -584,10 +770,21 @@ export class ManagersController extends Controller {
         ItemId: true
       }
     });
-    const id = item?.ItemId;
-    const resultId = Number(id);
 
-    return resultId;
+    if(item){
+      return Number(item.ItemId);
+    }
+    
+    return -1;       
+  }
+
+  /**
+   * 取得執事Id
+   * @param deaconName 執事名稱
+   * @returns 
+   */
+  private async getDeaconIdByName(deaconName: string){
+    return this.changeToItemId("執事名稱", deaconName);
   }
 
   /**

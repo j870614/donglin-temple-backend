@@ -41,3 +41,47 @@ export interface QRCodeRequest {
    */
   DeaconName: string;
 }
+
+/**
+ * 管理者角色變更請求物件
+ */
+export interface ManagerRoleRequest {
+  /**
+   * 被修改人的 UserId
+   * - 唯一值
+   * @minimum 0 
+   */
+  UserId: number;
+  /**
+   * 管理權者權限等級
+   * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
+   */
+  DeaconName: string | undefined;
+  /**
+   * 是否啟用
+   */
+  IsActive: boolean | undefined
+}
+
+/**
+ * 修改管理者角色 prisma update data
+ */
+export interface UpdateDBManagersRole {
+  /**
+   * 管理權者權限等級
+   * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
+   */
+  DeaconId: number | undefined,
+  /**
+   * 授權人 UserId
+   */
+  AuthorizeUserId: number,
+  /**
+   * 是否啟用
+   */
+  IsActive: boolean | undefined
+  /**
+   * 資料更新時間（由系統提供）
+   */
+  UpdateAt: Date
+}
