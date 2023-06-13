@@ -13,9 +13,6 @@ SELECT
   `u`.`EatLunch` AS `EatLunch`,
   `u`.`EatDinner` AS `EatDinner`,
   `a`.`RoomId` AS `RoomId`,
-  `users`.`r`.`DormitoryAreaName` AS `DormitoryAreaName`,
-  `users`.`r`.`BuildingName` AS `BuildingName`,
-  `users`.`r`.`ShareId` AS `ShareId`,
   `a`.`BedStayOrderNumber` AS `BedStayOrderNumber`,
   `a`.`CheckInDate` AS `CheckInDate`,
   `a`.`CheckOutDate` AS `CheckOutDate`,
@@ -39,19 +36,16 @@ FROM
     (
       (
         (
-          (
-            `users`.`buddha_seven_apply` `a`
-            LEFT JOIN `users`.`users` `u` ON((`a`.`UserId` = `u`.`Id`))
-          )
-          LEFT JOIN `users`.`users` `c` ON((`a`.`CheckInUserId` = `c`.`Id`))
+          `users`.`buddha_seven_apply` `a`
+          LEFT JOIN `users`.`users` `u` ON((`a`.`UserId` = `u`.`Id`))
         )
-        LEFT JOIN `users`.`users` `u2` ON((`a`.`UpdateUserId` = `u2`.`Id`))
+        LEFT JOIN `users`.`users` `c` ON((`a`.`CheckInUserId` = `c`.`Id`))
       )
-      LEFT JOIN `users`.`user_stay_identity_list` `sid` ON(
-        (
-          `u`.`StayIdentity` = `users`.`sid`.`StayIdentity`
-        )
+      LEFT JOIN `users`.`users` `u2` ON((`a`.`UpdateUserId` = `u2`.`Id`))
+    )
+    LEFT JOIN `users`.`user_stay_identity_list` `sid` ON(
+      (
+        `u`.`StayIdentity` = `users`.`sid`.`StayIdentity`
       )
     )
-    LEFT JOIN `users`.`rooms_view` `r` ON((`a`.`RoomId` = `users`.`r`.`RoomId`))
   )
