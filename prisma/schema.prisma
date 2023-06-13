@@ -246,7 +246,7 @@ view room_type_list {
 }
 
 view rooms_dormitory_area_building_list {
-  Id                BigInt  @unique @default(0)
+  Id                Int  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
