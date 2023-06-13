@@ -24,7 +24,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 
 import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
-import { lineCallback } from "../services/auth/line/line.service";
+// import { lineCallback } from "../services/line.service";
 import {
   ErrorData,
   GetManyRequest,
@@ -837,9 +837,6 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    console.log("line callback test");
-    console.log('code:', code);
-    console.log('state:', state);
-    lineCallback(code, state, errorResponse);
+    return this._manager.lineCallback(code, state, errorResponse);
   }
 }
