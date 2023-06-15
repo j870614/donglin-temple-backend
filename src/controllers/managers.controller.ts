@@ -807,7 +807,7 @@ export class ManagersController extends Controller {
     const lineLoginParams = {
       response_type: 'code',
       client_id: String(process.env.LINE_CHANNEL_ID),
-      redirect_uri: 'http://localhost:3000/api/managers/line/callback',
+      redirect_uri: String(process.env.LINE_CALLBACK_URL),
       state: String(process.env.LINE_STATE),
       scope: 'profile openid',
       nonce: String(process.env.LINE_NONCE),

@@ -251,7 +251,7 @@ export class ManagersService {
     const data = {
       grant_type: 'authorization_code',
       code,
-      redirect_uri: 'http://localhost:3000/api/managers/line/callback',
+      redirect_uri: String(process.env.LINE_CALLBACK_URL),
       client_id: String(process.env.LINE_CHANNEL_ID),
       client_secret: String(process.env.LINE_CHANNEL_SECRET),
     };
