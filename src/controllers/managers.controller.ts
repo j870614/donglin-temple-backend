@@ -15,7 +15,8 @@ import {
   Security,
   SuccessResponse,
   Tags,
-  Patch
+  Patch,
+  Query
 } from "tsoa";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -23,6 +24,7 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 
 import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
+// import { lineCallback } from "../services/line.service";
 import {
   ErrorData,
   GetManyRequest,
@@ -793,5 +795,53 @@ export class ManagersController extends Controller {
     const date = new Date();
     date.setUTCHours(date.getUTCHours() + 8);
     return date;
+  }
+
+  /**
+   * Line  登入
+   */
+  @Get('line')
+  @SuccessResponse(StatusCodes.MOVED_TEMPORARILY, "轉址到 Line 登入頁面")
+  @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
+  public lineLogin () {
+    const lineLoginParams = {
+      response_type: 'code',
+      client_id: String(process.env.LINE_CHANNEL_ID),
+      redirect_uri: String(process.env.LINE_CALLBACK_URL),
+      state: String(process.env.LINE_STATE),
+      scope: 'profile openid',
+      nonce: String(process.env.LINE_NONCE),
+      ui_locales: 'ch-TW',
+      initial_amr_display: 'lineqr',
+      disable_auto_login: 'false',
+    };
+    
+    const url = new URL('https://access.line.me/oauth2/v2.1/authorize');
+    Object.entries(lineLoginParams).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+    
+    const lineLoginURL = url.toString();
+
+    this.setStatus(StatusCodes.MOVED_TEMPORARILY);
+    this.setHeader('Location', lineLoginURL);
+  }
+
+  /**
+   * Line 登入 callback API
+   */
+  @Get('line/callback')
+  @SuccessResponse(StatusCodes.OK, "Line 登入成功")
+  @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
+  public lineCallback (
+    @Query() code: string,
+    @Query() state: string,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    return this._manager.lineCallback(code, state, errorResponse);
   }
 }
