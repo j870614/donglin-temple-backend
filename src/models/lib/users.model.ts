@@ -26,7 +26,7 @@ export interface UserCreateRequest {
   RefugueMaster?: string;
   RefugueDate?: Date;
   Referrer?: string;
-  ClothType?: number;
+  ClothType?: string;
   ClothSize?: string;
   EmergencyName?: string;
   EmergencyPhone?: string;
