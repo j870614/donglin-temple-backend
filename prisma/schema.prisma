@@ -49,7 +49,7 @@ model users {
   RefugueMaster     String?   @db.VarChar(50)
   RefugueDate       DateTime? @db.Date
   Referrer          String?   @db.VarChar(50)
-  ClothType         Int?      @db.TinyInt
+  ClothType         String?   @db.VarChar(5)
   ClothSize         String?   @db.VarChar(4)
   EmergencyName     String?   @db.VarChar(50)
   EmergencyPhone    String?   @db.VarChar(20)
