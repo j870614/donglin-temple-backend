@@ -18,6 +18,9 @@ import {
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
+import {
+  BuddhaSevenApplyStatus
+} from "../enums/buddhaSevenApplies.enum";
 
 @Tags("Room - 寮房狀態")
 @Route("/api/rooms")
@@ -175,7 +178,7 @@ export class RoomsController extends Controller {
         CheckInUserName: null,
         CheckInUserDharmaName: null,
         CheckInUserIsMale: null,
-        Status: "已取消",
+        Status: "寮房已確認",
         Remarks: "修改測試",
         UpdateUserId: 11,
         UpdateUserName: null,
@@ -273,7 +276,8 @@ export class RoomsController extends Controller {
       },
       data: {
         RoomId: updatedRoom.Id,
-        BedStayOrderNumber: updatedRoom.ReservedBeds
+        BedStayOrderNumber: updatedRoom.ReservedBeds,
+        Status: BuddhaSevenApplyStatus.ROOM_APPLIED
       }
     });
 
