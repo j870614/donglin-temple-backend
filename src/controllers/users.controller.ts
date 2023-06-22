@@ -20,6 +20,7 @@ import { Prisma } from "@prisma/client";
 
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import prisma from "../configs/prismaClient";
+import { prismaJsonParser } from "../utils/prismaJsonParser";
 import { responseSuccess } from "../utils/responseSuccess";
 import { UserCreateRequest } from "../models";
 
@@ -41,51 +42,51 @@ export class UsersController extends Controller {
     data: {
       users: [
         {
-          "Id": 11,
-          "MobilePrefix": null,
-          "Mobile": "0901123123",
-          "Name": null,
-          "DharmaName": "普某",
-          "MageNickname": "源某",
-          "LineId": null,
-          "Email": "testUser11@test.com",
-          "IsMonk": true,
-          "StayIdentity": 0,
-          "IsMale": true,
-          "BirthDate": "1990-01-01T00:00:00.000Z",
-          "IdNumber": "G125544789",
-          "PassportNumber": null,
-          "BirthPlace": "宜蘭縣",
-          "Phone": "0395123123",
-          "Ordination": "比丘",
-          "Altar": null,
-          "ShavedMaster": "某某法師",
-          "ShavedDate": "2020-01-01T00:00:00.000Z",
-          "OrdinationTemple": "某某寺",
-          "OrdinationDate": "2021-01-01T00:00:00.000Z",
-          "ResidentialTemple": "東林寺",
-          "RefugueMaster": null,
-          "RefugueDate": null,
-          "Referrer": null,
-          "ClothType": null,
-          "ClothSize": null,
-          "EmergencyName": null,
-          "EmergencyPhone": null,
-          "Relationship": null,
-          "Expertise": null,
-          "Education": null,
-          "ComeTempleReason": null,
-          "HealthStatus": null,
-          "EatBreakfast": false,
-          "EatLunch": true,
-          "EatDinner": true,
-          "Address": null,
-          "Area": null,
-          "Height": null,
-          "Weight": null,
-          "BloodType": null,
-          "Remarks": null,
-          "UpdateAt": "2023-05-14T08:49:38.000Z"
+          Id: 11,
+          MobilePrefix: null,
+          Mobile: "0901123123",
+          Name: null,
+          DharmaName: "普某",
+          MageNickname: "源某",
+          LineId: null,
+          Email: "testUser11@test.com",
+          IsMonk: true,
+          StayIdentity: 0,
+          IsMale: true,
+          BirthDate: "1990-01-01T00:00:00.000Z",
+          IdNumber: "G125544789",
+          PassportNumber: null,
+          BirthPlace: "宜蘭縣",
+          Phone: "0395123123",
+          Ordination: "比丘",
+          Altar: null,
+          ShavedMaster: "某某法師",
+          ShavedDate: "2020-01-01T00:00:00.000Z",
+          OrdinationTemple: "某某寺",
+          OrdinationDate: "2021-01-01T00:00:00.000Z",
+          ResidentialTemple: "東林寺",
+          RefugueMaster: null,
+          RefugueDate: null,
+          Referrer: null,
+          ClothType: null,
+          ClothSize: null,
+          EmergencyName: null,
+          EmergencyPhone: null,
+          Relationship: null,
+          Expertise: null,
+          Education: null,
+          ComeTempleReason: null,
+          HealthStatus: null,
+          EatBreakfast: false,
+          EatLunch: true,
+          EatDinner: true,
+          Address: null,
+          Area: null,
+          Height: null,
+          Weight: null,
+          BloodType: null,
+          Remarks: null,
+          UpdateAt: "2023-05-14T08:49:38.000Z"
         }
       ]
     }
@@ -116,52 +117,52 @@ export class UsersController extends Controller {
     status: true,
     message: "查詢成功",
     data: {
-      "user": {
-        "Id": 11,
-        "MobilePrefix": null,
-        "Mobile": "0901123123",
-        "Name": null,
-        "DharmaName": "普某",
-        "MageNickname": "源某",
-        "LineId": null,
-        "Email": "testUser11@test.com",
-        "IsMonk": true,
-        "StayIdentity": 0,
-        "IsMale": true,
-        "BirthDate": "1990-01-01T00:00:00.000Z",
-        "IdNumber": "G125544789",
-        "PassportNumber": null,
-        "BirthPlace": "宜蘭縣",
-        "Phone": "0395123123",
-        "Ordination": "比丘",
-        "Altar": null,
-        "ShavedMaster": "某某法師",
-        "ShavedDate": "2020-01-01T00:00:00.000Z",
-        "OrdinationTemple": "某某寺",
-        "OrdinationDate": "2021-01-01T00:00:00.000Z",
-        "ResidentialTemple": "東林寺",
-        "RefugueMaster": null,
-        "RefugueDate": null,
-        "Referrer": null,
-        "ClothType": null,
-        "ClothSize": null,
-        "EmergencyName": null,
-        "EmergencyPhone": null,
-        "Relationship": null,
-        "Expertise": null,
-        "Education": null,
-        "ComeTempleReason": null,
-        "HealthStatus": null,
-        "EatBreakfast": false,
-        "EatLunch": true,
-        "EatDinner": true,
-        "Address": null,
-        "Area": null,
-        "Height": null,
-        "Weight": null,
-        "BloodType": null,
-        "Remarks": null,
-        "UpdateAt": "2023-05-14T08:49:38.000Z"
+      user: {
+        Id: 11,
+        MobilePrefix: null,
+        Mobile: "0901123123",
+        Name: null,
+        DharmaName: "普某",
+        MageNickname: "源某",
+        LineId: null,
+        Email: "testUser11@test.com",
+        IsMonk: true,
+        StayIdentity: 0,
+        IsMale: true,
+        BirthDate: "1990-01-01T00:00:00.000Z",
+        IdNumber: "G125544789",
+        PassportNumber: null,
+        BirthPlace: "宜蘭縣",
+        Phone: "0395123123",
+        Ordination: "比丘",
+        Altar: null,
+        ShavedMaster: "某某法師",
+        ShavedDate: "2020-01-01T00:00:00.000Z",
+        OrdinationTemple: "某某寺",
+        OrdinationDate: "2021-01-01T00:00:00.000Z",
+        ResidentialTemple: "東林寺",
+        RefugueMaster: null,
+        RefugueDate: null,
+        Referrer: null,
+        ClothType: null,
+        ClothSize: null,
+        EmergencyName: null,
+        EmergencyPhone: null,
+        Relationship: null,
+        Expertise: null,
+        Education: null,
+        ComeTempleReason: null,
+        HealthStatus: null,
+        EatBreakfast: false,
+        EatLunch: true,
+        EatDinner: true,
+        Address: null,
+        Area: null,
+        Height: null,
+        Weight: null,
+        BloodType: null,
+        Remarks: null,
+        UpdateAt: "2023-05-14T08:49:38.000Z"
       }
     }
   })
@@ -257,7 +258,10 @@ export class UsersController extends Controller {
     >
   ) {
     // 檢查四眾個資必填欄位，法師居士所須必填之欄位不同
-    const { IsMonk, StayIdentity } = userCreateBody;
+    const { IsMonk, StayIdentity, Expertise, HealthStatus } = userCreateBody;
+    const parsedExpertise = prismaJsonParser(Expertise);
+    const parsedHealthStatus = prismaJsonParser(HealthStatus);
+
     let parsedStayIdentity: number;
 
     if (IsMonk) {
@@ -285,7 +289,12 @@ export class UsersController extends Controller {
     }
 
     const user = await prisma.users.create({
-      data: { ...userCreateBody, StayIdentity: parsedStayIdentity }
+      data: {
+        ...userCreateBody,
+        Expertise: parsedExpertise,
+        HealthStatus: parsedHealthStatus,
+        StayIdentity: parsedStayIdentity
+      }
     });
 
     return responseSuccess("新增四眾個資成功", { user });
@@ -326,8 +335,10 @@ export class UsersController extends Controller {
     }
 
     // 住眾身分別 StayIdentity 字串轉 ItemId
-    const { StayIdentity } = updateData;
+    const { StayIdentity, Expertise, HealthStatus } = updateData;
     let parsedStayIdentity: number;
+    const parsedExpertise = prismaJsonParser(Expertise);
+    const parsedHealthStatus = prismaJsonParser(HealthStatus);
     if (typeof StayIdentity === "string") {
       parsedStayIdentity = await this.changeToItemId(StayIdentity);
       if (!parsedStayIdentity) {
@@ -344,7 +355,12 @@ export class UsersController extends Controller {
       where: {
         Id: id
       },
-      data: { ...updateData, StayIdentity: parsedStayIdentity }
+      data: {
+        ...updateData,
+        Expertise: parsedExpertise,
+        HealthStatus: parsedHealthStatus,
+        StayIdentity: parsedStayIdentity
+      }
     });
 
     return responseSuccess("修改四眾個資成功");
