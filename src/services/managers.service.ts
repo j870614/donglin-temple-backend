@@ -9,6 +9,7 @@ import {
   GetManyRequest,
   SignInByEmailRequest,
   SignUpByEmailRequest,
+  LineLoginRequest,
   LineResponse,
   LineUserInfoResponse,
   AxiosResponse
@@ -95,7 +96,7 @@ export class ManagersService {
     if (existingManagerByEmail || existingManagerByUserId) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
-        message: "您的信箱或是個人資料已經建立過管理員帳號"
+        message: "您的信箱或是此四眾個資已經建立過管理員帳號"
       });
     }
 
@@ -274,14 +275,14 @@ export class ManagersService {
    * Line 登入 callback
    */
   async lineCallback (
-    code:string, 
-    state:string, 
+    lineLoginRequest: LineLoginRequest,
+    qrCodeRequest: string | undefined,
     errorResponse: TsoaResponse<
     StatusCodes.BAD_REQUEST,
     { status: false; message?: string }
   >
   ) {
-
+    const { code, state, UserId } = lineLoginRequest;
     const lineUserId  = await this.verifyLineLogin(code, state, errorResponse);
   
     const manager = await prisma.managers.findUnique({
@@ -290,11 +291,63 @@ export class ManagersService {
       }
     });
   
-    if (!manager) {
+    if ( !manager ) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "尚未邀請系統權限，或帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
+    }
+
+    if (!manager && !(UserId || qrCodeRequest) ) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "帳號未綁定 Line 帳號登入，請洽系統管理員"
+      });
+    }
+
+    // 系統 manager 綁定 Line 登入
+    if ( !manager && (UserId || qrCodeRequest)) {
+      const qrCode = qrCodeRequest || "";
+      const userData = await this.getUserAuthDataFromQRCode(qrCode);
+
+      if (qrCodeRequest && !userData) {
+        return errorResponse(StatusCodes.BAD_REQUEST, { 
+          status: false,
+          message: "QRCode 無效或是已過期"
+        });
+      }
+
+      // 驗證是否重複綁定同一個寺務系統 UserId
+      const userId = userData ? userData.UserId : UserId;
+      const existingManagerByUserId = await this.prismaClient.managers.findFirst({
+        where: { UserId: userId }
+      });
+
+      if ( existingManagerByUserId ) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: "此四眾個資已經建立過管理員帳號"
+        });
+      }
+
+      let data;
+
+      if (userData) {
+        // 註冊碼帶的權限資料
+        data = {
+          UserId: userData.UserId,
+          DeaconId: userData.DeaconId,
+          AuthorizeUserId: userData.AuthorizeUserId,
+          Line: String(lineUserId),
+        };
+        const signedManager = await this.prismaClient.managers.create({
+          data
+        })
+      }
+
+      if (userData) {
+        await this.getQRCodeSetUsed(qrCode);
+      }
     }
   
     return responseSuccess("Line 登入成功", { ...generateAndSendJWT(manager) });

@@ -24,7 +24,6 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 
 import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
-// import { lineCallback } from "../services/line.service";
 import {
   ErrorData,
   GetManyRequest,
@@ -32,7 +31,8 @@ import {
   QRCodeRequest,
   SignInByEmailRequest,
   SignUpByEmailRequest,
-  UpdateDBManagersRole
+  UpdateDBManagersRole,
+  LineLoginRequest
 } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
@@ -842,6 +842,10 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    return this._manager.lineCallback(code, state, errorResponse);
+    const lineLoginRequest: LineLoginRequest = {
+      code,
+      state
+    }
+    return this._manager.lineCallback(lineLoginRequest, errorResponse);
   }
 }
