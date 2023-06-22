@@ -369,10 +369,11 @@ export class ManagersController extends Controller {
         Gender: "女",
         DharmaName: null,
         Name: "黃某甲",
+        ChurchName: null,
         DeaconId: 3,
         DeaconName: "知客志工",
         AuthorizeUserId: 4,
-        AuthorizeDharmaName: null,
+        AuthorizeName: null,
         AuthorizeDate: "2023/6/5",
         Status: "註冊連結失效"
       }

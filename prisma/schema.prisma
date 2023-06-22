@@ -164,6 +164,7 @@ model user_deacon_churchs {
   Id         Int       @id @default(autoincrement())
   UserId     Int       @db.UnsignedInt
   ChurchId   Int?      @db.SmallInt
+  ChurchName String?   @db.VarChar(20)
   DeaconId   Int?      @db.SmallInt
   DeaconArea Int?      @db.SmallInt
   ChurchUnit Int?      @db.SmallInt
@@ -356,10 +357,11 @@ view user_auth_qr_codes_view {
   Gender              String  @default("") @db.VarChar(1)
   DharmaName          String? @db.VarChar(50)
   Name                String? @db.VarChar(50)
+  ChurchName      String? @db.VarChar(20)
   DeaconId            Int?    @db.SmallInt
   DeaconName          String? @db.VarChar(20)
   AuthorizeUserId     Int     @db.UnsignedInt
-  AuthorizeDharmaName String? @db.VarChar(50)
+  AuthorizeName   String? @db.VarChar(50)
   AuthorizeDate       String? @db.VarChar(10)
   Status              String  @default("") @db.VarChar(7)
 }
