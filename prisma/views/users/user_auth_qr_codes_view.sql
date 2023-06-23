@@ -9,7 +9,8 @@ SELECT
   ) AS `Gender`,
   `a`.`DharmaName` AS `DharmaName`,
   `a`.`Name` AS `Name`,
-  `c`.`ChurchName` AS `ChurchName`,
+  `users`.`c`.`ChurchId` AS `ChurchId`,
+  `users`.`c`.`ChurchName` AS `ChurchName`,
   `users`.`d`.`DeaconId` AS `DeaconId`,
   `users`.`d`.`DeaconName` AS `DeaconName`,
   `u`.`AuthorizeUserId` AS `AuthorizeUserId`,
@@ -35,24 +36,8 @@ FROM
     (
       (
         (
-          (
-            `users`.`user_auth_qr_codes` `u`
-            JOIN (
-              SELECT
-                `users`.`user_deacon_churchs`.`UserId` AS `UserId`,
-                max(`users`.`user_deacon_churchs`.`EndDate`) AS `LatestEndDate`
-              FROM
-                `users`.`user_deacon_churchs`
-              GROUP BY
-                `users`.`user_deacon_churchs`.`UserId`
-            ) `sub` ON((`u`.`UserId` = `sub`.`UserId`))
-          )
-          LEFT JOIN `users`.`user_deacon_churchs` `c` ON(
-            (
-              (`u`.`UserId` = `c`.`UserId`)
-              AND (`sub`.`LatestEndDate` = `c`.`EndDate`)
-            )
-          )
+          `users`.`user_auth_qr_codes` `u`
+          LEFT JOIN `users`.`user_church_name_list` `c` ON((`u`.`ChurchId` = `users`.`c`.`ChurchId`))
         )
         LEFT JOIN `users`.`user_deacon_name_list` `d` ON((`u`.`DeaconId` = `users`.`d`.`DeaconId`))
       )
