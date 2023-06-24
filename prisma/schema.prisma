@@ -11,7 +11,7 @@ datasource db {
 model managers {
   Id              Int      @id @default(autoincrement())
   UserId          Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
-  ChurcId         Int      @default(0) @db.SmallInt
+  ChurchId        Int      @default(0) @db.SmallInt
   DeaconId        Int      @default(0) @db.SmallInt
   Email           String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
   Google          String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
