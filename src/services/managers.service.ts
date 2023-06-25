@@ -121,6 +121,7 @@ export class ManagersService {
         Email,
         UserId: userData.UserId,
         Password: hashedPassword,
+        ChurchId: userData.ChurchId,
         DeaconId: userData.DeaconId,
         AuthorizeUserId: userData.AuthorizeUserId
       };
