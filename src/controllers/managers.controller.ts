@@ -22,12 +22,11 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
-import { user_auth_qr_codes_view } from "@prisma/client";
 import { ManagersService } from "../services/managers.service";
 import {
   ErrorData,
   GetManyRequest,
-  ManagerRoleRequest,
+  ManagerAuthRequest,
   QRCodeRequest,
   SignInByEmailRequest,
   SignUpByEmailRequest,
@@ -195,13 +194,12 @@ export class ManagersController extends Controller {
     return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
   }
 
-  
   /**
    * 修改 manager 權限，指定 UserId 的權限變更角色 or 是否啟用
    * @param authorization JWT 登入
-   * @param managerRoleRequest 管理者角色請求物件
-   * @param errorResponse 
-   * @returns 
+   * @param managerAuthRequest 管理者角色請求物件
+   * @param errorResponse
+   * @returns
    */
   @Security("jwt", ["manager"])
   @Patch("auth")
@@ -209,131 +207,151 @@ export class ManagersController extends Controller {
   @Response(StatusCodes.BAD_REQUEST, "修改失敗")
   public async updateManagerAuth(
     @Header() authorization: string,
-    @Body() managerRoleRequest: ManagerRoleRequest,
+    @Body() managerAuthRequest: ManagerAuthRequest,
     @Res()
-    errorResponse: TsoaResponse<StatusCodes.BAD_REQUEST,ErrorData>
-  ) 
-  {
+    errorResponse: TsoaResponse<StatusCodes.BAD_REQUEST, ErrorData>
+  ) {
     // 檢查有無登入 & 是否有管理員身分
     const authObj = await this.checkLoginAndManagerActive(authorization);
 
-    if(!authObj.data.status){
+    if (!authObj.data.status) {
       return errorResponse(StatusCodes.BAD_REQUEST, authObj.data as ErrorData);
     }
 
-    const { UserId, DeaconName, IsActive } = managerRoleRequest;
-    
-    // 檢查資料 & 取得更新物件 or 錯誤訊息
-    const updateObj = await this.getUpdateManagerAuthObj(authObj.userId, UserId, DeaconName, IsActive); // 更新用物件
+    const { UserId, ChurchName, DeaconName, IsActive } = managerAuthRequest;
 
-    if(!updateObj.canUpdate){
-      return errorResponse(StatusCodes.BAD_REQUEST, updateObj.errorObj as ErrorData);
+    // 檢查資料 & 取得更新物件 or 錯誤訊息
+    const updateObj = await this.getUpdateManagerAuthObj(
+      authObj.userId,
+      UserId,
+      ChurchName,
+      DeaconName,
+      IsActive
+    ); // 更新用物件
+
+    if (!updateObj.canUpdate) {      
+      return errorResponse(
+        StatusCodes.BAD_REQUEST, 
+        (updateObj as { errorObj: ErrorData }).errorObj
+        );
     }
-    
+
     const result = await prisma.managers.update({
       where: { UserId },
-      data: updateObj.data as UpdateDBManagersRole
+      data: (updateObj as { data: UpdateDBManagersRole }).data
     });
 
     return result === null
-    ? errorResponse(StatusCodes.BAD_REQUEST, {
-      status: false,
-      message: "修改失敗"
-    })
-    : SuccessResponse(StatusCodes.OK, "修改成功");
+      ? errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: "修改失敗"
+        })
+      : SuccessResponse(StatusCodes.OK, "修改成功");
   }
-  
+
   /**
    * 檢查資料 & 取得要更新物件（改角色or是否啟用）or 錯誤訊息
    * @param authorizeUserId 授權人 UserId
    * @param userId 要修改的 UserId
+   * @param churchName 要修改的堂口名稱
    * @param deaconName 要修改的執事名稱
    * @param isActive 是否啟用管理者
    * @returns 
    */
   private async getUpdateManagerAuthObj(
-    authorizeUserId: number, 
+    authorizeUserId: number,
     userId: number,
-    deaconName: string | undefined, 
-    isActive: boolean | undefined) {
-    
-    const manager = await prisma.managers.findFirst({where:{ UserId:userId }});
+    churchName: string | undefined,
+    deaconName: string | undefined,
+    isActive: boolean | undefined
+  ) {    
+    const errorData = {
+      canUpdate: false,
+      errorObj: {
+        status: false,
+        message: ""
+      }
+    };
 
-    if(!manager){
-      return {
-        canUpdate: false,
-        errorObj: {
-          status: false,
-          message: "找不到 UserId"
-        }
-      };  
+    const manager = await prisma.managers.findFirst({
+      where: { UserId: userId }
+    });
+
+    if (!manager) {
+      errorData.errorObj.message = "找不到 UserId";
+      return errorData;
     }
 
-    // 檢查被授權角色
-    if(deaconName){
-      const deaconId = await this.getDeaconIdByName(deaconName);
+    let churchId = -1;
 
-      if(deaconId === -1){
-        return {
-          canUpdate: false,
-          errorObj: {
-            status: false,
-            message: "找不到執事Id"
-          }
-        };          
+    if (churchName) {
+      churchId = await this.getChurchIdByName(churchName);
+
+      if (churchId === -1) {
+        errorData.errorObj.message = "找不到堂口Id";
+        return errorData;
       }
 
-      // 修改管理權限
-      return {
-        canUpdate: true,
-        data: {
-          DeaconId: deaconId,
-          AuthorizeUserId: authorizeUserId,
-          IsActive: true,
-          UpdateAt: this.getDate()
-        }
-      };
-    }
-
-    // 修改成帳號啟用    
-    if(isActive){      
-      if(manager.IsActive === isActive){
-        // 啟用沒異動，也沒輸入執事名稱
-        return {
-          canUpdate: false,
-          errorObj: {
-          status: false,
-          message: "修改失敗，執事名稱及啟用狀態皆無異動"
-        }};
-      }
-
-      if(manager.DeaconId > -1){
-        // 執事Id 有效才給啟用
+      if(!deaconName){
+        // 只更新堂口
         return {
           canUpdate: true,
           data: {
+            ChurchId: churchId,
             AuthorizeUserId: authorizeUserId,
             IsActive: true,
             UpdateAt: this.getDate()
           }
+        };        
+      }
+    }
+
+    // 檢查被授權角色
+    if (deaconName) {
+      const deaconId = await this.getDeaconIdByName(deaconName);
+
+      if (deaconId === -1) {
+        errorData.errorObj.message = "找不到執事Id";
+        return errorData;
+      }
+
+      const data = {
+        DeaconId: deaconId,
+        AuthorizeUserId: authorizeUserId,
+        IsActive: true,
+        UpdateAt: this.getDate()
+      };
+
+      if(churchId > -1){
+        // 更新堂口Id、執事Id
+        return {
+          canUpdate: true,
+          data: {
+            ChurchId: churchId,
+            ...data
+          }
         };
       }
 
+      // 只更新執事Id
       return {
-        canUpdate: false,
-        errorObj: {
-          status: false,
-          message: "未提供有效的執事名稱"
-        }
-      };      
+        canUpdate: true,
+        data
+      };
     }
 
-    //  修改成停用帳號
+    // 修改成帳號啟用 OR 停用
+    if (manager.IsActive === isActive) {
+      // 啟用沒異動，也沒輸入執事名稱
+      errorData.errorObj.message = "修改失敗，執事名稱及啟用狀態皆無異動";
+      return errorData;        
+    }
+    
     return {
       canUpdate: true,
       data: {
         AuthorizeUserId: authorizeUserId,
-        IsActive: false,
+        IsActive: isActive,
         UpdateAt: this.getDate()
       }
     };
@@ -361,10 +379,12 @@ export class ManagersController extends Controller {
         Gender: "女",
         DharmaName: null,
         Name: "黃某甲",
+        ChurchId: 0,
+        ChurchName: "知客",
         DeaconId: 3,
         DeaconName: "知客志工",
         AuthorizeUserId: 4,
-        AuthorizeDharmaName: null,
+        AuthorizeName: null,
         AuthorizeDate: "2023/6/5",
         Status: "註冊連結失效"
       }
@@ -380,16 +400,17 @@ export class ManagersController extends Controller {
   ) {
     const authObj = await this.checkLoginAndManagerActive(Authorization);
 
-    if(!authObj.data.status){
+    if (!authObj.data.status) {
       return errorResponse(
-        StatusCodes.BAD_REQUEST, 
-        authObj.data as { status: false; message?: string | undefined; });
+        StatusCodes.BAD_REQUEST,
+        authObj.data as { status: false; message?: string | undefined }
+      );
     }
 
     // 查詢 qrcode 使用狀態
     const qrcodeStatus = await prisma.user_auth_qr_codes_view.findMany({
       orderBy: { AuthorizeDate: "desc" }
-    }) as user_auth_qr_codes_view[];
+    });
 
     if (qrcodeStatus == null) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
@@ -400,16 +421,16 @@ export class ManagersController extends Controller {
 
     return responseSuccess("查詢成功", { data: qrcodeStatus });
   }
-  
+
   /**
    * 檢查有無登入 & 是否有管理員身分
-   * @param authorization 
-   * @returns 
+   * @param authorization
+   * @returns
    */
-  private async checkLoginAndManagerActive(authorization: string){
+  private async checkLoginAndManagerActive(authorization: string) {
     const result = {
       userId: Number(-1),
-      data:{
+      data: {
         status: false,
         message: ""
       }
@@ -428,12 +449,12 @@ export class ManagersController extends Controller {
     }
 
     // 檢查查詢人的權限
-    const { UserId } = jwt.decode(token) as JwtPayload;  
-    
+    const { UserId } = jwt.decode(token) as JwtPayload;
+
     result.userId = Number(UserId);
 
     const manager = await prisma.managers.findFirst({
-      where: { 
+      where: {
         UserId: result.userId,
         IsActive: true
       }
@@ -443,11 +464,10 @@ export class ManagersController extends Controller {
       result.data.message = "此帳號無查詢權限";
       return result;
     }
-    
+
     result.data.status = true;
     return result;
   }
-
 
   /**
    * 查詢使用者權限核發 API(測試用，不做身分驗證檢查)
@@ -467,10 +487,12 @@ export class ManagersController extends Controller {
         Gender: "女",
         DharmaName: null,
         Name: "黃某甲",
+        ChurchId: 0,
+        ChurchName: "知客",
         DeaconId: 3,
         DeaconName: "知客志工",
         AuthorizeUserId: 4,
-        AuthorizeDharmaName: null,
+        AuthorizeName: null,
         AuthorizeDate: "2023/6/5",
         Status: "註冊連結失效"
       }
@@ -541,96 +563,133 @@ export class ManagersController extends Controller {
       });
     }
 
-    const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.getDeaconIdByName(DeaconName);
+    const { UserId: AuthorizeUserId } = jwt.decode(token) as JwtPayload;    
+    const { UserId, ChurchName, DeaconName } = qrCodeRequest;
+    const result = await this.getUpdateNameData(ChurchName, DeaconName);
 
-    if(deaconId === -1){
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "找不到執事Id"
-      });
+    if(!result.canUpdate){
+      // 缺少資料
+      const error = result.errorObj as ErrorData;
+      return errorResponse(StatusCodes.BAD_REQUEST, error);
+    }      
+
+    const authorizeUserId = Number(AuthorizeUserId); // 授權人
+    const tempData = {
+      ChurchId: Number(result.data?.churchId),
+      DeaconId: Number(result.data?.deaconId),
+    };
+
+    // 檢查 UserId 有沒建過資料  
+    const managerResult = await this.checkManagersOrUpdate(
+      UserId, 
+      tempData.ChurchId, 
+      tempData.DeaconId,
+      authorizeUserId
+      );
+
+    if(!managerResult.canUpdate){
+      // 已經建過
+      const error = result.errorObj as ErrorData;
+      return errorResponse(StatusCodes.BAD_REQUEST, error);
     }
 
-    // 檢查 UserId 有沒建過資料
-    const manager = await prisma.managers.findFirst({ where: { UserId } });
-
-    if (manager != null) {
-      // 已建過
-
-      if (manager.IsActive) {
-        // 帳號可使用，且權限等級一樣，不做處理
-        if (manager.DeaconId === deaconId) {
-          return errorResponse(StatusCodes.BAD_REQUEST, {
-            status: false,
-            message: "帳號已存在，請使用原帳號登入"
-          });
-        }
-      }
-
-      const newData = {
-        DeaconId: deaconId,
-        AuthorizeUserId,
-        IsActive: true,
-        UpdateAt: this.getDate()
-      };
-
-      // 停用帳戶 or 權限等級不一樣，重新設定
-      const isSuccess = await prisma.managers.update({
-        where: { UserId },
-        data: newData
-      });
-
-      if (isSuccess) {
-        return errorResponse(StatusCodes.BAD_REQUEST, {
-          status: false,
-          message: "帳號已存在，已更新設定，請使用原帳號登入"
-        });
-      }
-
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "帳號停用，重新啟用失敗"
-      });
-    }
-
-    // 沒建過帳戶，要產生註冊碼
-    const endTime = this.getDate();
-
+    const endTime = this.getDate(); 
+    
+    // 檢查有沒有時限內的註冊碼
     let qrCodeData = await prisma.user_auth_qr_codes.findFirst({
-      where: {
+      where: { 
+        ...tempData,
         UserId,
-        DeaconId: deaconId,
         EndTime: { gte: endTime },
         HasUsed: false
       }
     });
 
-    if (qrCodeData == null) {
-      // 沒有可用註冊碼
+    if (qrCodeData == null) {      
+      // 沒有可用註冊碼，要產生註冊碼 
       endTime.setMinutes(endTime.getMinutes() + 20);
 
-      const data = {
-        UserId,
-        DeaconId: deaconId,
-        AuthorizeUserId,
-        QRCode: uuidv4(),
-        EndTime: endTime
-      };
-
       // 新建註冊碼
-      qrCodeData = await prisma.user_auth_qr_codes.create({
-        data
+      qrCodeData = await prisma.user_auth_qr_codes.create({ 
+        data: { 
+          ...tempData,
+          UserId,
+          QRCode: uuidv4(),        
+          AuthorizeUserId: authorizeUserId,
+          EndTime: endTime
+        }
       });
-    }
-
-    if (qrCodeData == null) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "註冊碼取得失敗"
-      });
+      
+      if (qrCodeData == null) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: "註冊碼取得失敗"
+        });
+      }
     }
 
     return responseSuccess("註冊碼取得成功", { qrcode: qrCodeData.QRCode });
+  }
+
+  /**
+   * 檢查 manager 有沒有見過資料，建過資料但設定不一致的做更新
+   * @param UserId 
+   * @param ChurchId 
+   * @param DeaconId 
+   * @param AuthorizeUserId 
+   * @returns 
+   */
+  async checkManagersOrUpdate(
+    UserId: number, 
+    ChurchId: number, 
+    DeaconId: number, 
+    AuthorizeUserId: number
+    ) {
+    // 檢查 UserId 有沒建過資料
+    const manager = await prisma.managers.findFirst({ where: { UserId } });
+
+    if (manager == null) {
+      // 沒建過資料
+      return { canUpdate: true };
+    }
+
+    const errorData = {
+      canUpdate: false,
+      errorObj: {
+        status: false,
+        message: ""
+      }
+    };
+
+    // 已建過
+    if (manager.IsActive) {
+      // 帳號可使用，且權限等級一樣，不做處理
+      if (manager.DeaconId === DeaconId 
+        && manager.ChurchId === ChurchId) {
+          errorData.errorObj.message =  "帳號已存在，請使用原帳號登入"
+          return errorData;
+      }
+    }
+
+    // 停用帳戶 or 權限等級不一樣，重新設定
+    const isSuccess = await prisma.managers.update({
+      where: { UserId },
+      data: {
+        ChurchId,
+        DeaconId,
+        AuthorizeUserId,
+        IsActive: true,
+        UpdateAt: this.getDate()
+      }
+    });
+
+    if (isSuccess) {
+      errorData.errorObj.message =  "帳號已存在，已更新設定，請使用原帳號登"
+      return errorData;
+    }
+
+    errorData.errorObj.message =  "帳號停用，重新啟用失敗"
+    return errorData;
   }
 
   /**
@@ -657,93 +716,68 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    const { AuthorizeUserId, UserId, DeaconName } = qrCodeRequest;
-    const deaconId = await this.getDeaconIdByName(DeaconName);
+    const { AuthorizeUserId, UserId, ChurchName, DeaconName } = qrCodeRequest;
+    const result = await this.getUpdateNameData(ChurchName, DeaconName);
 
-    if(deaconId === -1){
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "找不到執事Id"
-      });
+    if(!result.canUpdate){
+      // 缺少資料
+      const error = result.errorObj as ErrorData;
+      return errorResponse(StatusCodes.BAD_REQUEST, error);
+    }      
+
+    const authorizeUserId = Number(AuthorizeUserId); // 授權人
+    const tempData = {
+      ChurchId: Number(result.data?.churchId),
+      DeaconId: Number(result.data?.deaconId),
+    };
+
+    // 檢查 UserId 有沒建過資料  
+    const managerResult = await this.checkManagersOrUpdate(
+      UserId, 
+      tempData.ChurchId, 
+      tempData.DeaconId,
+      authorizeUserId
+      );
+
+    if(!managerResult.canUpdate){
+      // 已經建過
+      const error = result.errorObj as ErrorData;
+      return errorResponse(StatusCodes.BAD_REQUEST, error);
     }
 
-    // 檢查 UserId 有沒建過資料
-    const manager = await prisma.managers.findFirst({ where: { UserId } });
-
-    if (manager != null) {
-      // 已建過
-
-      if (manager.IsActive) {
-        // 帳號可使用，且權限等級一樣，不做處理
-        if (manager.DeaconId === deaconId) {
-          return errorResponse(StatusCodes.BAD_REQUEST, {
-            status: false,
-            message: "帳號已存在，請使用原帳號登入"
-          });
-        }
-      }
-
-      const newData = {
-        DeaconId: deaconId,
-        AuthorizeUserId,
-        IsActive: true,
-        UpdateAt: this.getDate()
-      };
-
-      // 停用帳戶 or 權限等級不一樣，重新設定
-      const isSucess = await prisma.managers.update({
-        where: { UserId },
-        data: newData
-      });
-
-      if (isSucess) {
-        return errorResponse(StatusCodes.BAD_REQUEST, {
-          status: false,
-          message: "帳號已存在，已更新設定，請使用原帳號登入"
-        });
-      }
-
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "帳號停用，重新啟用失敗"
-      });
-    }
-
-    // 沒建過帳戶，要產生註冊碼
-    const endTime = this.getDate();
-
+    const endTime = this.getDate(); 
+    
+    // 檢查有沒有時限內的註冊碼
     let qrCodeData = await prisma.user_auth_qr_codes.findFirst({
-      where: {
+      where: { 
+        ...tempData,
         UserId,
-        DeaconId: deaconId,
         EndTime: { gte: endTime },
         HasUsed: false
       }
     });
 
-    if (qrCodeData == null) {
-      // 沒有可用註冊碼
+    if (qrCodeData == null) {      
+      // 沒有可用註冊碼，要產生註冊碼 
       endTime.setMinutes(endTime.getMinutes() + 20);
 
-      const data = {
-        UserId,
-        DeaconId: deaconId,
-        AuthorizeUserId,
-        QRCode: uuidv4(),
-        EndTime: endTime
-      };
-
       // 新建註冊碼
-      qrCodeData = await prisma.user_auth_qr_codes.create({
-        data
+      qrCodeData = await prisma.user_auth_qr_codes.create({ 
+        data: { 
+          ...tempData,
+          UserId,
+          QRCode: uuidv4(),        
+          AuthorizeUserId: authorizeUserId,
+          EndTime: endTime
+        }
       });
-    }
-
-    if (qrCodeData == null) {
-      return errorResponse(StatusCodes.BAD_REQUEST, {
-        status: false,
-        message: "註冊碼取得失敗"
-      });
+      
+      if (qrCodeData == null) {
+        return errorResponse(StatusCodes.BAD_REQUEST, {
+          status: false,
+          message: "註冊碼取得失敗"
+        });
+      }
     }
 
     return responseSuccess("註冊碼取得成功", { qrcode: qrCodeData.QRCode });
@@ -771,19 +805,76 @@ export class ManagersController extends Controller {
       }
     });
 
-    if(item){
+    if (item) {
       return Number(item.ItemId);
     }
-    
-    return -1;       
+
+    return -1;
+  }
+  
+  /**
+   * 取得修改名稱的物件
+   * @param ChurchName 堂口名稱
+   * @param DeaconName 執事名稱
+   * @returns 
+   */
+  async getUpdateNameData(ChurchName: string, DeaconName: string) {    
+    if(!ChurchName || !DeaconName){
+      return {
+        canUpdate: false,
+          errorObj: {
+            status: false,
+            message: "缺少堂口名稱或執事名稱"
+          }
+      };
+    }
+
+    const churchId = await this.getChurchIdByName(ChurchName);
+    if(churchId === -1){      
+      return {
+        canUpdate: false,
+          errorObj: {
+            status: false,
+            message: "無效堂口名稱"
+          }
+      };
+    }
+
+    const deaconId = await this.getDeaconIdByName(DeaconName);
+    if(deaconId === -1){      
+      return {
+        canUpdate: false,
+          errorObj: {
+            status: false,
+            message: "無效執事名稱"
+          }
+      };
+    } 
+
+    return {
+      canUpdate: true,
+      data: {
+        churchId,
+        deaconId
+      }
+    };
+  }
+
+  /**
+   * 取得堂口Id
+   * @param ChurchName 堂口名稱 
+   * @returns 
+   */
+  private async getChurchIdByName(ChurchName: string) {
+    return this.changeToItemId("堂口名稱", ChurchName);
   }
 
   /**
    * 取得執事Id
    * @param deaconName 執事名稱
-   * @returns 
+   * @returns
    */
-  private async getDeaconIdByName(deaconName: string){
+  private async getDeaconIdByName(deaconName: string) {
     return this.changeToItemId("執事名稱", deaconName);
   }
 
@@ -800,40 +891,40 @@ export class ManagersController extends Controller {
   /**
    * Line 登入，全後端處理方式登入
    */
-  @Get('line')
+  @Get("line")
   @SuccessResponse(StatusCodes.MOVED_TEMPORARILY, "轉址到 Line 登入頁面")
   @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
-  public lineLogin () {
+  public lineLogin() {
     const lineLoginParams = {
-      response_type: 'code',
+      response_type: "code",
       client_id: String(process.env.LINE_CHANNEL_ID),
       redirect_uri: String(process.env.LINE_CALLBACK_URL),
       state: String(process.env.LINE_STATE),
-      scope: 'profile openid',
+      scope: "profile openid",
       nonce: String(process.env.LINE_NONCE),
-      ui_locales: 'ch-TW',
-      initial_amr_display: 'lineqr',
-      disable_auto_login: 'false',
+      ui_locales: "ch-TW",
+      initial_amr_display: "lineqr",
+      disable_auto_login: "false"
     };
-    
-    const url = new URL('https://access.line.me/oauth2/v2.1/authorize');
+
+    const url = new URL("https://access.line.me/oauth2/v2.1/authorize");
     Object.entries(lineLoginParams).forEach(([key, value]) => {
       url.searchParams.append(key, value);
     });
-    
+
     const lineLoginURL = url.toString();
 
     this.setStatus(StatusCodes.MOVED_TEMPORARILY);
-    this.setHeader('Location', lineLoginURL);
+    this.setHeader("Location", lineLoginURL);
   }
 
   /**
    * Line 登入 callback API，若使用全後端處理方式登入 Line，前端可忽略此 API
    */
-  @Get('line/callback')
+  @Get("line/callback")
   @SuccessResponse(StatusCodes.OK, "Line 登入成功")
   @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
-  public lineCallback (
+  public lineCallback(
     @Query() code: string,
     @Query() state: string,
     @Res()

@@ -11,6 +11,7 @@ datasource db {
 model managers {
   Id              Int      @id @default(autoincrement())
   UserId          Int?     @unique(map: "Managers_UserId_key") @db.UnsignedInt
+  ChurchId        Int      @default(0) @db.SmallInt
   DeaconId        Int      @default(0) @db.SmallInt
   Email           String?  @unique(map: "Managers_Email_key") @db.VarChar(255)
   Google          String?  @unique(map: "Managers_Google_key") @db.VarChar(255)
@@ -49,7 +50,7 @@ model users {
   RefugueMaster     String?   @db.VarChar(50)
   RefugueDate       DateTime? @db.Date
   Referrer          String?   @db.VarChar(50)
-  ClothType         Int?      @db.TinyInt
+  ClothType         String?   @db.VarChar(5)
   ClothSize         String?   @db.VarChar(4)
   EmergencyName     String?   @db.VarChar(50)
   EmergencyPhone    String?   @db.VarChar(20)
@@ -120,6 +121,7 @@ model rooms {
 model user_auth_qr_codes {
   Id              Int       @id @default(autoincrement())
   UserId          Int       @db.UnsignedInt
+  ChurchId        Int       @db.SmallInt
   DeaconId        Int       @db.SmallInt
   QRCode          String?   @unique(map: "idx_user_auth_qr_codes_QRCode") @db.VarChar(64)
   EndTime         DateTime? @db.DateTime(0)
@@ -164,6 +166,7 @@ model user_deacon_churchs {
   Id         Int       @id @default(autoincrement())
   UserId     Int       @db.UnsignedInt
   ChurchId   Int?      @db.SmallInt
+  ChurchName String?   @db.VarChar(20)
   DeaconId   Int?      @db.SmallInt
   DeaconArea Int?      @db.SmallInt
   ChurchUnit Int?      @db.SmallInt
@@ -246,7 +249,7 @@ view room_type_list {
 }
 
 view rooms_dormitory_area_building_list {
-  Id                Int  @unique @default(0)
+  Id                Int     @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -356,16 +359,18 @@ view user_auth_qr_codes_view {
   Gender              String  @default("") @db.VarChar(1)
   DharmaName          String? @db.VarChar(50)
   Name                String? @db.VarChar(50)
+  ChurchId            Int?    @db.SmallInt
+  ChurchName          String? @db.VarChar(20)
   DeaconId            Int?    @db.SmallInt
   DeaconName          String? @db.VarChar(20)
   AuthorizeUserId     Int     @db.UnsignedInt
-  AuthorizeDharmaName String? @db.VarChar(50)
+  AuthorizeName       String? @db.VarChar(50)
   AuthorizeDate       String? @db.VarChar(10)
   Status              String  @default("") @db.VarChar(7)
 }
 
 view user_permissions_view {
-  UserId              Int     @unique @db.UnsignedInt
+  UserId              Int      @unique @db.UnsignedInt
   IsSystemAdmin       Boolean? @default(false)
   HasBuddhaSevenApply Boolean? @default(false)
   HasRefugeApply      Boolean? @default(false)

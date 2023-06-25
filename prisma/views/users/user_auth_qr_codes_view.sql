@@ -9,10 +9,17 @@ SELECT
   ) AS `Gender`,
   `a`.`DharmaName` AS `DharmaName`,
   `a`.`Name` AS `Name`,
+  `users`.`c`.`ChurchId` AS `ChurchId`,
+  `users`.`c`.`ChurchName` AS `ChurchName`,
   `users`.`d`.`DeaconId` AS `DeaconId`,
   `users`.`d`.`DeaconName` AS `DeaconName`,
   `u`.`AuthorizeUserId` AS `AuthorizeUserId`,
-  `b`.`DharmaName` AS `AuthorizeDharmaName`,
+(
+    CASE
+      WHEN (`b`.`DharmaName` IS NOT NULL) THEN `b`.`DharmaName`
+      ELSE `b`.`Name`
+    END
+  ) AS `AuthorizeName`,
   date_format((`u`.`EndTime` - INTERVAL 20 MINUTE), '%Y/%c/%e') AS `AuthorizeDate`,
 (
     CASE
@@ -30,38 +37,11 @@ FROM
       (
         (
           `users`.`user_auth_qr_codes` `u`
-          JOIN (
-            SELECT
-              `users`.`user_auth_qr_codes`.`UserId` AS `UserId`,
-              max(`users`.`user_auth_qr_codes`.`EndTime`) AS `LatestEndTime`
-            FROM
-              `users`.`user_auth_qr_codes`
-            GROUP BY
-              `users`.`user_auth_qr_codes`.`UserId`
-          ) `sub` ON(
-            (
-              (`u`.`UserId` = `sub`.`UserId`)
-              AND (`u`.`EndTime` = `sub`.`LatestEndTime`)
-            )
-          )
+          LEFT JOIN `users`.`user_church_name_list` `c` ON((`u`.`ChurchId` = `users`.`c`.`ChurchId`))
         )
-        LEFT JOIN (
-          SELECT
-            `users`.`users`.`Id` AS `Id`,
-            `users`.`users`.`Name` AS `Name`,
-            `users`.`users`.`DharmaName` AS `DharmaName`,
-            `users`.`users`.`IsMale` AS `IsMale`
-          FROM
-            `users`.`users`
-        ) `a` ON((`u`.`UserId` = `a`.`Id`))
+        LEFT JOIN `users`.`user_deacon_name_list` `d` ON((`u`.`DeaconId` = `users`.`d`.`DeaconId`))
       )
-      LEFT JOIN (
-        SELECT
-          `users`.`users`.`Id` AS `Id`,
-          `users`.`users`.`DharmaName` AS `DharmaName`
-        FROM
-          `users`.`users`
-      ) `b` ON((`u`.`AuthorizeUserId` = `a`.`Id`))
+      LEFT JOIN `users`.`users` `a` ON((`u`.`UserId` = `a`.`Id`))
     )
-    LEFT JOIN `users`.`user_deacon_name_list` `d` ON((`u`.`DeaconId` = `users`.`d`.`DeaconId`))
+    LEFT JOIN `users`.`users` `b` ON((`u`.`AuthorizeUserId` = `b`.`Id`))
   )

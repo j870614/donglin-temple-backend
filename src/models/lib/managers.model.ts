@@ -18,7 +18,8 @@ export interface SignInByEmailRequest {
  * @example
  * {
  *   "AuthorizeUserId": 4,
- *   "UserId": 45,
+ *   "UserId": 45, 
+ *   "ChurchName":"知客",
  *   "DeaconName": "知客志工"
  * }
  */
@@ -34,7 +35,12 @@ export interface QRCodeRequest {
    * - 要資料表[managers]沒建過的
    * @minimum 0 
    */
-  UserId: number;
+  UserId: number;  
+  /**
+   * 堂口名稱
+   * - 目前只開放：[知客, 寮房]
+   */
+  ChurchName: string;
   /**
    * QRCode 使用者的管理權限等級
    * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
@@ -43,15 +49,20 @@ export interface QRCodeRequest {
 }
 
 /**
- * 管理者角色變更請求物件
+ * 管理者權限資料變更請求物件
  */
-export interface ManagerRoleRequest {
+export interface ManagerAuthRequest {
   /**
    * 被修改人的 UserId
    * - 唯一值
    * @minimum 0 
    */
   UserId: number;
+  /**
+   * 堂口名稱
+   * - 目前只開放：[知客, 寮房]
+   */
+  ChurchName: string | undefined;
   /**
    * 管理權者權限等級
    * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
@@ -60,7 +71,7 @@ export interface ManagerRoleRequest {
   /**
    * 是否啟用
    */
-  IsActive: boolean | undefined
+  IsActive: boolean | undefined;
 }
 
 /**
@@ -68,20 +79,25 @@ export interface ManagerRoleRequest {
  */
 export interface UpdateDBManagersRole {
   /**
+   * 堂口名稱
+   * - 目前只開放：[知客, 寮房]
+   */
+  ChurchId: number | undefined;
+  /**
    * 管理權者權限等級
    * - 執事名稱：[知客師, 總知客, 副總知客, 知客志工, 寮房, 系統管理員]
    */
-  DeaconId: number | undefined,
+  DeaconId: number | undefined;
   /**
    * 授權人 UserId
    */
-  AuthorizeUserId: number,
+  AuthorizeUserId: number;
   /**
    * 是否啟用
    */
-  IsActive: boolean | undefined
+  IsActive: boolean | undefined;
   /**
    * 資料更新時間（由系統提供）
    */
-  UpdateAt: Date
+  UpdateAt: Date;
 }

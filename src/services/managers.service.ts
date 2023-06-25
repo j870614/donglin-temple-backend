@@ -2,8 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import bcrypt from "bcryptjs";
 import validator from "validator";
 import { TsoaResponse } from "src/utils/responseTsoaError";
-import  axios from 'axios';
-import  querystring  from "querystring";
+import axios from "axios";
 
 import {
   GetManyRequest,
@@ -123,6 +122,7 @@ export class ManagersService {
         Email,
         UserId: userData.UserId,
         Password: hashedPassword,
+        ChurchId: userData.ChurchId,
         DeaconId: userData.DeaconId,
         AuthorizeUserId: userData.AuthorizeUserId
       };
@@ -227,46 +227,50 @@ export class ManagersService {
   /**
    * Line 登入驗證，成功將回傳 Line user ID
    */
-  private  async verifyLineLogin (
-    code:string, 
-    state:string, 
+  private async verifyLineLogin(
+    code: string,
+    state: string,
     errorResponse: TsoaResponse<
-    StatusCodes.BAD_REQUEST,
-    { status: false; message?: string }
-  >,
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >,
     isFrontEndSeparate = false,
   ) {
-    
     const lineState = String(process.env.LINE_STATE);
-    if(state !== lineState) {
+    if (state !== lineState) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "Line 登入驗證錯誤"
       });
-    } 
-  
+    }
+
     // 拿 code 換成 access_token
     const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      "Content-Type": "application/x-www-form-urlencoded"
     };
-  
+
     const data = {
-      grant_type: 'authorization_code',
+      grant_type: "authorization_code",
       code,
       redirect_uri: isFrontEndSeparate? String(process.env.LINE_FRONTEND_CALLBACK_URL) : String(process.env.LINE_CALLBACK_URL), // 判斷是否為前後端分離方式實作 Line 登入，對應不同的 callback URL。
       client_id: String(process.env.LINE_CHANNEL_ID),
-      client_secret: String(process.env.LINE_CHANNEL_SECRET),
+      client_secret: String(process.env.LINE_CHANNEL_SECRET)
     };
-  
-    const lineResponse: AxiosResponse<LineResponse> = await axios.post('https://api.line.me/oauth2/v2.1/token', querystring.stringify(data), { headers });
-  
+
+    const lineResponse: AxiosResponse<LineResponse> = await axios.post(
+      "https://api.line.me/oauth2/v2.1/token",
+      new URLSearchParams(data).toString(),
+      { headers }
+    );
+
     // 向 Line 獲取用戶資訊
-    const userInfoResponse: AxiosResponse<LineUserInfoResponse> = await axios.get('https://api.line.me/v2/profile', {
-      headers: {
-        'Authorization': `Bearer ${lineResponse.data.access_token}`
-      }
-    });
-    
+    const userInfoResponse: AxiosResponse<LineUserInfoResponse> =
+      await axios.get("https://api.line.me/v2/profile", {
+        headers: {
+          Authorization: `Bearer ${lineResponse.data.access_token}`
+        }
+      });
+
     const { userId } = userInfoResponse.data;
 
     return userId; // 此 userId 為 Line user ID
@@ -278,29 +282,28 @@ export class ManagersService {
   async signInWithLine (
     lineLoginRequest: LineLoginRequest,
     errorResponse: TsoaResponse<
-    StatusCodes.BAD_REQUEST,
-    { status: false; message?: string }
-  >,
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >,
     isFrontEndSeparate = false,
   ) {
-    const { code, state } = lineLoginRequest;
-    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse, isFrontEndSeparate);
-  
+    const { code, state } = lineLoginRequest;    const lineUserId = await this.verifyLineLogin(code, state, errorResponse, isFrontEndSeparate);
+
     const manager = await prisma.managers.findUnique({
-      where: { 
-        Line: String(lineUserId),
+      where: {
+        Line: String(lineUserId)
       } 
     });
-  
+
     if ( !manager ) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "尚未邀請系統權限，或帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
     }
-    
+
     return responseSuccess("Line 登入成功", { ...generateAndSendJWT(manager) });
-  };
+  }
 
   /**
    * Managers 新註冊，並綁定 Line 第三方登入
