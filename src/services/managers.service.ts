@@ -233,7 +233,8 @@ export class ManagersService {
     errorResponse: TsoaResponse<
     StatusCodes.BAD_REQUEST,
     { status: false; message?: string }
-  >
+  >,
+    isFrontEndSeparate = false,
   ) {
     
     const lineState = String(process.env.LINE_STATE);
@@ -252,7 +253,7 @@ export class ManagersService {
     const data = {
       grant_type: 'authorization_code',
       code,
-      redirect_uri: String(process.env.LINE_CALLBACK_URL),
+      redirect_uri: isFrontEndSeparate? String(process.env.LINE_FRONTEND_CALLBACK_URL) : String(process.env.LINE_CALLBACK_URL), // 判斷是否為前後端分離方式實作 Line 登入，對應不同的 callback URL。
       client_id: String(process.env.LINE_CHANNEL_ID),
       client_secret: String(process.env.LINE_CHANNEL_SECRET),
     };
@@ -272,23 +273,23 @@ export class ManagersService {
   }
 
   /**
-   * Line 登入 callback
+   * Line 登入
    */
-  async lineCallback (
+  async signInWithLine (
     lineLoginRequest: LineLoginRequest,
-    qrCodeRequest: string | undefined,
     errorResponse: TsoaResponse<
     StatusCodes.BAD_REQUEST,
     { status: false; message?: string }
-  >
+  >,
+    isFrontEndSeparate = false,
   ) {
-    const { code, state, UserId } = lineLoginRequest;
-    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse);
+    const { code, state } = lineLoginRequest;
+    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse, isFrontEndSeparate);
   
     const manager = await prisma.managers.findUnique({
       where: { 
         Line: String(lineUserId),
-      }
+      } 
     });
   
     if ( !manager ) {
@@ -297,59 +298,133 @@ export class ManagersService {
         message: "尚未邀請系統權限，或帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
     }
+    
+    return responseSuccess("Line 登入成功", { ...generateAndSendJWT(manager) });
+  };
 
-    if (!manager && !(UserId || qrCodeRequest) ) {
+  /**
+   * Managers 新註冊，並綁定 Line 第三方登入
+   */
+  async signUpWithLine (
+    lineLoginRequest: LineLoginRequest,
+    qrCodeRequest: string,
+    errorResponse: TsoaResponse<
+    StatusCodes.BAD_REQUEST,
+    { status: false; message?: string }
+  >
+  ) {
+    const { code, state, UserId } = lineLoginRequest;
+    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse, true);
+  
+    const existingManagerByLine = await prisma.managers.findUnique({
+      where: { 
+        Line: String(lineUserId),
+      }
+    });
+
+    // 驗證是否重複綁定同一個 Line 帳號
+    if ( existingManagerByLine ) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "您的 Line 已經建立過管理員帳號"
+      });
+    }
+
+    if (!existingManagerByLine && !(UserId || qrCodeRequest) ) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
         status: false,
         message: "帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
     }
+    
+    const qrCode = qrCodeRequest;
+    const userData = await this.getUserAuthDataFromQRCode(qrCode);
 
-    // 系統 manager 綁定 Line 登入
-    if ( !manager && (UserId || qrCodeRequest)) {
-      const qrCode = qrCodeRequest || "";
-      const userData = await this.getUserAuthDataFromQRCode(qrCode);
-
-      if (qrCodeRequest && !userData) {
-        return errorResponse(StatusCodes.BAD_REQUEST, { 
-          status: false,
-          message: "QRCode 無效或是已過期"
-        });
-      }
-
-      // 驗證是否重複綁定同一個寺務系統 UserId
-      const userId = userData ? userData.UserId : UserId;
-      const existingManagerByUserId = await this.prismaClient.managers.findFirst({
-        where: { UserId: userId }
+    if (!userData) {
+      return errorResponse(StatusCodes.BAD_REQUEST, { 
+        status: false,
+        message: "QRCode 無效或是已過期"
       });
-
-      if ( existingManagerByUserId ) {
-        return errorResponse(StatusCodes.BAD_REQUEST, {
-          status: false,
-          message: "此四眾個資已經建立過管理員帳號"
-        });
-      }
-
-      let data;
-
-      if (userData) {
-        // 註冊碼帶的權限資料
-        data = {
-          UserId: userData.UserId,
-          DeaconId: userData.DeaconId,
-          AuthorizeUserId: userData.AuthorizeUserId,
-          Line: String(lineUserId),
-        };
-        const signedManager = await this.prismaClient.managers.create({
-          data
-        })
-      }
-
-      if (userData) {
-        await this.getQRCodeSetUsed(qrCode);
-      }
     }
+
+    // 驗證是否重複綁定同一個寺務系統 UserId
+    const userId = userData ? userData.UserId : UserId;
+    const existingManagerByUserId = await this.prismaClient.managers.findFirst({
+      where: { UserId: userId }
+    });
+
+    if ( existingManagerByUserId ) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "此四眾個資已經建立過管理員帳號"
+      });
+    }
+
+    // 註冊碼帶的權限資料
+    const data = {
+      UserId: userData.UserId,
+      DeaconId: userData.DeaconId,
+      AuthorizeUserId: userData.AuthorizeUserId,
+      Line: String(lineUserId),
+    };
+    const signedManager = await this.prismaClient.managers.create({
+      data
+    })
+
+
+    await this.getQRCodeSetUsed(qrCode);
+
+
+    return responseSuccess("註冊成功", { manager: signedManager });
+  }
+
+  /**
+   * 既有 Managers 綁定 Line 第三方登入
+   */
+  async assignLineToManager(
+    lineLoginRequest: LineLoginRequest,
+    errorResponse: TsoaResponse<
+    StatusCodes.BAD_REQUEST,
+    { status: false; message?: string }
+  >
+  ) {
+    const { code, state, UserId } = lineLoginRequest;
+    const lineUserId  = await this.verifyLineLogin(code, state, errorResponse, true);
   
-    return responseSuccess("Line 登入成功", { ...generateAndSendJWT(manager) });
-  };
+    const existingManagerByLine = await prisma.managers.findUnique({
+      where: { 
+        Line: String(lineUserId),
+      }
+    });
+
+    // 驗證是否重複綁定同一個 Line 帳號
+    if ( existingManagerByLine ) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "您的 Line 已經建立過管理員帳號"
+      });
+    }
+
+    const manager = await prisma.managers.findUnique({
+      where: { 
+        UserId,
+      } 
+    });
+  
+    if ( !manager ) {
+      return errorResponse(StatusCodes.BAD_REQUEST, {
+        status: false,
+        message: "此四眾個資尚未邀請系統權限，請洽系統管理員"
+      });
+    }
+
+    const assignLineToManager = await this.prismaClient.managers.update({
+      where: { Id: manager.Id },
+      data: {
+        Line: String(lineUserId),
+      }
+    });
+
+    return responseSuccess("綁定 Line 第三方登入成功", { manager: assignLineToManager });
+  }
 }
