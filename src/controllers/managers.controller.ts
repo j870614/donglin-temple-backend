@@ -22,6 +22,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
+import { CommonService } from "../services/common.service";
 import { ManagersService } from "../services/managers.service";
 import {
   ErrorData,
@@ -189,9 +190,13 @@ export class ManagersController extends Controller {
       });
     }
 
-    const { UserId } = jwt.decode(token) as JwtPayload;
+    const { UserId, UserName, DeaconName } = jwt.decode(token) as JwtPayload;
 
-    return responseSuccess("已獲得管理員個人檔案", { userId: Number(UserId) });
+    return responseSuccess("已獲得管理員個人檔案", { 
+      userId: Number(UserId),
+      userName: String(UserName),
+      deaconName: String(DeaconName)
+     });
   }
 
   /**
@@ -285,7 +290,7 @@ export class ManagersController extends Controller {
     let churchId = -1;
 
     if (churchName) {
-      churchId = await this.getChurchIdByName(churchName);
+      churchId = await CommonService.getChurchIdByName(churchName);
 
       if (churchId === -1) {
         errorData.errorObj.message = "找不到堂口Id";
@@ -308,7 +313,7 @@ export class ManagersController extends Controller {
 
     // 檢查被授權角色
     if (deaconName) {
-      const deaconId = await this.getDeaconIdByName(deaconName);
+      const deaconId = await CommonService.getDeaconIdByName(deaconName);
 
       if (deaconId === -1) {
         errorData.errorObj.message = "找不到執事Id";
@@ -457,7 +462,8 @@ export class ManagersController extends Controller {
       where: {
         UserId: result.userId,
         IsActive: true
-      }
+      },
+      select: { Id: true }
     });
 
     if (manager == null) {
@@ -585,12 +591,11 @@ export class ManagersController extends Controller {
       tempData.ChurchId, 
       tempData.DeaconId,
       authorizeUserId
-      );
+      ) as { canUpdate: boolean; errorObj: ErrorData; };
 
     if(!managerResult.canUpdate){
       // 已經建過
-      const error = result.errorObj as ErrorData;
-      return errorResponse(StatusCodes.BAD_REQUEST, error);
+      return errorResponse(StatusCodes.BAD_REQUEST, managerResult.errorObj);
     }
 
     const endTime = this.getDate(); 
@@ -645,6 +650,8 @@ export class ManagersController extends Controller {
     DeaconId: number, 
     AuthorizeUserId: number
     ) {
+      console.log(`UserId: ${UserId}, ChurchId: ${ChurchId}, DeaconId: ${DeaconId}, AuthorizeUserId: ${AuthorizeUserId}`);
+
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
 
@@ -737,12 +744,13 @@ export class ManagersController extends Controller {
       tempData.ChurchId, 
       tempData.DeaconId,
       authorizeUserId
-      );
+      ) as { canUpdate: boolean; errorObj: ErrorData; };
+
+    console.log(managerResult)
 
     if(!managerResult.canUpdate){
-      // 已經建過
-      const error = result.errorObj as ErrorData;
-      return errorResponse(StatusCodes.BAD_REQUEST, error);
+      // 已經建過      
+      return errorResponse(StatusCodes.BAD_REQUEST, managerResult.errorObj);
     }
 
     const endTime = this.getDate(); 
@@ -829,7 +837,7 @@ export class ManagersController extends Controller {
       };
     }
 
-    const churchId = await this.getChurchIdByName(ChurchName);
+    const churchId = await CommonService.getChurchIdByName(ChurchName);
     if(churchId === -1){      
       return {
         canUpdate: false,
@@ -840,7 +848,7 @@ export class ManagersController extends Controller {
       };
     }
 
-    const deaconId = await this.getDeaconIdByName(DeaconName);
+    const deaconId = await CommonService.getDeaconIdByName(DeaconName);
     if(deaconId === -1){      
       return {
         canUpdate: false,
@@ -858,24 +866,6 @@ export class ManagersController extends Controller {
         deaconId
       }
     };
-  }
-
-  /**
-   * 取得堂口Id
-   * @param ChurchName 堂口名稱 
-   * @returns 
-   */
-  private async getChurchIdByName(ChurchName: string) {
-    return this.changeToItemId("堂口名稱", ChurchName);
-  }
-
-  /**
-   * 取得執事Id
-   * @param deaconName 執事名稱
-   * @returns
-   */
-  private async getDeaconIdByName(deaconName: string) {
-    return this.changeToItemId("執事名稱", deaconName);
   }
 
   /**
