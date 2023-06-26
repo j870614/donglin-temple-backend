@@ -22,7 +22,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 
-import { CommonService } from "src/services/common.service";
+import { CommonService } from "../services/common.service";
 import { ManagersService } from "../services/managers.service";
 // import { lineCallback } from "../services/line.service";
 import {
@@ -591,12 +591,11 @@ export class ManagersController extends Controller {
       tempData.ChurchId, 
       tempData.DeaconId,
       authorizeUserId
-      );
+      ) as { canUpdate: boolean; errorObj: ErrorData; };
 
     if(!managerResult.canUpdate){
       // 已經建過
-      const error = result.errorObj as ErrorData;
-      return errorResponse(StatusCodes.BAD_REQUEST, error);
+      return errorResponse(StatusCodes.BAD_REQUEST, managerResult.errorObj);
     }
 
     const endTime = this.getDate(); 
@@ -651,6 +650,8 @@ export class ManagersController extends Controller {
     DeaconId: number, 
     AuthorizeUserId: number
     ) {
+      console.log(`UserId: ${UserId}, ChurchId: ${ChurchId}, DeaconId: ${DeaconId}, AuthorizeUserId: ${AuthorizeUserId}`);
+
     // 檢查 UserId 有沒建過資料
     const manager = await prisma.managers.findFirst({ where: { UserId } });
 
@@ -743,12 +744,13 @@ export class ManagersController extends Controller {
       tempData.ChurchId, 
       tempData.DeaconId,
       authorizeUserId
-      );
+      ) as { canUpdate: boolean; errorObj: ErrorData; };
+
+    console.log(managerResult)
 
     if(!managerResult.canUpdate){
-      // 已經建過
-      const error = result.errorObj as ErrorData;
-      return errorResponse(StatusCodes.BAD_REQUEST, error);
+      // 已經建過      
+      return errorResponse(StatusCodes.BAD_REQUEST, managerResult.errorObj);
     }
 
     const endTime = this.getDate(); 
