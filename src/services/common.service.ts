@@ -1,9 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from "../configs/prismaClient";
 
 export class CommonService {
   private static itemMappingCache: Record<string, Record<string, number>> = {};
-
-  private static prismaClient: PrismaClient;
   
 
   /**
@@ -84,7 +82,9 @@ export class CommonService {
    * @returns 
    */
   private static getItemIdByCache(groupName: string, itemValue: string) {
-    if (CommonService.itemMappingCache[groupName]) {
+    if (CommonService.itemMappingCache[groupName]
+      && (CommonService.itemMappingCache[groupName][itemValue]
+        || CommonService.itemMappingCache[groupName][itemValue] === 0)) {
       return Number(CommonService.itemMappingCache[groupName][itemValue]);
     }
     return -1;
@@ -101,7 +101,7 @@ export class CommonService {
 
   private static async setItemGroupCache(groupName: string){
     // 從 DB 取回整個 group
-    const items = (await CommonService.prismaClient.item_name_mapping.findMany({
+    const items = (await prisma.item_name_mapping.findMany({
       where: { 
         GroupName: groupName,  
         ItemValue: { not: null }
