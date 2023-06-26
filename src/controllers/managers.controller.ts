@@ -24,7 +24,6 @@ import { TsoaResponse } from "src/utils/responseTsoaError";
 
 import { CommonService } from "../services/common.service";
 import { ManagersService } from "../services/managers.service";
-// import { lineCallback } from "../services/line.service";
 import {
   ErrorData,
   GetManyRequest,
@@ -32,7 +31,8 @@ import {
   QRCodeRequest,
   SignInByEmailRequest,
   SignUpByEmailRequest,
-  UpdateDBManagersRole
+  UpdateDBManagersRole,
+  LineLoginRequest
 } from "../models";
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
@@ -879,7 +879,7 @@ export class ManagersController extends Controller {
   }
 
   /**
-   * Line  登入
+   * Line 登入，全後端處理方式登入
    */
   @Get("line")
   @SuccessResponse(StatusCodes.MOVED_TEMPORARILY, "轉址到 Line 登入頁面")
@@ -909,7 +909,7 @@ export class ManagersController extends Controller {
   }
 
   /**
-   * Line 登入 callback API
+   * Line 登入 callback API，若使用全後端處理方式登入 Line，前端可忽略此 API
    */
   @Get("line/callback")
   @SuccessResponse(StatusCodes.OK, "Line 登入成功")
@@ -923,6 +923,93 @@ export class ManagersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    return this._manager.lineCallback(code, state, errorResponse);
+    const lineLoginRequest: LineLoginRequest = {
+      code,
+      state
+    }
+    return this._manager.signInWithLine(lineLoginRequest, errorResponse);
+  }
+
+  /**
+   * Line 登入驗證，前後端分離方式登入
+   */
+  @Get('line/signin')
+  @SuccessResponse(StatusCodes.MOVED_TEMPORARILY, "轉址到 Line 登入頁面")
+  @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
+  public verifyLineLoginWithFrontend () {
+    const lineLoginParams = {
+      response_type: 'code',
+      client_id: String(process.env.LINE_CHANNEL_ID),
+      redirect_uri: String(process.env.LINE_FRONTEND_CALLBACK_URL),
+      state: String(process.env.LINE_STATE),
+      scope: 'profile openid',
+      nonce: String(process.env.LINE_NONCE),
+      ui_locales: 'ch-TW',
+      initial_amr_display: 'lineqr',
+      disable_auto_login: 'false',
+    };
+    
+    const url = new URL('https://access.line.me/oauth2/v2.1/authorize');
+    Object.entries(lineLoginParams).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+    
+    const lineLoginURL = url.toString();
+
+    this.setStatus(StatusCodes.MOVED_TEMPORARILY);
+    this.setHeader('Location', lineLoginURL);
+  }
+
+  /**
+   * Line 登入，前後端分離方式登入。登入時 Request body 不需要帶入 UserId，只需回傳 Callback URL 參數上的 code 與 state。
+   */
+  @Post('line/signin')
+  @SuccessResponse(StatusCodes.OK, "Line 登入成功")
+  @Response(StatusCodes.BAD_REQUEST, "Line 登入失敗")
+  public lineLoginWithFrontend (
+    @Body() lineLoginRequest: LineLoginRequest,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+
+  ) {
+    return this._manager.signInWithLine(lineLoginRequest, errorResponse, true);
+  }
+
+  /**
+   * Managers 新註冊，並綁定 Line 第三方登入
+   */
+  @Post('line/signup/{qrcode}')
+  @SuccessResponse(StatusCodes.OK, "Line 綁定成功")
+  @Response(StatusCodes.BAD_REQUEST, "Line 綁定失敗")
+  public signUpWithLine (
+    @Path() qrcode: string,
+    @Body() lineLoginRequest: LineLoginRequest,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    return this._manager.signUpWithLine(lineLoginRequest, qrcode, errorResponse);
+  }
+
+  /**
+   * 既有 Managers 綁定 Line 第三方登入
+   */
+  @Post('line/assign')
+  @SuccessResponse(StatusCodes.OK, "Line 綁定成功")
+  @Response(StatusCodes.BAD_REQUEST, "Line 綁定失敗")
+  public assignLineToManager (
+    @Body() lineLoginRequest: LineLoginRequest,
+    @Res()
+    errorResponse: TsoaResponse<
+      StatusCodes.BAD_REQUEST,
+      { status: false; message?: string }
+    >
+  ) {
+    return this._manager.assignLineToManager(lineLoginRequest, errorResponse);
   }
 }
