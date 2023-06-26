@@ -18,7 +18,7 @@ export class CommonService {
    * @param ChurchName 
    * @returns 項目 Id or -1
    */
-  public static getChurchIdByName(ChurchName: string){
+  public static async getChurchIdByName(ChurchName: string){
     return this.changeToItemId("堂口名稱", ChurchName);
   }
 
@@ -27,7 +27,7 @@ export class CommonService {
    * @param deaconId 
    * @returns 項目名稱 or null
    */
-  public static getDeaconNameById(deaconId: number){
+  public static async getDeaconNameById(deaconId: number){
     return this.changeToItemValue("執事名稱", deaconId);
   }
 
@@ -36,7 +36,7 @@ export class CommonService {
    * @param deaconName 執事名稱
    * @returns 項目 Id or -1
    */
-  public static getDeaconIdByName(deaconName: string){
+  public static async getDeaconIdByName(deaconName: string){
     return this.changeToItemId("執事名稱", deaconName);
   }
 
@@ -53,7 +53,10 @@ export class CommonService {
     // 檢查快取有沒有資料
     if(!CommonService.itemMappingCache[groupName]){
       // 從 DB 取回整個 group
-      await this.setItemGroupCache(groupName);
+      const result = await this.setItemGroupCache(groupName);
+      if(!result){
+        return -1;
+      }
     }
 
     return CommonService.getItemIdByCache(groupName, itemValue);       
@@ -68,7 +71,10 @@ export class CommonService {
   private static async changeToItemValue(groupName: string, Id: number): Promise<string | null> {
     // 檢查快取有沒有資料
     if (!CommonService.itemMappingCache[groupName]) {
-      await this.setItemGroupCache(groupName);
+      const result = await this.setItemGroupCache(groupName);
+      if(!result){
+        return null;
+      }
     }
 
     const itemValue = CommonService.getItemValueByCache(groupName, Id);
@@ -121,7 +127,11 @@ export class CommonService {
           [ItemValue]: Number(ItemId)
         };
       }, {});
+      if(CommonService.itemMappingCache[groupName]){
+        return true;
+      }
     }
+    return false;
   }
 }
  
