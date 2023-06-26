@@ -15,7 +15,7 @@ const JWT_EXPIRATION = "7d";
 export const generateAndSendJWT = async (manager: managers) => {
   const { UserId, DeaconId } = manager;
   const user = await prisma.users.findFirst({
-    where: { Id: UserId?.valueOf() },
+    where: { Id: Number(UserId) },
     select: { 
       Name: true,
       DharmaName: true
@@ -23,7 +23,7 @@ export const generateAndSendJWT = async (manager: managers) => {
   });
 
   const userName = user?.DharmaName || user?.Name || "unknown";
-  const deaconName = CommonService.getDeaconNameById(DeaconId)
+  const deaconName = await CommonService.getDeaconNameById(DeaconId)
 
   const token = jwt.sign({ 
     scopes: ["manager"], 
@@ -34,7 +34,7 @@ export const generateAndSendJWT = async (manager: managers) => {
     expiresIn: JWT_EXPIRATION
   });
   const { exp } = jwt.decode(token) as JwtPayload;
-
+  
   return { 
     userId: UserId, 
     userName, 

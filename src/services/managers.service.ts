@@ -179,7 +179,9 @@ export class ManagersService {
       });
     }
 
-    return responseSuccess("登入成功", { ...generateAndSendJWT(manager) });
+    const result = await generateAndSendJWT(manager);
+    
+    return responseSuccess("登入成功", { ...result });
   }
 
   checkAuthorization() {
@@ -301,8 +303,10 @@ export class ManagersService {
         message: "尚未邀請系統權限，或帳號未綁定 Line 帳號登入，請洽系統管理員"
       });
     }
+    
+    const result = await generateAndSendJWT(manager);
 
-    return responseSuccess("Line 登入成功", { ...generateAndSendJWT(manager) });
+    return responseSuccess("Line 登入成功", { ...result });
   }
 
   /**
