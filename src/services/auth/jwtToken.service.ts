@@ -1,6 +1,7 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { managers } from "@prisma/client";
-import prismaClient from "src/configs/prismaClient";
+import prisma from "../../configs/prismaClient";
+
 import {
   JwtModuleOptions
   // JwtSignOptions,
@@ -13,7 +14,7 @@ const JWT_EXPIRATION = "7d";
 
 export const generateAndSendJWT = async (manager: managers) => {
   const { UserId, DeaconId } = manager;
-  const user = await prismaClient.users.findFirst({
+  const user = await prisma.users.findFirst({
     where: { Id: UserId?.valueOf() },
     select: { 
       Name: true,
