@@ -259,8 +259,8 @@ export class UsersController extends Controller {
   ) {
     // 檢查四眾個資必填欄位，法師居士所須必填之欄位不同
     const { IsMonk, StayIdentity, Expertise, HealthStatus } = userCreateBody;
-    const parsedExpertise = prismaJsonParser(Expertise);
-    const parsedHealthStatus = prismaJsonParser(HealthStatus);
+    const parsedExpertise = Expertise && prismaJsonParser(Expertise);
+    const parsedHealthStatus = HealthStatus && prismaJsonParser(HealthStatus);
 
     let parsedStayIdentity: number;
 
