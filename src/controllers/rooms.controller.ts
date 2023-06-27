@@ -24,6 +24,7 @@ import {
 
 @Tags("Room - 寮房狀態")
 @Route("/api/rooms")
+
 export class RoomsController extends Controller {
   /**
    * 取得所有寮房狀態
@@ -33,6 +34,85 @@ export class RoomsController extends Controller {
    */
   @Get()
   @SuccessResponse(StatusCodes.OK, "查詢成功")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      rooms: [
+        {
+          Id: 50704,
+          DormitoryAreaId: 5,
+          BuildingId: 7,
+          ShareId: 4,
+          RoomType: 1,
+          IsMale: true,
+          TotalBeds: 2,
+          ReservedBeds: 0,
+          IsActive: true,
+          UpdateAt: "2023-05-15T23:56:33.000Z",
+          RoomId: 50704,
+          DormitoryAreaName: "其他",
+          BuildingName: "G",
+          RoomTypeName: "一般寮房",
+          GenderName: "男",
+        },
+        {
+          Id: 50703,
+          DormitoryAreaId: 5,
+          BuildingId: 7,
+          ShareId: 3,
+          RoomType: 1,
+          IsMale: true,
+          TotalBeds: 2,
+          ReservedBeds: 1,
+          IsActive: true,
+          UpdateAt: "2023-05-15T23:56:32.000Z",
+          RoomId: 50703,
+          DormitoryAreaName: "其他",
+          BuildingName: "G",
+          RoomTypeName: "一般寮房",
+          GenderName: "男",
+          userOne: {
+            Name: "naka",
+            DharmaName: "naka",
+            StayIdentityName: "常住法師",
+            RoomId: 50703,
+            BedStayOrderNumber: 1,
+            CheckInDate: "2023-06-06T00:00:00.000Z",
+            CheckOutDate: "2023-06-10T00:00:00.000Z",
+            Status: "已報到佛七",
+          },
+        },
+        {
+          Id: 50702,
+          DormitoryAreaId: 5,
+          BuildingId: 7,
+          ShareId: 2,
+          RoomType: 1,
+          IsMale: true,
+          TotalBeds: 2,
+          ReservedBeds: 1,
+          IsActive: true,
+          UpdateAt: "2023-05-15T23:56:32.000Z",
+          RoomId: 50702,
+          DormitoryAreaName: "其他",
+          BuildingName: "G",
+          RoomTypeName: "一般寮房",
+          GenderName: "男",
+          userOne: {
+            Name: "王真誠",
+            DharmaName: "普是",
+            StayIdentityName: "佛七蓮友",
+            RoomId: 50702,
+            BedStayOrderNumber: 1,
+            CheckInDate: "2023-07-01T00:00:00.000Z",
+            CheckOutDate: "2023-07-07T00:00:00.000Z",
+            Status: "已報名佛七",
+          },
+        },
+      ],
+    },
+  })
   public async getAll(
     @Query() order: "asc" | "desc" = "desc",
     @Query() take = 100,
@@ -45,22 +125,53 @@ export class RoomsController extends Controller {
     });
     const viewType = await prisma.room_type_list.findMany({});
     const viewRoomData = await prisma.rooms_view.findMany({});
-    const roomsDormitoryAreaBuildingList =
-      await prisma.rooms_dormitory_area_building_list.findMany({});
+    const roomsDormitoryAreaBuildingList = await prisma.rooms_dormitory_area_building_list.findMany({});
 
-    const mergedData = rooms.map((room) => {
-      const viewRoom = viewRoomData.find((view) => view.RoomId === room.Id);
-      const roomType = viewType.find((type) => type.RoomType === room.RoomType);
-      const viewAreaBuildList = roomsDormitoryAreaBuildingList.find(
-        (buildList) => buildList.Id === room.Id
-      );
-      return {
-        ...room,
-        ...viewRoom,
-        ...roomType,
-        ...viewAreaBuildList
-      };
-    });
+    const mergedData = await Promise.all(
+      rooms.map(async (room) => {
+        const viewRoom = viewRoomData.find((view) => view.RoomId === room.Id);
+        const roomType = viewType.find((type) => type.RoomType === room.RoomType);
+        const viewAreaBuildList = roomsDormitoryAreaBuildingList.find(
+          (buildList) => buildList.Id === room.Id
+        );
+        let buddhaSevenData;
+        let BedStayOrderNumber1;
+        let BedStayOrderNumber2;
+        let BedStayOrderNumberArray;
+    
+        if (viewRoom?.ReservedBeds !== 0) {
+          buddhaSevenData = await prisma.buddha_seven_apply_view.findMany({
+            where: {
+              RoomId: viewRoom?.RoomId,
+            },
+            select: {
+              Name: true,
+              DharmaName: true,
+              StayIdentityName: true,
+              RoomId: true,
+              BedStayOrderNumber: true,
+              CheckInDate:true,
+              CheckOutDate:true,
+              Status:true,
+            }
+          });
+          if (buddhaSevenData.length >= 1) {
+            [BedStayOrderNumber1, BedStayOrderNumber2] = buddhaSevenData;
+            BedStayOrderNumberArray = { userOne: BedStayOrderNumber1, userTwo: BedStayOrderNumber2 };
+          } else {
+            BedStayOrderNumberArray = buddhaSevenData;
+          }
+        }
+        return {
+          ...room,
+          ...viewRoom,
+          ...roomType,
+          ...viewAreaBuildList,
+          ...(BedStayOrderNumberArray || {})
+        };
+      })
+    );
+
 
     return responseSuccess("查詢成功", { rooms: mergedData });
   }
@@ -72,6 +183,49 @@ export class RoomsController extends Controller {
   @Get("{id}")
   @SuccessResponse(StatusCodes.OK, "查詢成功")
   @Response(StatusCodes.BAD_REQUEST, "查無此 Room Id")
+  @Example({
+    status: true,
+    message: "查詢成功",
+    data: {
+      mergedData: {
+        Id: 10101,
+        DormitoryAreaId: 1,
+        BuildingId: 1,
+        ShareId: 1,
+        RoomType: 1,
+        IsMale: false,
+        TotalBeds: 2,
+        ReservedBeds: 2,
+        IsActive: true,
+        UpdateAt: "2023-05-15T23:56:03.000Z",
+        RoomId: 10101,
+        DormitoryAreaName: "彌陀家族",
+        BuildingName: "A",
+        RoomTypeName: "一般寮房",
+        GenderName: "女",
+        userOne: {
+          Name: "陳忠義",
+          DharmaName: "普聞",
+          StayIdentityName: "佛七蓮友",
+          RoomId: 10101,
+          BedStayOrderNumber: 1,
+          CheckInDate: "2023-06-09T00:00:00.000Z",
+          CheckOutDate: "2023-06-07T00:00:00.000Z",
+          Status: "已報到佛七",
+        },
+        userTwo: {
+          Name: "林信義",
+          DharmaName: "普乙",
+          StayIdentityName: "常住法眷",
+          RoomId: 10101,
+          BedStayOrderNumber: 2,
+          CheckInDate: "2023-06-09T00:00:00.000Z",
+          CheckOutDate: "2023-06-15T00:00:00.000Z",
+          Status: "已報到佛七",
+        },
+      },
+    },
+  })
   public async getRoom(
     @Path() id: number,
     @Res()
@@ -112,11 +266,42 @@ export class RoomsController extends Controller {
         (buildList) => buildList.Id === room.Id
       );
 
+      let buddhaSevenData;
+      let BedStayOrderNumber1;
+      let BedStayOrderNumber2;
+      let BedStayOrderNumberArray
+      if (viewRoom?.ReservedBeds !== 0) {
+        buddhaSevenData = await prisma.buddha_seven_apply_view.findMany({
+          where: {
+            RoomId: id,
+          },
+          select: {
+            Name: true,
+            DharmaName: true,
+            StayIdentityName: true,
+            RoomId: true,
+            BedStayOrderNumber: true,
+            CheckInDate:true,
+            CheckOutDate:true,
+            Status:true,
+          }
+        });
+        if (buddhaSevenData.length >= 1) {
+          [BedStayOrderNumber1, BedStayOrderNumber2] = buddhaSevenData
+          BedStayOrderNumberArray = { userOne: BedStayOrderNumber1, userTwo: BedStayOrderNumber2 };
+        }else{
+          BedStayOrderNumberArray=buddhaSevenData
+        }
+      }
+      
+
+      
       mergedData = {
         ...(room || {}),
         ...(viewRoom || {}),
         ...(roomType || {}),
-        ...(viewAreaBuildList || {})
+        ...(viewAreaBuildList || {}),
+        ...(BedStayOrderNumberArray || {})
       };
     } else {
       return errorResponse(StatusCodes.BAD_REQUEST, {
