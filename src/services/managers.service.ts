@@ -3,6 +3,12 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 import { TsoaResponse } from "src/utils/responseTsoaError";
 import axios from "axios";
+import passport from "passport";
+import {
+  Strategy as GoogleStrategy,
+  VerifyCallback,
+  VerifyFunction
+} from "passport-google-oauth2";
 
 import {
   GetManyRequest,
@@ -16,6 +22,38 @@ import {
 import { responseSuccess } from "../utils/responseSuccess";
 import prisma from "../configs/prismaClient";
 import { generateAndSendJWT } from "./auth/jwtToken.service";
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      callbackURL: process.env.GOOGLE_CALLBACK_URL as string
+    },
+    async (
+      accessToken: string,
+      refreshToken: string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      profile: any,
+      done: VerifyCallback
+    ) => {
+      console.log("google passport");
+      console.log(profile);
+
+      try {
+        const user = await prisma.managers.findUnique({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          where: { Google: profile.id as string }
+        });
+        return done(null, user);
+      } catch (err) {
+        return done(err);
+      }
+    }
+  )
+);
+
+// passport.authenticate("google", { scope: ["email", "profile"] });
 
 /* eslint-disable class-methods-use-this */
 export class ManagersService {
