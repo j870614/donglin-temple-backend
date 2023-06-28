@@ -289,7 +289,8 @@ export class ManagersService {
     >,
     isFrontEndSeparate = false,
   ) {
-    const { code, state } = lineLoginRequest;    const lineUserId = await this.verifyLineLogin(code, state, errorResponse, isFrontEndSeparate);
+    const { code, state } = lineLoginRequest;    
+    const lineUserId = await this.verifyLineLogin(code, state, errorResponse, isFrontEndSeparate);
 
     const manager = await prisma.managers.findUnique({
       where: {
