@@ -41,6 +41,7 @@ export interface UserCreateRequest {
   EatBreakfast?: boolean;
   EatLunch?: boolean;
   EatDinner?: boolean;
+  Area?: string;
   Address?: Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue;
   Remarks?: string;
 }

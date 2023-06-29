@@ -313,8 +313,8 @@ export class UsersController extends Controller {
   })
   public async updateUser(
     @Path() id: number,
-    // @Body() updateData: Partial<UserCreateRequest>,
-    @Body() updateData: Prisma.usersUpdateInput,
+    @Body() updateData: Partial<UserCreateRequest>,
+    // @Body() updateData: Prisma.usersUpdateInput,
     @Res()
     errorResponse: TsoaResponse<
       StatusCodes.BAD_REQUEST,
@@ -337,8 +337,8 @@ export class UsersController extends Controller {
     // 住眾身分別 StayIdentity 字串轉 ItemId
     const { StayIdentity, Expertise, HealthStatus } = updateData;
     let parsedStayIdentity: number;
-    const parsedExpertise = prismaJsonParser(Expertise);
-    const parsedHealthStatus = prismaJsonParser(HealthStatus);
+    const parsedExpertise = Expertise && prismaJsonParser(Expertise);
+    const parsedHealthStatus = HealthStatus && prismaJsonParser(HealthStatus);
     if (typeof StayIdentity === "string") {
       parsedStayIdentity = await this.changeToItemId(StayIdentity);
       if (!parsedStayIdentity) {
