@@ -127,9 +127,11 @@ model user_auth_qr_codes {
   EndTime         DateTime? @db.DateTime(0)
   AuthorizeUserId Int       @db.UnsignedInt
   HasUsed         Boolean?  @default(false)
+  IsActive        Boolean?  @default(true)
 
   @@unique([QRCode, EndTime, HasUsed], map: "idx_user_auth_qr_codes_QRCode_EndTime_HasUsed")
   @@index([DeaconId, UserId], map: "idx_user_auth_qr_codes_DeaconId_UserId")
+  @@index([DeaconId, UserId, ChurchId], map: "idx_user_auth_qr_codes_DeaconId_UserId_ChurchId")
 }
 
 model user_authorizes {
@@ -249,7 +251,7 @@ view room_type_list {
 }
 
 view rooms_dormitory_area_building_list {
-  Id                Int     @unique @default(0)
+  Id                Int  @unique @default(0)
   DormitoryAreaId   Int     @db.TinyInt
   DormitoryAreaName String? @db.VarChar(20)
   BuildingId        Int     @db.TinyInt
@@ -354,23 +356,23 @@ view buddha_seven_apply_view {
 }
 
 view user_auth_qr_codes_view {
-  Id                  Int     @unique @default(0)
-  UserId              Int     @db.UnsignedInt
-  Gender              String  @default("") @db.VarChar(1)
-  DharmaName          String? @db.VarChar(50)
-  Name                String? @db.VarChar(50)
-  ChurchId            Int?    @db.SmallInt
-  ChurchName          String? @db.VarChar(20)
-  DeaconId            Int?    @db.SmallInt
-  DeaconName          String? @db.VarChar(20)
-  AuthorizeUserId     Int     @db.UnsignedInt
-  AuthorizeName       String? @db.VarChar(50)
-  AuthorizeDate       String? @db.VarChar(10)
-  Status              String  @default("") @db.VarChar(7)
+  Id              Int     @unique @default(0)
+  UserId          Int     @db.UnsignedInt
+  Gender          String  @default("") @db.VarChar(1)
+  DharmaName      String? @db.VarChar(50)
+  Name            String? @db.VarChar(50)
+  ChurchId        Int?    @db.SmallInt
+  ChurchName      String? @db.VarChar(20)
+  DeaconId        Int?    @db.SmallInt
+  DeaconName      String? @db.VarChar(20)
+  AuthorizeUserId Int     @db.UnsignedInt
+  AuthorizeName   String? @db.VarChar(50)
+  AuthorizeDate   String? @db.VarChar(10)
+  Status          String  @default("") @db.VarChar(7)
 }
 
 view user_permissions_view {
-  UserId              Int      @unique @db.UnsignedInt
+  UserId              Int     @unique @db.UnsignedInt
   IsSystemAdmin       Boolean? @default(false)
   HasBuddhaSevenApply Boolean? @default(false)
   HasRefugeApply      Boolean? @default(false)
@@ -378,4 +380,53 @@ view user_permissions_view {
   HasRoomApply        Boolean? @default(false)
   HasRoomInfo         Boolean? @default(false)
   HasArrangeService   Boolean? @default(false)
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+view user_view {
+  Id                Int       @unique @db.UnsignedInt
+  MobilePrefix      String?   @db.VarChar(5)
+  Mobile            String?   @db.VarChar(20)
+  Name              String?   @db.VarChar(50)
+  DharmaName        String?   @db.VarChar(50)
+  MageNickname      String?   @db.VarChar(50)
+  LineId            String?   @db.VarChar(255)
+  Email             String?   @db.VarChar(255)
+  IsMonk            Boolean   @default(false)
+  StayIdentityName  String?   @db.VarChar(20)
+  IsMale            Boolean   @default(true)
+  BirthDate         DateTime? @db.Date
+  IdNumber          String?   @db.VarChar(10)
+  PassportNumber    String?   @db.VarChar(20)
+  BirthPlace        String?   @db.VarChar(10)
+  Phone             String?   @db.VarChar(20)
+  Ordination        String?   @db.VarChar(20)
+  Altar             String?   @db.VarChar(20)
+  ShavedMaster      String?   @db.VarChar(50)
+  ShavedDate        DateTime? @db.Date
+  OrdinationTemple  String?   @db.VarChar(50)
+  OrdinationDate    DateTime? @db.Date
+  ResidentialTemple String?   @db.VarChar(50)
+  RefugueMaster     String?   @db.VarChar(50)
+  RefugueDate       DateTime? @db.Date
+  Referrer          String?   @db.VarChar(50)
+  ClothType         String?   @db.VarChar(5)
+  ClothSize         String?   @db.VarChar(4)
+  EmergencyName     String?   @db.VarChar(50)
+  EmergencyPhone    String?   @db.VarChar(20)
+  Relationship      String?   @db.VarChar(20)
+  Expertise         Json?
+  Education         String?   @db.VarChar(500)
+  ComeTempleReason  String?   @db.VarChar(500)
+  HealthStatus      Json?
+  EatBreakfast      Boolean   @default(false)
+  EatLunch          Boolean   @default(false)
+  EatDinner         Boolean   @default(false)
+  Address           Json?
+  Area              String?   @db.VarChar(10)
+  Height            Int?      @db.UnsignedSmallInt
+  Weight            Int?      @db.UnsignedSmallInt
+  BloodType         String?   @db.VarChar(2)
+  Remarks           String?   @db.VarChar(255)
+  UpdateAt          DateTime  @default(now()) @db.DateTime(0)
 }

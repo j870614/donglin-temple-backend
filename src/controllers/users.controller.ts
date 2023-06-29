@@ -96,7 +96,7 @@ export class UsersController extends Controller {
     @Query() take = 100,
     @Query() skip = 0
   ) {
-    const allUsers = await prisma.users.findMany({
+    const allUsers = await prisma.user_view.findMany({
       orderBy: { Id: order },
       take,
       skip
@@ -174,7 +174,7 @@ export class UsersController extends Controller {
       { status: false; message?: string }
     >
   ) {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.user_view.findUnique({
       where: {
         Id: id
       }
