@@ -36,7 +36,22 @@ FROM
     (
       (
         (
-          `users`.`user_auth_qr_codes` `u`
+          (
+            SELECT
+              `users`.`user_auth_qr_codes`.`Id` AS `Id`,
+              `users`.`user_auth_qr_codes`.`UserId` AS `UserId`,
+              `users`.`user_auth_qr_codes`.`ChurchId` AS `ChurchId`,
+              `users`.`user_auth_qr_codes`.`DeaconId` AS `DeaconId`,
+              `users`.`user_auth_qr_codes`.`QRCode` AS `QRCode`,
+              `users`.`user_auth_qr_codes`.`EndTime` AS `EndTime`,
+              `users`.`user_auth_qr_codes`.`AuthorizeUserId` AS `AuthorizeUserId`,
+              `users`.`user_auth_qr_codes`.`HasUsed` AS `HasUsed`,
+              `users`.`user_auth_qr_codes`.`IsActive` AS `IsActive`
+            FROM
+              `users`.`user_auth_qr_codes`
+            WHERE
+              (`users`.`user_auth_qr_codes`.`IsActive` = 1)
+          ) `u`
           LEFT JOIN `users`.`user_church_name_list` `c` ON((`u`.`ChurchId` = `users`.`c`.`ChurchId`))
         )
         LEFT JOIN `users`.`user_deacon_name_list` `d` ON((`u`.`DeaconId` = `users`.`d`.`DeaconId`))
