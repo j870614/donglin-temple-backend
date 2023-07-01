@@ -210,7 +210,7 @@ export class BuddhaSevenCheckInController extends Controller {
   ) {
     const isExisted = await this._buddhaSevenCheckIn.findOneByIdAndStatus(
       id,
-      BuddhaSevenApplyStatus.APPLIED
+      BuddhaSevenApplyStatus.ROOM_APPLIED
     );
     if (!isExisted) {
       return errorResponse(StatusCodes.BAD_REQUEST, {
